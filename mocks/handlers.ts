@@ -1,20 +1,21 @@
 import { auth } from "@/firebase/firebaseAuth";
 import { db } from "@/firebase/firebaseDB";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { rest } from "msw";
 
 export const handlers = [
   // 회원가입 mocking API
-  rest.post("http://localhost:3000/test", async (req, res, ctx) => {
-    const { email, password, nickname, gender, height, weight } = await req.json();
+  rest.post("http://localhost:3000/signup", async (req, res, ctx) => {
+    const { email, password, keywords, gender, height, weight } = await req.json();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, "users", email), {
-        nickname,
+        email,
         gender,
         height,
         weight,
+        keywords,
       });
       return res(ctx.status(201), ctx.json({ success: true }), ctx.json({ message: "회원 가입에 성공하였습니다." }));
     } catch (error) {
@@ -67,10 +68,12 @@ export const handlers = [
   // 이메일 중복 확인 mocking API
   rest.post("http://localhost:3000/emailcheck", async (req, res, ctx) => {
     const { email } = await req.json();
-    const querySnapshot = await getDoc(doc(db, "users"));
-    const users = querySnapshot.data();
+    const userRef = collection(db, "users");
+    const q = query(userRef, where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+    const emailExists = !querySnapshot.empty;
     try {
-      if (users![email]) {
+      if (emailExists === true) {
         alert("이미 존재하는 이메일입니다.");
         return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "이미 존재하는 이메일입니다." }));
       } else {
@@ -83,6 +86,15 @@ export const handlers = [
         ctx.json({ success: false }),
         ctx.json({ message: "이메일 중복 확인에 실패하였습니다." }),
       );
+    }
+  }),
+  // 로그아웃 mocking API
+  rest.get("http://localhost:3000/signout", async (req, res, ctx) => {
+    try {
+      localStorage.removeItem("user");
+      return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "로그아웃에 성공하였습니다." }));
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "로그아웃에 실패하였습니다." }));
     }
   }),
 ];
