@@ -159,9 +159,18 @@ export default function signup() {
   };
 
   // 회원가입 버튼
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // 회원가입 API에 formData를 전송하는 로직 구현
+    // 회원가입 API에 formdata 전송
+    const { email, password, keywords, gender, height, weight, nickname } = formData;
+    try {
+      const response = await axios.post("/signup", { email, password, keywords, gender, height, weight, nickname });
+      console.log(response);
+      // 중복 여부에 따른 처리
+    } catch (error) {
+      console.error(error);
+    }
+
     console.log(formData);
   };
 

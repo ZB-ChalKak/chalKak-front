@@ -7,7 +7,7 @@ import { rest } from "msw";
 export const handlers = [
   // 회원가입 mocking API
   rest.post("http://localhost:3000/signup", async (req, res, ctx) => {
-    const { email, password, keywords, gender, height, weight } = await req.json();
+    const { email, password, keywords, gender, height, weight, nickname } = await req.json();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, "users", email), {
@@ -16,6 +16,7 @@ export const handlers = [
         height,
         weight,
         keywords,
+        nickname,
       });
       return res(ctx.status(201), ctx.json({ success: true }), ctx.json({ message: "회원 가입에 성공하였습니다." }));
     } catch (error) {
