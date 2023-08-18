@@ -89,6 +89,29 @@ export const handlers = [
       );
     }
   }),
+  //닉네임 중복검사
+  rest.post("http://localhost:3000/nicknamecheck", async (req, res, ctx) => {
+    const { nickname } = await req.json();
+    const userRef = collection(db, "users");
+    const q = query(userRef, where("nickname", "==", nickname));
+    const querySnapshot = await getDocs(q);
+    const emailExists = !querySnapshot.empty;
+    try {
+      if (emailExists === true) {
+        // alert("이미 존재하는 닉네임입니다.");
+        return res(ctx.status(200), ctx.json({ success: true, message: "이미 존재하는 닉네임입니다." }));
+      } else {
+        // alert("사용 가능한 닉네임입니다.");
+        return res(ctx.status(200), ctx.json({ success: true, message: "사용 가능한 닉네임입니다." }));
+      }
+    } catch (error) {
+      return res(
+        ctx.status(400),
+        ctx.json({ success: false }),
+        ctx.json({ message: "닉네임 중복 확인에 실패하였습니다." }),
+      );
+    }
+  }),
   // 로그아웃 mocking API
   rest.get("http://localhost:3000/signout", async (req, res, ctx) => {
     try {

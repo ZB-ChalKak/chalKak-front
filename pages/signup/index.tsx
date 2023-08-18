@@ -32,6 +32,7 @@ export default function signup() {
   const [heightTouched, setHeightTouched] = useState(false);
   const [weightTouched, setWeightTouched] = useState(false);
   const [emailDuplicated, setEmailDuplicated] = useState(false);
+  const [nicknameDuplicated, setNicknameDuplicated] = useState(false);
   const [formData, setFormData] = useState<SignUpData>({
     email: "",
     password: "",
@@ -43,8 +44,31 @@ export default function signup() {
     keywords: keywords,
   });
 
-  // 이메일 중복 확인
+  const debouncedCheckNicknameDuplication = debounce(checkNicknameDuplication, 500);
 
+  // 닉네임 중복 확인
+  async function checkNicknameDuplication(nickname: string) {
+    try {
+      const response = await axios.post("http://localhost:3000/nicknamecheck", { nickname });
+      console.log(response);
+      // 중복 여부에 따른 처리
+      if (response.data.message === "이미 존재하는 닉네임입니다.") {
+        setNicknameDuplicated(true);
+      } else {
+        setNicknameDuplicated(false);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    if (nicknameTouched && checkNicknameFormat(formData.nickname)) {
+      debouncedCheckNicknameDuplication(formData.nickname);
+    }
+  }, [formData.nickname, nicknameTouched]);
+
+  // 이메일 중복 확인
   async function checkEmailDuplication(email: string) {
     try {
       const response = await axios.post("http://localhost:3000/emailcheck", { email });
@@ -248,6 +272,7 @@ export default function signup() {
               }}
             />
             {invalidNickname && <p className="text-red-500 text-xs mt-1">닉네임 양식이 올바르지 않습니다</p>}
+            {nicknameDuplicated && <p className="text-red-500 text-xs mt-1">중복된 닉네임입니다.</p>}
           </div>
           <div className="flex w-full">
             <div className="w-1/3 ">
@@ -341,6 +366,8 @@ export default function signup() {
             passwordMismatch ||
             invalidNickname ||
             emailDuplicated ||
+            nicknameDuplicated ||
+            !nicknameTouched ||
             !nicknameTouched ||
             !emailTouched ||
             !passwordTouched ||
