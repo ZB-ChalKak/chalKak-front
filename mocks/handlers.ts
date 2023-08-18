@@ -74,11 +74,11 @@ export const handlers = [
     const emailExists = !querySnapshot.empty;
     try {
       if (emailExists === true) {
-        alert("이미 존재하는 이메일입니다.");
-        return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "이미 존재하는 이메일입니다." }));
+        // alert("이미 존재하는 이메일입니다.");
+        return res(ctx.status(200), ctx.json({ success: true, message: "이미 존재하는 이메일입니다." }));
       } else {
-        alert("사용 가능한 이메일입니다.");
-        return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "사용 가능한 이메일입니다." }));
+        // alert("사용 가능한 이메일입니다.");
+        return res(ctx.status(200), ctx.json({ success: true, message: "사용 가능한 이메일입니다." }));
       }
     } catch (error) {
       return res(
