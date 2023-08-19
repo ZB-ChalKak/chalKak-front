@@ -1,9 +1,9 @@
 import { ChangeEvent, FormEvent, FunctionComponent, useEffect, useState } from "react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
+import { FiAlertCircle } from "react-icons/fi";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 // 이메일과 비밀번호를 포함한 객체
 interface LoginData {
@@ -46,21 +46,6 @@ export default function Login() {
       setLoginFailed(true);
     }
   }
-
-  // 구글 로그인
-  const handleGoogleLogin = async () => {
-    const auth = getAuth();
-    const provider = new GoogleAuthProvider();
-
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log(user);
-      router.push('/');
-    } catch (error) {
-      console.log('message');
-    }
-  };
 
   // 이메일 양식 확인
   const checkEmailFormat = (email: string) => {
@@ -120,8 +105,8 @@ export default function Login() {
     }, [loginFailed]); 
 
     return (
-      <div className="flex items-center justify-center bg-white ml-6">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] flex items-center justify-center bg-white ml-6">
+        <FiAlertCircle className="w-[20px] h-[20px]"color="#FF4500" />
         <span className="font-medium text-center text-xs p-2">이메일 또는 비밀번호를 확인해주세요.</span>
         <button onClick={() => setLoginFailed(false)} className="ml-4 focus:outline-none">
           &times;
@@ -135,7 +120,7 @@ export default function Login() {
       <Alert loginFailed={loginFailed} setLoginFailed={setLoginFailed} />
       <div className="w-full flex flex-col items-center justify-center bg-white">
         <div className="p-6">
-          <h2 className="text-2xl font-medium mt-3 pl-4 text-center leading-9 text-gray-800">로그인</h2>
+          <h2 className="text-2xl font-medium mt-3 pl-3 text-center leading-9 text-gray-800">로그인</h2>
         </div>
 
         <div className="mt-[60px] mx-4 w-[500px] h-[600px]">
@@ -214,9 +199,7 @@ export default function Login() {
           </div>
 
           <div className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer">
-            <FcGoogle 
-              className="w-[34px] h-[34px]"
-              onClick={handleGoogleLogin} />
+            <FcGoogle className="w-[34px] h-[34px]" />
           </div>
         </div>
       </div>
