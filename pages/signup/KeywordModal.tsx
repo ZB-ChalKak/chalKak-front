@@ -10,10 +10,10 @@ interface Props {
 
 const KeywordModal: React.FC<Props> = ({ isOpen, onClose, keywords, setKeywords }) => {
   const handleConfirm = () => {
-    // 저장된 키워드를 처리하고 모달을 닫기
     onClose();
   };
 
+  // 키워드 체인지
   const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const keyword = e.target.value;
     if (e.target.checked) {
@@ -23,11 +23,13 @@ const KeywordModal: React.FC<Props> = ({ isOpen, onClose, keywords, setKeywords 
       } else {
         e.target.checked = false;
       }
+      // 키워드리스트에서 빼기
     } else {
       setKeywords(keywords.filter((kw) => kw !== keyword));
     }
   };
 
+  // 키워드 리스트 보여주기
   const renderKeywordsList = () => {
     return keywords.map((keyword, index) => (
       <div key={`keyword_${index}`} className="inline-block mr-2">

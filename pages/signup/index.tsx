@@ -44,13 +44,12 @@ export default function signup() {
     keywords: keywords,
   });
 
+  // 닉네임 중복 확인
   const debouncedCheckNicknameDuplication = debounce(checkNicknameDuplication, 500);
 
-  // 닉네임 중복 확인
   async function checkNicknameDuplication(nickname: string) {
     try {
       const response = await axios.post("http://localhost:3000/nicknamecheck", { nickname });
-      console.log(response);
       // 중복 여부에 따른 처리
       if (response.data.message === "이미 존재하는 닉네임입니다.") {
         setNicknameDuplicated(true);
@@ -72,10 +71,8 @@ export default function signup() {
   async function checkEmailDuplication(email: string) {
     try {
       const response = await axios.post("http://localhost:3000/emailcheck", { email });
-      console.log(response);
       // 중복 여부에 따른 처리
       if (response.data.message === "이미 존재하는 이메일입니다.") {
-        console.log("ok");
         setEmailDuplicated(true);
       } else {
         setEmailDuplicated(false);
@@ -94,9 +91,9 @@ export default function signup() {
     }
   }, [formData.email, emailTouched]);
 
+  // 키워드 모달 창 클릭 핸들러
   const handleOpenModal = () => {
     setIsModalOpen(true);
-    console.log(isModalOpen);
   };
 
   const handleCloseModal = () => {
@@ -104,7 +101,7 @@ export default function signup() {
     setFormData({ ...formData, keywords: keywords });
   };
 
-  //키워드 삭제 버튼 클릭 핸들러
+  //키워드별 삭제 버튼 클릭 핸들러
   const removeKeyword = (removeItem: string) => {
     setKeywords(keywords.filter((keyword) => keyword !== removeItem));
   };
@@ -133,13 +130,13 @@ export default function signup() {
     return nicknamePattern.test(nickname);
   };
 
-  // forData 작성
+  // formData 작성
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // 정보 유효성 검사
+  // 입력값 정보 유효성 검사
   const handleChangeValid = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -190,7 +187,7 @@ export default function signup() {
     try {
       const response = await axios.post("/signup", { email, password, keywords, gender, height, weight, nickname });
       console.log(response);
-      // 중복 여부에 따른 처리
+      //이메일 인증 구현 예정
     } catch (error) {
       console.error(error);
     }
