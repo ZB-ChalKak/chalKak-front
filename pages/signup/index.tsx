@@ -1,5 +1,7 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import KeywordModal from "./KeywordModal";
+import axios from "axios";
+import debounce from "lodash.debounce";
 
 type Gender = "male" | "female";
 
@@ -10,6 +12,7 @@ interface SignUpData {
   gender: Gender;
   height: number;
   weight: number;
+  nickname: string;
   keywords: string[];
 }
 
@@ -18,14 +21,18 @@ export default function signup() {
   const [invalidPassword, setInvalidPassword] = useState(false);
   const [invalidHeight, setInvalidHeight] = useState(false);
   const [invalidWeight, setInvalidWeight] = useState(false);
+  const [invalidNickname, setInvalidNickname] = useState(false);
   const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [nicknameTouched, setNicknamewordTouched] = useState(false);
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false);
   const [heightTouched, setHeightTouched] = useState(false);
   const [weightTouched, setWeightTouched] = useState(false);
+  const [emailDuplicated, setEmailDuplicated] = useState(false);
+  const [nicknameDuplicated, setNicknameDuplicated] = useState(false);
   const [formData, setFormData] = useState<SignUpData>({
     email: "",
     password: "",
@@ -33,12 +40,60 @@ export default function signup() {
     gender: "male",
     height: 0,
     weight: 0,
+    nickname: "",
     keywords: keywords,
   });
 
+  // 닉네임 중복 확인
+  const debouncedCheckNicknameDuplication = debounce(checkNicknameDuplication, 500);
+
+  async function checkNicknameDuplication(nickname: string) {
+    try {
+      const response = await axios.post("http://localhost:3000/nicknamecheck", { nickname });
+      // 중복 여부에 따른 처리
+      if (response.data.message === "이미 존재하는 닉네임입니다.") {
+        setNicknameDuplicated(true);
+      } else {
+        setNicknameDuplicated(false);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    if (nicknameTouched && checkNicknameFormat(formData.nickname)) {
+      debouncedCheckNicknameDuplication(formData.nickname);
+    }
+  }, [formData.nickname, nicknameTouched]);
+
+  // 이메일 중복 확인
+  async function checkEmailDuplication(email: string) {
+    try {
+      const response = await axios.post("http://localhost:3000/emailcheck", { email });
+      // 중복 여부에 따른 처리
+      if (response.data.message === "이미 존재하는 이메일입니다.") {
+        setEmailDuplicated(true);
+      } else {
+        setEmailDuplicated(false);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const debouncedCheckEmailDuplication = debounce(checkEmailDuplication, 500);
+
+  // 이메일 중복 처리
+  useEffect(() => {
+    if (emailTouched && checkEmailFormat(formData.email)) {
+      debouncedCheckEmailDuplication(formData.email);
+    }
+  }, [formData.email, emailTouched]);
+
+  // 키워드 모달 창 클릭 핸들러
   const handleOpenModal = () => {
     setIsModalOpen(true);
-    console.log(isModalOpen);
   };
 
   const handleCloseModal = () => {
@@ -46,7 +101,7 @@ export default function signup() {
     setFormData({ ...formData, keywords: keywords });
   };
 
-  //키워드 삭제 버튼 클릭 핸들러
+  //키워드별 삭제 버튼 클릭 핸들러
   const removeKeyword = (removeItem: string) => {
     setKeywords(keywords.filter((keyword) => keyword !== removeItem));
   };
@@ -63,17 +118,25 @@ export default function signup() {
     return passwordPattern.test(password);
   };
 
+  // 체형 양식 확인
   const checkBodyFormat = (input: string) => {
     const inputPattern = /^\d{1,3}$/;
     return inputPattern.test(input);
   };
 
+  // 닉네임 양식 확인
+  const checkNicknameFormat = (nickname: string) => {
+    const nicknamePattern = /(^[a-zA-Z]{4,16}$)|(^[가-힣]{2,8}$)/;
+    return nicknamePattern.test(nickname);
+  };
+
+  // formData 작성
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // 정보 유효성 검사
+  // 입력값 정보 유효성 검사
   const handleChangeValid = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -107,13 +170,28 @@ export default function signup() {
       } else {
         setInvalidWeight(true);
       }
+    } else if (name === "nickname") {
+      if (checkNicknameFormat(value)) {
+        setInvalidNickname(false);
+      } else {
+        setInvalidNickname(true);
+      }
     }
   };
 
   // 회원가입 버튼
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // 회원가입 API에 formData를 전송하는 로직 구현
+    // 회원가입 API에 formdata 전송
+    const { email, password, keywords, gender, height, weight, nickname } = formData;
+    try {
+      const response = await axios.post("/signup", { email, password, keywords, gender, height, weight, nickname });
+      console.log(response);
+      //이메일 인증 구현 예정
+    } catch (error) {
+      console.error(error);
+    }
+
     console.log(formData);
   };
 
@@ -139,7 +217,10 @@ export default function signup() {
                 setEmailTouched(true);
               }}
             />
-            {invalidEmail && <p className="text-red-500 text-xs mt-1">이메일 양식이 잘못되었습니다.</p>}
+            {invalidEmail && <p className="text-red-500 text-xs mt-1">이메일 양식이 올바르지 않습니다.</p>}
+            {emailDuplicated && (
+              <p className="text-red-500 text-xs mt-1">이미 사용 중인 이메일입니다. 다른 이메일을 사용해주세요.</p>
+            )}
           </div>
           <div>
             <p className="text-md font-bold mb-[-10px] mt-2">비밀번호</p> <br />
@@ -155,7 +236,7 @@ export default function signup() {
                 setPasswordTouched(true);
               }}
             />
-            {invalidPassword && <p className="text-red-500 text-xs mt-1">비밀번호 형식이 맞지 않습니다.</p>}
+            {invalidPassword && <p className="text-red-500 text-xs mt-1">비밀번호 양식이 올바르지 않습니다.</p>}
           </div>
           <div>
             <p className="text-md font-bold mb-[-10px] mt-2">비밀번호 확인</p> <br />
@@ -172,6 +253,23 @@ export default function signup() {
               }}
             />
             {passwordMismatch && <p className="text-red-500 text-xs mt-1">비밀번호가 일치하지 않습니다.</p>}
+          </div>
+          <div>
+            <p className="text-md font-bold mb-[-10px] mt-2">닉네임</p> <br />
+            <input
+              type="text"
+              className="border-b border-gray-200 w-[500px] pb-2 text-sm focus:border-gray-700 transition-colors ease-in duration-100"
+              name="nickname"
+              placeholder="영문 4-16자 이내, 한글 2-8자 이내, 초성, 특수문자 및 공백 사용 불가"
+              value={formData.nickname}
+              onChange={(e) => {
+                handleChange(e);
+                handleChangeValid(e);
+                setNicknamewordTouched(true);
+              }}
+            />
+            {invalidNickname && <p className="text-red-500 text-xs mt-1">닉네임 양식이 올바르지 않습니다</p>}
+            {nicknameDuplicated && <p className="text-red-500 text-xs mt-1">중복된 닉네임입니다.</p>}
           </div>
           <div className="flex w-full">
             <div className="w-1/3 ">
@@ -201,7 +299,7 @@ export default function signup() {
                     />
                     cm
                   </div>
-                  {invalidHeight && <p className="text-red-500 text-xs mt-1">체형 정보가 잘못되었습니다.</p>}
+                  {invalidHeight && <p className="text-red-500 text-xs mt-1">숫자로만 입력해주세요.</p>}
                 </div>
                 <div className="flex flex-col items-center w-1/2">
                   <div className="flex items-center">
@@ -219,7 +317,7 @@ export default function signup() {
                     />
                     kg
                   </div>
-                  {invalidWeight && <p className="text-red-500 text-xs pr-1 mt-1">체형 정보가 잘못되었습니다.</p>}
+                  {invalidWeight && <p className="text-red-500 text-xs pr-1 mt-1">숫자로만 입력해주세요.</p>}
                 </div>
               </div>
             </div>
@@ -257,6 +355,11 @@ export default function signup() {
             {invalidEmail ||
             invalidPassword ||
             passwordMismatch ||
+            invalidNickname ||
+            emailDuplicated ||
+            nicknameDuplicated ||
+            !nicknameTouched ||
+            !nicknameTouched ||
             !emailTouched ||
             !passwordTouched ||
             !passwordConfirmTouched ||
