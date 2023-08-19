@@ -7,7 +7,7 @@ import { rest } from "msw";
 export const handlers = [
   // 회원가입 mocking API
   rest.post("http://localhost:3000/signup", async (req, res, ctx) => {
-    const { email, password, keywords, gender, height, weight } = await req.json();
+    const { email, password, keywords, gender, height, weight, nickname } = await req.json();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, "users", email), {
@@ -16,6 +16,7 @@ export const handlers = [
         height,
         weight,
         keywords,
+        nickname,
       });
       return res(ctx.status(201), ctx.json({ success: true }), ctx.json({ message: "회원 가입에 성공하였습니다." }));
     } catch (error) {
@@ -74,17 +75,40 @@ export const handlers = [
     const emailExists = !querySnapshot.empty;
     try {
       if (emailExists === true) {
-        alert("이미 존재하는 이메일입니다.");
-        return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "이미 존재하는 이메일입니다." }));
+        // alert("이미 존재하는 이메일입니다.");
+        return res(ctx.status(200), ctx.json({ success: true, message: "이미 존재하는 이메일입니다." }));
       } else {
-        alert("사용 가능한 이메일입니다.");
-        return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "사용 가능한 이메일입니다." }));
+        // alert("사용 가능한 이메일입니다.");
+        return res(ctx.status(200), ctx.json({ success: true, message: "사용 가능한 이메일입니다." }));
       }
     } catch (error) {
       return res(
         ctx.status(400),
         ctx.json({ success: false }),
         ctx.json({ message: "이메일 중복 확인에 실패하였습니다." }),
+      );
+    }
+  }),
+  //닉네임 중복검사
+  rest.post("http://localhost:3000/nicknamecheck", async (req, res, ctx) => {
+    const { nickname } = await req.json();
+    const userRef = collection(db, "users");
+    const q = query(userRef, where("nickname", "==", nickname));
+    const querySnapshot = await getDocs(q);
+    const emailExists = !querySnapshot.empty;
+    try {
+      if (emailExists === true) {
+        // alert("이미 존재하는 닉네임입니다.");
+        return res(ctx.status(200), ctx.json({ success: true, message: "이미 존재하는 닉네임입니다." }));
+      } else {
+        // alert("사용 가능한 닉네임입니다.");
+        return res(ctx.status(200), ctx.json({ success: true, message: "사용 가능한 닉네임입니다." }));
+      }
+    } catch (error) {
+      return res(
+        ctx.status(400),
+        ctx.json({ success: false }),
+        ctx.json({ message: "닉네임 중복 확인에 실패하였습니다." }),
       );
     }
   }),
