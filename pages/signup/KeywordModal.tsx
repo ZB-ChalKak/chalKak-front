@@ -8,7 +8,7 @@ interface Props {
   setKeywords: (keywords: string[]) => void;
 }
 
-const KeywordModal: React.FC<Props> = ({ isOpen, onClose, keywords, setKeywords }) => {
+const KeywordModal = ({ isOpen, onClose, keywords, setKeywords }: Props): JSX.Element => {
   const handleConfirm = () => {
     onClose();
   };

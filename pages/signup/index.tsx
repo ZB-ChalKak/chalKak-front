@@ -299,9 +299,7 @@ export default function signup() {
                     />
                     cm
                   </div>
-                  {invalidHeight && (
-                    <p className="text-red-500 text-xs mt-1">체형 정보가 올바르지 않습니다. 숫자로만 입력해주세요.</p>
-                  )}
+                  {invalidHeight && <p className="text-red-500 text-xs mt-1">숫자로만 입력해주세요.</p>}
                 </div>
                 <div className="flex flex-col items-center w-1/2">
                   <div className="flex items-center">
@@ -319,11 +317,7 @@ export default function signup() {
                     />
                     kg
                   </div>
-                  {invalidWeight && (
-                    <p className="text-red-500 text-xs pr-1 mt-1">
-                      체형 정보가 올바르지 않습니다. 숫자로만 입력해주세요.
-                    </p>
-                  )}
+                  {invalidWeight && <p className="text-red-500 text-xs pr-1 mt-1">숫자로만 입력해주세요.</p>}
                 </div>
               </div>
             </div>
