@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Main from "./main/index";
 import "../public/fonts/font.css";
 import "../public/fonts/notoSansKr.css";
+import { RecoilRoot } from "recoil";
 
 export default function App({ Component, pageProps }: AppProps) {
   if (process.env.NODE_ENV === "development") {
@@ -20,7 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }
   return (
-    <>
+    <RecoilRoot>
       <div className="wrap">
         <div className="container">
           <Navbar />
@@ -28,6 +29,6 @@ export default function App({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </div>
       </div>
-    </>
+    </RecoilRoot>
   );
 }
