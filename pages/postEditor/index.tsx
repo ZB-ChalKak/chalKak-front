@@ -165,7 +165,7 @@ const HomePage = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-[600px] m-auto">
+    <div className="w-[600px] m-auto">
       <div>
         <ImageUpload />
       </div>
@@ -183,8 +183,9 @@ const HomePage = () => {
           placeholder="키워드를 입력하세요"
           value={dynamicKeywordInput}
           onChange={handleDynamicKeywordInput}
-          onKeyDown={handleDynamicKeywordSubmit}
+          onKeyUp={handleDynamicKeywordSubmit}
         />
+        <input type="text" className="hidden" />
       </div>
       <div className="w-[600px] mb-5">
         <h2 className="mb-2">스타일 키워드</h2>
@@ -209,10 +210,10 @@ const HomePage = () => {
           ))}
         </div>
       </div>
-      <button type="submit" className="btn mb-20">
+      <button onClick={handleSubmit} type="submit" className="btn mb-20">
         제출
       </button>
-    </form>
+    </div>
   );
 };
 
