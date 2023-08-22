@@ -1,10 +1,9 @@
-// ImagePreview.tsx
 import React, { useState, ChangeEvent } from "react";
 import { useRecoilState } from "recoil";
-import { uploadedImageUrlsState } from "../../utils/atoms";
+import { uploadedImageFilesState } from "../../utils/atoms";
 
 const ImageUpload = () => {
-  const [uploadedImageUrls, setUploadedImageUrls] = useRecoilState(uploadedImageUrlsState);
+  const [uploadedImageFiles, setUploadedImageFiles] = useRecoilState(uploadedImageFilesState);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -12,11 +11,13 @@ const ImageUpload = () => {
 
     const files = e.target.files;
     if (files) {
-      const imageURLs = Array.from(files).map((file) => URL.createObjectURL(file));
+      const fileArray = Array.from(files);
+
+      const imageURLs = fileArray.map((file) => URL.createObjectURL(file));
       setPreviews([...previews, ...imageURLs]);
 
-      // Recoil 상태 변경
-      setUploadedImageUrls([...uploadedImageUrls, ...imageURLs]);
+      // Recoil 상태 업데이트
+      setUploadedImageFiles([...uploadedImageFiles, ...fileArray]);
     }
 
     e.target.value = "";
@@ -24,15 +25,15 @@ const ImageUpload = () => {
 
   return (
     <div>
-      <div className="flex overflow-auto p-3">
+      <div className="flex overflow-auto">
         {previews.map((preview, index) => (
           <img key={index} src={preview} alt={`Preview ${index + 1}`} className="h-[300px] w-[230px] mr-3" />
         ))}
+        <input type="file" id="file-input" onChange={handleImageChange} accept="image/*" multiple className="hidden" />
+        <label htmlFor="file-input" className="btn h-[300px] w-[230px]  ">
+          <p className=" text-5xl font-light">+</p>
+        </label>
       </div>
-      <input type="file" id="file-input" onChange={handleImageChange} accept="image/*" multiple className="hidden" />
-      <label htmlFor="file-input" className="btn m-5">
-        이미지 선택
-      </label>
     </div>
   );
 };
