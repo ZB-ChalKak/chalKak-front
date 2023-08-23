@@ -4,23 +4,15 @@ import axios from "axios";
 import { uploadedImageFilesState } from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import KeywordCheckbox from "./KeywordCheckbox";
+import KeywordRadioButton from "./KeywordRadioButton";
 
-const styleKeywordList = [
-  "아메카지",
-  "원마일웨어",
-  "미니멀",
-  "댄디",
-  "비즈니스",
-  "캐주얼",
-  "빈티지",
-  "스트릿",
-  "스포티",
-];
-const tpoKeywordList = ["데이트", "하객", "여행", "출근"];
-
-const seasonKeywordList = ["봄", "여름", "가을", "겨울"];
-
-const weatherKeywordList = ["맑음", "흐림", "비", "눈"];
+const keywordList = {
+  style: ["아메카지", "원마일웨어", "미니멀", "댄디", "비즈니스", "캐주얼", "빈티지", "스트릿", "스포티"],
+  tpo: ["데이트", "하객", "여행", "출근"],
+  season: ["봄", "여름", "가을", "겨울"],
+  weather: ["맑음", "흐림", "비", "눈"],
+};
 
 interface postingData {
   content: string;
@@ -39,6 +31,7 @@ const HomePage = () => {
   const [weatherKeywords, setWeatherKeywords] = useState<string[]>([]);
   const [content, setContent] = useState<string>("");
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<postingData>({
     content: "",
     dynamicKeywords: dynamicKeywords,
@@ -60,20 +53,26 @@ const HomePage = () => {
   }, [uploadedImageFiles, staticKeywords, dynamicKeywords, weatherKeywords, seasonKeywords]);
 
   const handleDynamicKeywordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDynamicKeywordInput(e.target.value);
+    if (!isSubmitting) {
+      setDynamicKeywordInput(e.target.value);
+    }
   };
 
   const handleDynamicKeywordSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && dynamicKeywordInput.trim() !== "") {
+    if (e.key === "Enter") {
       e.preventDefault();
+
+      setIsSubmitting(true);
 
       // 중복 키워드 확인
       if (dynamicKeywords.includes(dynamicKeywordInput.trim()) || staticKeywords.includes(dynamicKeywordInput.trim())) {
-        alert("이미 있는 키워드입니다!"); // 이미 있는 키워드일 경우 alert 표시
+        alert("이미 있는 키워드입니다!");
       } else {
         setDynamicKeywords([...dynamicKeywords, dynamicKeywordInput.trim()]);
         setDynamicKeywordInput("");
       }
+
+      setIsSubmitting(false);
     }
   };
 
@@ -84,7 +83,7 @@ const HomePage = () => {
 
     if (isChecked) {
       // 이전 계절 키워드를 제거한 후 새로운 계절 키워드 추가
-      _keywords = _keywords.filter((k) => !seasonKeywordList.includes(k));
+      _keywords = _keywords.filter((k) => !keywordList.season.includes(k));
       _keywords.push(keyword);
     } else {
       // 현재 계절 키워드 제거
@@ -118,86 +117,45 @@ const HomePage = () => {
     }
   };
 
-  // Style Keyword Checkboxes
-  const styleKeywordCheckboxes = styleKeywordList.map((keyword) => (
-    <div key={keyword}>
-      <input
-        type="checkbox"
-        id={keyword}
-        value={keyword}
-        onChange={onKeywordCheckboxChange}
-        className="hidden peer"
-        checked={staticKeywords.includes(keyword)}
-      />
-      <label
-        htmlFor={keyword}
-        className="badge badge-outline peer-checked:bg-slate-700 peer-checked:text-white p-3 m-1 text-xs whitespace-nowrap"
-      >
-        {keyword}
-      </label>
-    </div>
+  // 스타일키워드
+  const styleKeywordCheckboxes = keywordList.style.map((keyword) => (
+    <KeywordCheckbox
+      key={keyword}
+      keyword={keyword}
+      isChecked={staticKeywords.includes(keyword)}
+      onChange={onKeywordCheckboxChange}
+    />
+  ));
+  // tpo키워드
+  const tpoKeywordCheckboxes = keywordList.tpo.map((keyword) => (
+    <KeywordCheckbox
+      key={keyword}
+      keyword={keyword}
+      isChecked={staticKeywords.includes(keyword)}
+      onChange={onKeywordCheckboxChange}
+    />
   ));
 
-  // TPO Keyword Checkboxes
-  const tpoKeywordCheckboxes = tpoKeywordList.map((keyword) => (
-    <div key={keyword}>
-      <input
-        type="checkbox"
-        id={keyword}
-        value={keyword}
-        onChange={onKeywordCheckboxChange}
-        className="hidden peer"
-        checked={staticKeywords.includes(keyword)}
-      />
-      <label
-        htmlFor={keyword}
-        className="badge badge-outline peer-checked:bg-slate-700 peer-checked:text-white p-3 m-1 text-xs whitespace-nowrap"
-      >
-        {keyword}
-      </label>
-    </div>
+  // 계절 키워드
+  const seasonKeywordCheckboxes = keywordList.season.map((keyword) => (
+    <KeywordRadioButton
+      key={keyword}
+      name={"season"}
+      keyword={keyword}
+      isChecked={seasonKeywords.includes(keyword)}
+      onChange={onSeasonKeywordRadioButtonChange}
+    />
   ));
 
-  // Season Keyword Checkboxes
-  const seasonKeywordCheckboxes = seasonKeywordList.map((keyword) => (
-    <div key={keyword}>
-      <input
-        type="radio" // 체크박스에서 라디오 버튼으로 변경
-        id={keyword}
-        value={keyword}
-        name="season" // 동일한 이름을 사용해서 라디오 그룹 생성
-        onChange={onSeasonKeywordRadioButtonChange}
-        className="hidden peer"
-        checked={seasonKeywords.includes(keyword)}
-      />
-      <label
-        htmlFor={keyword}
-        className="badge badge-outline peer-checked:bg-slate-700 peer-checked:text-white p-3 m-1 text-xs whitespace-nowrap"
-      >
-        {keyword}
-      </label>
-    </div>
-  ));
-
-  // Weather Keyword Checkboxes
-  const weatherKeywordCheckboxes = weatherKeywordList.map((keyword) => (
-    <div key={keyword}>
-      <input
-        type="radio" // 체크박스에서 라디오 버튼으로 변경
-        id={keyword}
-        value={keyword}
-        name="weather" // 동일한 이름을 사용해서 라디오 그룹 생성
-        onChange={onWeatherKeywordRadioButtonChange}
-        className="hidden peer"
-        checked={weatherKeywords.includes(keyword)}
-      />
-      <label
-        htmlFor={keyword}
-        className="badge badge-outline peer-checked:bg-slate-700 peer-checked:text-white p-3 m-1 text-xs whitespace-nowrap"
-      >
-        {keyword}
-      </label>
-    </div>
+  // 날씨 키워드
+  const weatherKeywordCheckboxes = keywordList.weather.map((keyword) => (
+    <KeywordRadioButton
+      key={keyword}
+      name={"weather"}
+      keyword={keyword}
+      isChecked={weatherKeywords.includes(keyword)}
+      onChange={onWeatherKeywordRadioButtonChange}
+    />
   ));
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -216,15 +174,15 @@ const HomePage = () => {
 
     const submissionFormData = new FormData();
 
-    // 이미지 파일을 formData에 추가
     uploadedImageFiles.forEach((file, index) => {
       submissionFormData.append(`image-${index}`, file);
     });
 
-    // content, staticKeywords, dynamicKeywords 데이터를 formData에 추가
     submissionFormData.append("content", content);
     submissionFormData.append("staticKeywords", staticKeywords.join(","));
     submissionFormData.append("dynamicKeywords", dynamicKeywords.join(","));
+    submissionFormData.append("seasonKeyword", seasonKeywords.join(","));
+    submissionFormData.append("weatherKeyword", weatherKeywords.join(","));
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -233,8 +191,6 @@ const HomePage = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      // 서버로부터 반환된 데이터를 처리하는 로직
     } catch (error) {
       console.error(error);
     }
@@ -283,7 +239,7 @@ const HomePage = () => {
           placeholder="키워드를 입력하세요"
           value={dynamicKeywordInput}
           onChange={handleDynamicKeywordInput}
-          onKeyUp={handleDynamicKeywordSubmit}
+          onKeyDown={handleDynamicKeywordSubmit}
         />
         <input type="text" className="hidden" />
       </div>
