@@ -60,7 +60,6 @@ const HomePage = () => {
   const handleDynamicKeywordSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && dynamicKeywordInput.trim() !== "") {
       e.preventDefault();
-
       // 중복 키워드 확인
       if (dynamicKeywords.includes(dynamicKeywordInput.trim()) || staticKeywords.includes(dynamicKeywordInput.trim())) {
         alert("이미 있는 키워드입니다!"); // 이미 있는 키워드일 경우 alert 표시
@@ -183,7 +182,8 @@ const HomePage = () => {
           placeholder="키워드를 입력하세요"
           value={dynamicKeywordInput}
           onChange={handleDynamicKeywordInput}
-          onKeyDown={handleDynamicKeywordSubmit}
+          onKeyUp={handleDynamicKeywordSubmit}
+          autoComplete="off"
         />
       </div>
       <div className="w-[600px] mb-5">

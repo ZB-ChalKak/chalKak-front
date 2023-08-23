@@ -21,7 +21,7 @@ const Carousel:React.FC<CarouselProps> = ({ settings, children }) => {
     const finalSettings = settings ? { ...defaultSettings, ...settings } : defaultSettings;
 
     return (
-        <div className="container mx-auto">
+        <div>
             <Slider {...finalSettings}>
                 {children}
             </Slider>

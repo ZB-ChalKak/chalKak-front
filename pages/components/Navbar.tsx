@@ -1,12 +1,12 @@
-import Image from "next/image";
 import Link from "next/link";
+import { CgProfile } from "react-icons/cg";
 
 export default function Navbar() {
   return (
     <>
-      <div className="navbar bg-base-100">
+      <div className="h-[50px] navbar bg-base-100">
         <div className="flex-1">
-          <Link href={"/"} className="ml-7 normal-case text-3xl title ">
+          <Link href={"/"} className="ml-6 normal-case text-3xl title ">
             #찰칵
           </Link>
         </div>
@@ -20,8 +20,9 @@ export default function Navbar() {
           </div>
           <div className="dropdown dropdown-end mb-2">
             <label tabIndex={0} className="btn-circle avatar cursor-pointer">
-              <div className="w-20 rounded-full">
-                <Image src="/images/카카오.jpg" width={200} height={200} alt="profile-img" />
+              <div className="mt-[6px]">
+                <CgProfile className="w-[32px] h-[32px]"/>
+                {/* <Image src="/images/카카오.jpg" width={200} height={200} alt="profile-img" /> */}
               </div>
             </label>
             <ul tabIndex={0} className="z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-32">
@@ -36,6 +37,10 @@ export default function Navbar() {
             </ul>
           </div>
         </div>
+      </div>
+      <div className="flex items-center justify-start border-b pb-2">
+        <button className="mr-4 text-lg ml-6">팔로잉</button>
+        <button className="text-lg">추천</button>
       </div>
     </>
   );

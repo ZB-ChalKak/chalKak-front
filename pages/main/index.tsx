@@ -28,7 +28,7 @@ const keywords: Keyword[] = [
 // 날씨 기반 스타일 추천 캐러셀
 const CarouselContent: React.FC<{ imageUrl: string }> = ({ imageUrl }) => (
     <div className="bg-white flex flex-direction-row cursor-pointer overflow-hidden">
-        <img src={imageUrl} alt="sample" className="w-[400px] h-[580px] max-w-full max-h-full" />
+        <img src={imageUrl} alt="sample" className="" />
     </div>
 );
 
@@ -72,35 +72,39 @@ const Main = () => {
     }
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="mt-[16px] container mx-auto">
-                <div className="mt-10 text-xl pl-6">오늘 날씨와 어울리는 스타일</div>
-                <div className="mt-6 pl-6">
+        <div className="w-full h-full bg-white">
+            <div className="max-auto">
+                <div className="mt-6 ml-6 text-m text-gray-400">현재 날씨 🌤️ </div>
+                <div className="mt-8 text-xl ml-6 font-bold">오늘 날씨와 어울리는 스타일</div>
+                <div className="mt-6 ml-4">
                     <Carousel>
-                        {sampleImages.map((image, index) => (
-                            <CarouselContent key={index} imageUrl={image.image} />
-                        ))}
+                    {sampleImages.map((image, index) => (
+                        <CarouselContent key={index} imageUrl={image.image} />
+                    ))}
                     </Carousel>
                 </div>
-
-
-                <div className="text-2xl pl-6">키워드 추천</div>
-                <div className="mt-10">
-                    <div className="ml-10 flex flex-wrap justify-flex-start gap-4">
-                        <div className="bg-white text-black py-[6px] px-5 border rounded-full flex items-center cursor-pointer">
-                            <AiOutlineBars 
-                                className="w-[24px] h-[24px] cursor-pointer" 
-                                onClick={showModal} />
-                        </div>
-                        {keywords.map((keyword) => (
-                            <div 
-                                key={keyword.title} 
-                                className="bg-white text-black py-[7px] px-5 border rounded-full cursor-pointer text-sm">
+    
+                <div className="mt-12">
+                    <div className="text-xl ml-6 font-bold">키워드 추천</div>
+                    <div className="mt-6">
+                        <div className="ml-6 flex flex-wrap justify-flex-start gap-4">
+                            <div className="bg-white text-black py-[4px] px-3 border rounded-full flex items-center cursor-pointer">
+                                <AiOutlineBars
+                                className="w-[16px] h-[16px] cursor-pointer"
+                                onClick={showModal}
+                                />
+                            </div>
+                            {keywords.map((keyword) => (
+                            <div
+                                key={keyword.title}
+                                className="bg-white text-black py-[4px] px-4 border rounded-full cursor-pointer text-xs"
+                                >
                                 <p>{keyword.title}</p>
                             </div>
                         ))}
+                        </div>
+                        {isModalVisible && modal()}
                     </div>
-                    {isModalVisible && modal()}
                 </div>
             </div>
         </div>

@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Navbar from "./components/Navbar";
-import Main from "./main/index";
 import "../public/fonts/font.css";
 import "../public/fonts/notoSansKr.css";
 import { RecoilRoot } from "recoil";
@@ -25,7 +24,6 @@ export default function App({ Component, pageProps }: AppProps) {
       <div className="wrap">
         <div className="container">
           <Navbar />
-          <Main />
           <Component {...pageProps} />
         </div>
       </div>
