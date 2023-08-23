@@ -1,7 +1,22 @@
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 export default function Navbar() {
+  const router = useRouter();
+  const handleLogout = async () => {
+    try {
+      const response = await axios.get("/signout");
+      console.log(response);
+      if (response.status === 200) {
+        router.push("/");
+        localStorage.removeItem("user");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <div className="h-[50px] navbar bg-base-100">
@@ -32,7 +47,7 @@ export default function Navbar() {
                 </Link>
               </li>
               <li>
-                <a>Logout</a>
+                <a onClick={handleLogout}>Logout</a>
               </li>
             </ul>
           </div>

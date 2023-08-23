@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 
-export const uploadedImageUrlsState = atom<string[]>({
-  key: "uploadedImageUrlsState",
+export const uploadedImageFilesState = atom<File[]>({
+  key: "uploadedImageFilesState",
   default: [],
 });

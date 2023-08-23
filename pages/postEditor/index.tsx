@@ -1,149 +1,161 @@
 // HomePage.tsx
 import { useRecoilState } from "recoil";
-import { uploadedImageUrlsState } from "../../utils/atoms";
+import axios from "axios";
+import { uploadedImageFilesState } from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import KeywordCheckbox from "./KeywordCheckbox";
+import KeywordRadioButton from "./KeywordRadioButton";
 
-const styleKeywordList = [
-  "아메카지",
-  "원마일웨어",
-  "미니멀",
-  "댄디",
-  "비즈니스",
-  "캐주얼",
-  "빈티지",
-  "스트릿",
-  "스포티",
-];
-const tpoKeywordList = ["데이트", "하객", "여행", "출근"];
-
-const seasonKeywordList = ["봄", "여름", "가을", "겨울"];
+const keywordList = {
+  style: ["아메카지", "원마일웨어", "미니멀", "댄디", "비즈니스", "캐주얼", "빈티지", "스트릿", "스포티"],
+  tpo: ["데이트", "하객", "여행", "출근"],
+  season: ["봄", "여름", "가을", "겨울"],
+  weather: ["맑음", "흐림", "비", "눈"],
+};
 
 interface postingData {
   content: string;
   staticKeywords: string[];
   dynamicKeywords: string[];
-  uploadedImageUrls: string[];
+  seasonKeywords: string[];
+  weatherKeywords: string[];
+  uploadedImageFiles: File[];
 }
 
 const HomePage = () => {
-  const [uploadedImageUrls] = useRecoilState(uploadedImageUrlsState);
+  const [uploadedImageFiles] = useRecoilState(uploadedImageFilesState);
   const [staticKeywords, setStaticKeywords] = useState<string[]>([]);
   const [dynamicKeywords, setDynamicKeywords] = useState<string[]>([]);
+  const [seasonKeywords, setSeasonKeywords] = useState<string[]>([]);
+  const [weatherKeywords, setWeatherKeywords] = useState<string[]>([]);
   const [content, setContent] = useState<string>("");
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<postingData>({
     content: "",
     dynamicKeywords: dynamicKeywords,
     staticKeywords: staticKeywords,
-    uploadedImageUrls: uploadedImageUrls,
+    uploadedImageFiles: uploadedImageFiles,
+    seasonKeywords: seasonKeywords,
+    weatherKeywords: weatherKeywords,
   });
 
   useEffect(() => {
     setFormData((prevFormData) => ({
       ...prevFormData,
-      uploadedImageUrls: uploadedImageUrls,
+      uploadedImageFiles,
+      staticKeywords,
+      dynamicKeywords,
+      weatherKeywords,
+      seasonKeywords,
     }));
-  }, [uploadedImageUrls]);
-
-  useEffect(() => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      staticKeywords: staticKeywords,
-    }));
-  }, [staticKeywords]);
+  }, [uploadedImageFiles, staticKeywords, dynamicKeywords, weatherKeywords, seasonKeywords]);
 
   const handleDynamicKeywordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDynamicKeywordInput(e.target.value);
+    if (!isSubmitting) {
+      setDynamicKeywordInput(e.target.value);
+    }
   };
 
   const handleDynamicKeywordSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && dynamicKeywordInput.trim() !== "") {
+    if (e.key === "Enter") {
       e.preventDefault();
+
+      setIsSubmitting(true);
+
       // 중복 키워드 확인
       if (dynamicKeywords.includes(dynamicKeywordInput.trim()) || staticKeywords.includes(dynamicKeywordInput.trim())) {
-        alert("이미 있는 키워드입니다!"); // 이미 있는 키워드일 경우 alert 표시
+        alert("이미 있는 키워드입니다!");
       } else {
         setDynamicKeywords([...dynamicKeywords, dynamicKeywordInput.trim()]);
         setDynamicKeywordInput("");
       }
+
+      setIsSubmitting(false);
     }
   };
 
-  const onKeywordCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onKeywordCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
     const keyword = e.target.value;
-    if (e.target.checked) {
-      setStaticKeywords([...staticKeywords, keyword]);
+    const isChecked = e.target.checked;
+    let _keywords = [...staticKeywords];
+
+    if (isChecked) {
+      // 이전 계절 키워드를 제거한 후 새로운 계절 키워드 추가
+      _keywords = _keywords.filter((k) => !keywordList.season.includes(k));
+      _keywords.push(keyword);
     } else {
-      setStaticKeywords(staticKeywords.filter((currentKeyword) => currentKeyword !== keyword));
+      // 현재 계절 키워드 제거
+      _keywords.splice(_keywords.indexOf(keyword), 1);
+    }
+
+    setStaticKeywords(_keywords);
+  };
+
+  // 게절 체인지
+  const onSeasonKeywordRadioButtonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const keyword = e.target.value;
+    const isChecked = e.target.checked;
+
+    if (isChecked) {
+      setSeasonKeywords([keyword]);
+    } else {
+      setSeasonKeywords(seasonKeywords.filter((seasonKeyword) => seasonKeyword !== keyword));
     }
   };
 
-  useEffect(() => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      dynamicKeywords: dynamicKeywords,
-    }));
-  }, [dynamicKeywords]);
+  // 날씨 체인지
+  const onWeatherKeywordRadioButtonChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const keyword = e.target.value;
+    const isChecked = e.target.checked;
 
-  // Style Keyword Checkboxes
-  const styleKeywordCheckboxes = styleKeywordList.map((keyword) => (
-    <div key={keyword}>
-      <input
-        type="checkbox"
-        id={keyword}
-        value={keyword}
-        onChange={onKeywordCheckboxChange}
-        className="hidden peer"
-        checked={staticKeywords.includes(keyword)}
-      />
-      <label
-        htmlFor={keyword}
-        className="badge badge-outline peer-checked:bg-slate-700 peer-checked:text-white p-3 m-1 text-xs whitespace-nowrap"
-      >
-        {keyword}
-      </label>
-    </div>
+    if (isChecked) {
+      setWeatherKeywords([keyword]);
+    } else {
+      setWeatherKeywords(weatherKeywords.filter((weatherKeyword) => weatherKeyword !== keyword));
+    }
+  };
+
+  // 스타일키워드
+  const styleKeywordCheckboxes = keywordList.style.map((keyword) => (
+    <KeywordCheckbox
+      key={keyword}
+      keyword={keyword}
+      isChecked={staticKeywords.includes(keyword)}
+      onChange={onKeywordCheckboxChange}
+    />
+  ));
+  // tpo키워드
+  const tpoKeywordCheckboxes = keywordList.tpo.map((keyword) => (
+    <KeywordCheckbox
+      key={keyword}
+      keyword={keyword}
+      isChecked={staticKeywords.includes(keyword)}
+      onChange={onKeywordCheckboxChange}
+    />
   ));
 
-  // TPO Keyword Checkboxes
-  const tpoKeywordCheckboxes = tpoKeywordList.map((keyword) => (
-    <div key={keyword}>
-      <input
-        type="checkbox"
-        id={keyword}
-        value={keyword}
-        onChange={onKeywordCheckboxChange}
-        className="hidden peer"
-        checked={staticKeywords.includes(keyword)}
-      />
-      <label
-        htmlFor={keyword}
-        className="badge badge-outline peer-checked:bg-slate-700 peer-checked:text-white p-3 m-1 text-xs whitespace-nowrap"
-      >
-        {keyword}
-      </label>
-    </div>
+  // 계절 키워드
+  const seasonKeywordCheckboxes = keywordList.season.map((keyword) => (
+    <KeywordRadioButton
+      key={keyword}
+      name={"season"}
+      keyword={keyword}
+      isChecked={seasonKeywords.includes(keyword)}
+      onChange={onSeasonKeywordRadioButtonChange}
+    />
   ));
 
-  // Season Keyword Checkboxes
-  const seasonKeywordCheckboxes = seasonKeywordList.map((keyword) => (
-    <div key={keyword}>
-      <input
-        type="checkbox"
-        id={keyword}
-        value={keyword}
-        onChange={onKeywordCheckboxChange}
-        className="hidden peer"
-        checked={staticKeywords.includes(keyword)}
-      />
-      <label
-        htmlFor={keyword}
-        className="badge badge-outline peer-checked:bg-slate-700 peer-checked:text-white p-3 m-1 text-xs whitespace-nowrap"
-      >
-        {keyword}
-      </label>
-    </div>
+  // 날씨 키워드
+  const weatherKeywordCheckboxes = keywordList.weather.map((keyword) => (
+    <KeywordRadioButton
+      key={keyword}
+      name={"weather"}
+      keyword={keyword}
+      isChecked={weatherKeywords.includes(keyword)}
+      onChange={onWeatherKeywordRadioButtonChange}
+    />
   ));
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -157,59 +169,100 @@ const HomePage = () => {
     }));
   }, [content]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // api 로직 수행
-    console.log(formData);
+
+    const submissionFormData = new FormData();
+
+    // uploadedImageFiles.forEach((file, index) => {
+    //   submissionFormData.append(`image-${index}`, file);
+    // });
+
+    uploadedImageFiles.forEach((file, index) => {
+      submissionFormData.append(`image-${index}`, file);
+    });
+
+    submissionFormData.append("content", content);
+    submissionFormData.append("staticKeywords", staticKeywords.join(","));
+    submissionFormData.append("dynamicKeywords", dynamicKeywords.join(","));
+    submissionFormData.append("seasonKeyword", seasonKeywords.join(","));
+    submissionFormData.append("weatherKeyword", weatherKeywords.join(","));
+
+    try {
+      await axios.post("/postEditor", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+    console.dir(1, Object.entries(submissionFormData));
+    console.log(2, formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-[600px] m-auto">
-      <div>
+    <form onSubmit={handleSubmit} className="w-[600px] m-auto" encType="multipart/form-data">
+      <div className="mb-5">
         <ImageUpload />
       </div>
       <textarea
         placeholder="내용 입력"
-        className="textarea textarea-bordered textarea-sm w-full max-w-2xl my-5"
+        className="textarea textarea-bordered textarea-sm resize-none w-full max-w-2xl my-5"
         value={content}
         onChange={handleContentChange}
       ></textarea>
+      <div className="mb-5">
+        {dynamicKeywords.map((keyword) => (
+          <div key={keyword} className="inline-block m-1 text-violet-400 ">
+            #{keyword}
+          </div>
+        ))}
+        {staticKeywords.map((keyword) => (
+          <div key={keyword} className="inline-block m-1">
+            #{keyword}
+          </div>
+        ))}
+        {seasonKeywords.map((keyword) => (
+          <div key={keyword} className="inline-block m-1">
+            #{keyword}
+          </div>
+        ))}
+        {weatherKeywords.map((keyword) => (
+          <div key={keyword} className="inline-block m-1">
+            #{keyword}
+          </div>
+        ))}
+      </div>
       <div>
-        <h2 className="mb-2">동적 키워드</h2>
+        <h2 className="mb-2">TAG</h2>
         <input
           type="text"
-          className="border-b border-gray-200 w-[600px] mb-5"
+          className="border-b border-gray-200 w-[600px] mb-7 py-2"
           placeholder="키워드를 입력하세요"
           value={dynamicKeywordInput}
           onChange={handleDynamicKeywordInput}
           onKeyUp={handleDynamicKeywordSubmit}
           autoComplete="off"
         />
+        <input type="text" className="hidden" />
       </div>
       <div className="w-[600px] mb-5">
-        <h2 className="mb-2">스타일 키워드</h2>
-        <div className="flex">{styleKeywordCheckboxes}</div>
-        <div className="flex">{tpoKeywordCheckboxes}</div>
-      </div>
-      <div>
-        <h2 className="mb-2">계절 키워드</h2>
-        <div className="flex mb-5">{seasonKeywordCheckboxes}</div>
-      </div>
-      <div className="mb-2">
-        <div className="mb-2">
-          {dynamicKeywords.map((keyword) => (
-            <div key={keyword} className="inline-block m-1 badge badge-primary badge-outline">
-              #{keyword}
-            </div>
-          ))}
-          {staticKeywords.map((keyword) => (
-            <div key={keyword} className="inline-block m-1 badge badge-secondary badge-outline">
-              #{keyword}
-            </div>
-          ))}
+        <h2 className="mb-2">STYLE</h2>
+        <div className="w-[600px] mb-5">
+          <div className="flex">{styleKeywordCheckboxes}</div>
+          <div className="flex">{tpoKeywordCheckboxes}</div>
         </div>
       </div>
-      <button type="submit" className="btn mb-20">
+      <div className="mb-5">
+        <h2 className="mb-2">SEASON*</h2>
+        <div className="flex ">{seasonKeywordCheckboxes}</div>
+      </div>
+      <div>
+        <h2 className="mb-2">WEATHER*</h2>
+        <div className="flex ">{weatherKeywordCheckboxes}</div>
+      </div>
+      <button type="submit" className="btn-neutral w-[600px] p-3 rounded-full text-sm my-10">
         제출
       </button>
     </form>
