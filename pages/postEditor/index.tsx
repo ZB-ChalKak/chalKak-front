@@ -174,6 +174,10 @@ const HomePage = () => {
 
     const submissionFormData = new FormData();
 
+    // uploadedImageFiles.forEach((file, index) => {
+    //   submissionFormData.append(`image-${index}`, file);
+    // });
+
     uploadedImageFiles.forEach((file, index) => {
       submissionFormData.append(`image-${index}`, file);
     });
@@ -185,8 +189,7 @@ const HomePage = () => {
     submissionFormData.append("weatherKeyword", weatherKeywords.join(","));
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const response = await axios.post("/your-api-endpoint", submissionFormData, {
+      await axios.post("/postEditor", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -194,8 +197,8 @@ const HomePage = () => {
     } catch (error) {
       console.error(error);
     }
-
-    console.log(formData);
+    console.dir(1, Object.entries(submissionFormData));
+    console.log(2, formData);
   };
 
   return (
