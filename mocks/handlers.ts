@@ -10,18 +10,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  serverTimestamp,
-  setDoc,
-  where,
-} from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { rest } from "msw";
 import axios from "axios";
@@ -173,22 +162,21 @@ export const handlers = [
   rest.post("http://localhost:3000/postEditor", async (req, res, ctx) => {
     const user = localStorage.getItem("user");
     const { email } = JSON.parse(user as string);
-    const { content, dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords, uploadedImageFiles } =
+    const { content, dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords, uploadedImageUrls } =
       await req.json();
-    const imagesArr = [];
-
     try {
-      for (const uploadedFile of uploadedImageFiles) {
-        // const response = await fetch(uploadedFile);
-        // const blob = await response.blob();
+      const imagesArr = [];
+      for (const file of uploadedImageUrls) {
+        const response = await fetch(file);
+        const blob = await response.blob();
         const uniqueId = uuidv4();
         const storageRef = ref(storage, `postImages/${uniqueId}`);
-        await uploadBytes(storageRef, uploadedFile);
+        await uploadBytes(storageRef, blob);
         const url = await getDownloadURL(storageRef);
         imagesArr.push({ url });
       }
-
-      await addDoc(collection(db, "posts"), {
+      const docRef = doc(collection(db, "posts", email, "articles"));
+      await setDoc(docRef, {
         email,
         content,
         dynamicKeywords,
@@ -199,25 +187,16 @@ export const handlers = [
         createdAt: serverTimestamp(),
       });
 
-      return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "게시글 작성에 성공하였습니다." }));
+      return res(
+        ctx.status(200),
+        ctx.set("Content-Type", "multipart/form-data"),
+        ctx.json({ success: true }),
+        ctx.json({ message: "게시글 작성에 성공하였습니다." }),
+      );
     } catch (error) {
       return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "게시글 작성에 실패하였습니다." }));
     }
   }),
-  // 게시글 불러오기 mocking API
-  // rest.get(`http://localhost:3000/post/${uid}`, async (req, res, ctx) => {}),
-  // 게시글 수정 mocking API
-
-  // 게시글 삭제 mocking API
-
-  // 댓글 작성 mocking API
-
-  // 댓글 불러오기 mocking API
-
-  // 댓글 수정 mocking API
-
-  // 댓글 삭제 mocking API
-
   //날씨 정보 불러오기 mocking API
   rest.post("http://localhost:3000/weather", async (req, res, ctx) => {
     const { lat, lon } = await req.json();
@@ -246,25 +225,3 @@ export const handlers = [
     }
   }),
 ];
-
-{
-  /* 
-{
-  "latitude": 35.1,
-  "longitude": 129.0,
-  "generationtime_ms": 0.8410215377807617,
-  "utc_offset_seconds": 32400,
-  "timezone": "Asia/Seoul",
-  "timezone_abbreviation": "KST",
-  "elevation": 16.0,
-  "current_weather": {
-    "temperature": 29.7,
-    "windspeed": 11.4,
-    "winddirection": 191,
-    "weathercode": 3,
-    "is_day": 1,
-    "time": "2023-08-23T15:00"
-  }
-}
-*/
-}

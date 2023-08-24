@@ -1,7 +1,7 @@
 // HomePage.tsx
 import { useRecoilState } from "recoil";
 import axios from "axios";
-import { uploadedImageFilesState } from "../../utils/atoms";
+import { uploadedImageFilesState, uploadedImageUrlsState } from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import KeywordCheckbox from "./KeywordCheckbox";
@@ -21,9 +21,13 @@ interface postingData {
   seasonKeywords: string[];
   weatherKeywords: string[];
   uploadedImageFiles: File[];
+  uploadedImageUrls: string[];
 }
 
 const HomePage = () => {
+  // blob
+  const [uploadedImageUrls] = useRecoilState(uploadedImageUrlsState);
+  // file
   const [uploadedImageFiles] = useRecoilState(uploadedImageFilesState);
   const [staticKeywords, setStaticKeywords] = useState<string[]>([]);
   const [dynamicKeywords, setDynamicKeywords] = useState<string[]>([]);
@@ -31,7 +35,6 @@ const HomePage = () => {
   const [weatherKeywords, setWeatherKeywords] = useState<string[]>([]);
   const [content, setContent] = useState<string>("");
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<postingData>({
     content: "",
     dynamicKeywords: dynamicKeywords,
@@ -39,6 +42,7 @@ const HomePage = () => {
     uploadedImageFiles: uploadedImageFiles,
     seasonKeywords: seasonKeywords,
     weatherKeywords: weatherKeywords,
+    uploadedImageUrls: uploadedImageUrls,
   });
 
   useEffect(() => {
@@ -49,33 +53,29 @@ const HomePage = () => {
       dynamicKeywords,
       weatherKeywords,
       seasonKeywords,
+      uploadedImageUrls,
     }));
-  }, [uploadedImageFiles, staticKeywords, dynamicKeywords, weatherKeywords, seasonKeywords]);
+  }, [uploadedImageFiles, staticKeywords, dynamicKeywords, weatherKeywords, seasonKeywords, uploadedImageUrls]);
 
   const handleDynamicKeywordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isSubmitting) {
-      setDynamicKeywordInput(e.target.value);
-    }
+    setDynamicKeywordInput(e.target.value);
   };
 
   const handleDynamicKeywordSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
 
-      setIsSubmitting(true);
+      if (dynamicKeywordInput.trim() === "") return;
 
       // 중복 키워드 확인
       if (dynamicKeywords.includes(dynamicKeywordInput.trim()) || staticKeywords.includes(dynamicKeywordInput.trim())) {
-        alert("이미 있는 키워드입니다!");
+        alert("이미 있는 키워드입니다!"); // 이미 있는 키워드일 경우 alert 표시
       } else {
         setDynamicKeywords([...dynamicKeywords, dynamicKeywordInput.trim()]);
         setDynamicKeywordInput("");
       }
-
-      setIsSubmitting(false);
     }
   };
-
   const onKeywordCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
     const keyword = e.target.value;
     const isChecked = e.target.checked;
@@ -174,10 +174,6 @@ const HomePage = () => {
 
     const submissionFormData = new FormData();
 
-    // uploadedImageFiles.forEach((file, index) => {
-    //   submissionFormData.append(`image-${index}`, file);
-    // });
-
     uploadedImageFiles.forEach((file, index) => {
       submissionFormData.append(`image-${index}`, file);
     });
@@ -189,20 +185,17 @@ const HomePage = () => {
     submissionFormData.append("weatherKeyword", weatherKeywords.join(","));
 
     try {
-      await axios.post("/postEditor", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      await axios.post("/postEditor", formData);
     } catch (error) {
       console.error(error);
     }
-    console.dir(1, Object.entries(submissionFormData));
-    console.log(2, formData);
+
+    console.log(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-[600px] m-auto" encType="multipart/form-data">
+    <div className="w-[600px] m-auto">
       <div className="mb-5">
         <ImageUpload />
       </div>
@@ -214,7 +207,7 @@ const HomePage = () => {
       ></textarea>
       <div className="mb-5">
         {dynamicKeywords.map((keyword) => (
-          <div key={keyword} className="inline-block m-1 text-violet-400 ">
+          <div key={keyword} className="inline-block m-1 text-blue-400 ">
             #{keyword}
           </div>
         ))}
@@ -235,7 +228,7 @@ const HomePage = () => {
         ))}
       </div>
       <div>
-        <h2 className="mb-2">TAG</h2>
+        <h2 className="mb-2">Tag</h2>
         <input
           type="text"
           className="border-b border-gray-200 w-[600px] mb-7 py-2"
@@ -243,29 +236,28 @@ const HomePage = () => {
           value={dynamicKeywordInput}
           onChange={handleDynamicKeywordInput}
           onKeyUp={handleDynamicKeywordSubmit}
-          autoComplete="off"
         />
         <input type="text" className="hidden" />
       </div>
       <div className="w-[600px] mb-5">
-        <h2 className="mb-2">STYLE</h2>
+        <h2 className="mb-2 font-medium">Style</h2>
         <div className="w-[600px] mb-5">
           <div className="flex">{styleKeywordCheckboxes}</div>
           <div className="flex">{tpoKeywordCheckboxes}</div>
         </div>
       </div>
       <div className="mb-5">
-        <h2 className="mb-2">SEASON*</h2>
+        <h2 className="mb-2 font-medium">Season*</h2>
         <div className="flex ">{seasonKeywordCheckboxes}</div>
       </div>
       <div>
-        <h2 className="mb-2">WEATHER*</h2>
+        <h2 className="mb-2 font-medium">Weather*</h2>
         <div className="flex ">{weatherKeywordCheckboxes}</div>
       </div>
-      <button type="submit" className="btn-neutral w-[600px] p-3 rounded-full text-sm my-10">
-        제출
+      <button type="button" onClick={handleSubmit} className="btn-neutral w-[600px] p-3 rounded-full text-sm my-10">
+        작성
       </button>
-    </form>
+    </div>
   );
 };
 

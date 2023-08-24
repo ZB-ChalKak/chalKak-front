@@ -24,7 +24,7 @@ const KeywordRadioButton = ({
     <label
       htmlFor={keyword}
       className={
-        "badge badge-outline peer-checked:bg-slate-700 peer-checked:text-white p-3 m-1 text-xs whitespace-nowrap"
+        "badge badge-outline border-gray-300 peer-checked:bg-slate-700 peer-checked:text-white p-3 m-1 text-xs whitespace-nowrap"
       }
     >
       {keyword}
