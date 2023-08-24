@@ -227,9 +227,10 @@ export const handlers = [
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`,
       );
       const curTemperature = response.data.current_weather.temperature;
+      const weatherCode = response.data.current_weather.weathercode;
       return res(
         ctx.status(200),
-        ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature }),
+        ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature, weatherCode }),
       );
     } catch (error) {
       // 현재 위치의 날씨 정보를 불러오지 못했을 경우, 서울의 날씨 정보를 불러옵니다.
@@ -237,9 +238,10 @@ export const handlers = [
         `https://api.open-meteo.com/v1/forecast?latitude=37.566&longitude=126.9784&current_weather=true&timezone=auto`,
       );
       const curTemperature = response.data.current_weather.temperature;
+      const weatherCode = response.data.current_weather.weathercode;
       return res(
         ctx.status(400),
-        ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다.", curTemperature }),
+        ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다.", curTemperature, weatherCode }),
       );
     }
   }),

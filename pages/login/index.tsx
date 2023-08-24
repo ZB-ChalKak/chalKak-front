@@ -1,9 +1,9 @@
-import { ChangeEvent, FormEvent, FunctionComponent, useEffect, useState } from "react";
-import Link from "next/link";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { FiAlertCircle } from "react-icons/fi";
-import axios from "axios";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import axios from "axios";
+import Alert from "../components/Alert";
 
 // 이메일과 비밀번호를 포함한 객체
 interface LoginData {
@@ -14,7 +14,8 @@ interface LoginData {
 export default function Login() {
   const router = useRouter();
   const [invalidEmail, setInvalidEmail] = useState(false);
-  const [loginFailed, setLoginFailed] = useState(false); // 로그인 실패 알림
+  const [alertOepn, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [formData, setFormData] = useState<LoginData>({
     email: "",
     password: "",
@@ -40,12 +41,38 @@ export default function Login() {
       if (response.status === 200) {
         router.push("/");
       } else {
-        setLoginFailed(true);
+        setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+        setAlertOpen(true);
       }
     } catch (error) {
-      setLoginFailed(true);
+      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+      setAlertOpen(true);
     }
   };
+
+  // 백엔드 API 로그인 호출
+  // const handleLogin = async(e:FormEvent) => {
+  //   e.preventDefault();
+
+  //   const { email, password } = formData;
+  //   try {
+  //     const response = await axios.post("/users/signin", {
+  //       email,
+  //       password,
+  //     });
+
+  //     if (response.status === 200 && response.data.success) {
+  //       localStorage.setItem('token', response.data.data.token.accessToken);
+  //       localStorage.setItem('refreshToken', response.data.data.token.refreshToken);
+
+  //       router.push("/");
+  //     } else {
+  //       setLoginFailed(true);
+  //     }
+  //   } catch (error) {
+  //     setLoginFailed(true);
+  //   }
+  // };
 
   // 구글 로그인 API 호출
   const handleGoogleLogin = async () => {
@@ -55,10 +82,12 @@ export default function Login() {
       if (response.status === 200) {
         router.push("/");
       } else {
-        setLoginFailed(true);
+        setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+        setAlertOpen(true);
       }
     } catch (error) {
-      setLoginFailed(true);
+      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+      setAlertOpen(true);
     }
   };
 
@@ -91,45 +120,9 @@ export default function Login() {
       : "btn w-full py-3 font-medium rounded-full bg-gray-200 text-md";
   }
 
-  // 알림창 렌더링
-  interface AlertProps {
-    loginFailed: boolean;
-    setLoginFailed: (state: boolean) => void;
-  }
-
-  const Alert: FunctionComponent<AlertProps> = ({ loginFailed, setLoginFailed }) => {
-    if (!loginFailed) return null;
-
-    useEffect(() => {
-      let timerId: number | null = null; //timerId 변수를 정의하며 초기값은 null로 설정 나중에 setTimeout 함수에서 반환되는 값을 저장
-
-      if (loginFailed) {
-        timerId = setTimeout(() => {
-          setLoginFailed(false);
-        }, 3000) as unknown as number;
-      }
-      // 클린업 함수 컴포넌트가 언마운트 될 때 호출되거나 useEffect 다시 실행되기 전에 호출, timerId 값이 존재할 경우 clearTimeout 함수를 사용해 타이머를 취소하고 초기화
-      return () => {
-        if (timerId) {
-          clearTimeout(timerId);
-        }
-      };
-    }, [loginFailed]);
-
-    return (
-      <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] flex items-center justify-center bg-white ml-6">
-        <FiAlertCircle className="w-[20px] h-[20px]" color="#FF4500" />
-        <span className="font-medium text-center text-xs p-2">이메일 또는 비밀번호를 확인해주세요.</span>
-        <button onClick={() => setLoginFailed(false)} className="ml-4 focus:outline-none">
-          &times;
-        </button>
-      </div>
-    );
-  };
-
   return (
     <>
-      <Alert loginFailed={loginFailed} setLoginFailed={setLoginFailed} />
+      <Alert open={alertOepn} setOpen={setAlertOpen} message={alertMessage} />
       <div className="w-full flex flex-col items-center justify-center bg-white">
         <div className="p-6">
           <h2 className="text-2xl font-medium mt-3 pl-3 text-center leading-9 text-gray-800">로그인</h2>
