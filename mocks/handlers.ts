@@ -162,11 +162,11 @@ export const handlers = [
   rest.post("http://localhost:3000/postEditor", async (req, res, ctx) => {
     const user = localStorage.getItem("user");
     const { email } = JSON.parse(user as string);
-    const { content, dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords, uploadedImageFiles } =
+    const { content, dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords, uploadedImageUrls } =
       await req.json();
     try {
       const imagesArr = [];
-      for (const file of uploadedImageFiles) {
+      for (const file of uploadedImageUrls) {
         const response = await fetch(file);
         const blob = await response.blob();
         const uniqueId = uuidv4();
