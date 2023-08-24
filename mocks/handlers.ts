@@ -164,29 +164,7 @@ export const handlers = [
     const { email } = JSON.parse(user as string);
     const { content, dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords, uploadedImageFiles } =
       await req.json();
-
     try {
-      // const imagesArr = [];
-      // for (const file of uploadedImageFiles) {
-      //   if (file instanceof File) {
-      //     const uniqueId = uuidv4();
-      //     const storageRef = ref(storage, `postImages/${uniqueId}`);
-      //     await uploadBytes(storageRef, file);
-      //     const url = await getDownloadURL(storageRef);
-      //     imagesArr.push({ url });
-      //   }
-      // }
-
-      // await addDoc(collection(db, "posts"), {
-      //   email,
-      //   content,
-      //   dynamicKeywords,
-      //   staticKeywords,
-      //   seasonKeywords,
-      //   weatherKeywords,
-      //   images: imagesArr,
-      //   createdAt: serverTimestamp(),
-      // });
       const imagesArr = [];
       for (const file of uploadedImageFiles) {
         const response = await fetch(file);
@@ -197,15 +175,6 @@ export const handlers = [
         const url = await getDownloadURL(storageRef);
         imagesArr.push({ url });
       }
-      // // const response = await fetch(uploadedFile);
-      // // const blob = await response.blob();
-      // // const uniqueId = uuidv4();
-      // // const storageRef = ref(storage, `postImages/${uniqueId}`);
-      // // await uploadBytes(storageRef, uploadedFile);
-      // // const url = await getDownloadURL(storageRef);
-      // // imagesArr.push({ url });
-
-      // console.log("uploadedImageFiles", uploadedImageFiles);
       const docRef = doc(collection(db, "posts", email, "articles"));
       await setDoc(docRef, {
         email,
@@ -228,20 +197,6 @@ export const handlers = [
       return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "게시글 작성에 실패하였습니다." }));
     }
   }),
-  // 게시글 불러오기 mocking API
-  // rest.get(`http://localhost:3000/post/${uid}`, async (req, res, ctx) => {}),
-  // 게시글 수정 mocking API
-
-  // 게시글 삭제 mocking API
-
-  // 댓글 작성 mocking API
-
-  // 댓글 불러오기 mocking API
-
-  // 댓글 수정 mocking API
-
-  // 댓글 삭제 mocking API
-
   //날씨 정보 불러오기 mocking API
   rest.post("http://localhost:3000/weather", async (req, res, ctx) => {
     const { lat, lon } = await req.json();
