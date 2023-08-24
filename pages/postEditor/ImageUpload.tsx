@@ -1,9 +1,10 @@
 import React, { useState, ChangeEvent, useCallback } from "react";
 import { useRecoilState } from "recoil";
-import { uploadedImageFilesState } from "../../utils/atoms";
+import { uploadedImageFilesState, uploadedImageUrlsState } from "../../utils/atoms";
 
 const ImageUpload = () => {
   const [uploadedImageFiles, setUploadedImageFiles] = useRecoilState(uploadedImageFilesState);
+  const [, setUploadedImageUrls] = useRecoilState(uploadedImageUrlsState);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const handleDeleteClick = (index: number) => {
@@ -38,6 +39,8 @@ const ImageUpload = () => {
 
         // Recoil 상태 업데이트
         setUploadedImageFiles((prevImages) => [...prevImages, ...fileArray]);
+        // blob url
+        setUploadedImageUrls((prevUrls) => [...prevUrls, ...imageURLs]);
       }
 
       e.target.value = "";

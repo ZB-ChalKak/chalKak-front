@@ -1,7 +1,7 @@
 // HomePage.tsx
 import { useRecoilState } from "recoil";
 import axios from "axios";
-import { uploadedImageFilesState } from "../../utils/atoms";
+import { uploadedImageFilesState, uploadedImageUrlsState } from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import KeywordCheckbox from "./KeywordCheckbox";
@@ -21,9 +21,13 @@ interface postingData {
   seasonKeywords: string[];
   weatherKeywords: string[];
   uploadedImageFiles: File[];
+  uploadedImageUrls: string[];
 }
 
 const HomePage = () => {
+  // blob
+  const [uploadedImageUrls] = useRecoilState(uploadedImageUrlsState);
+  // file
   const [uploadedImageFiles] = useRecoilState(uploadedImageFilesState);
   const [staticKeywords, setStaticKeywords] = useState<string[]>([]);
   const [dynamicKeywords, setDynamicKeywords] = useState<string[]>([]);
@@ -38,6 +42,7 @@ const HomePage = () => {
     uploadedImageFiles: uploadedImageFiles,
     seasonKeywords: seasonKeywords,
     weatherKeywords: weatherKeywords,
+    uploadedImageUrls: uploadedImageUrls,
   });
 
   useEffect(() => {
@@ -48,8 +53,9 @@ const HomePage = () => {
       dynamicKeywords,
       weatherKeywords,
       seasonKeywords,
+      uploadedImageUrls,
     }));
-  }, [uploadedImageFiles, staticKeywords, dynamicKeywords, weatherKeywords, seasonKeywords]);
+  }, [uploadedImageFiles, staticKeywords, dynamicKeywords, weatherKeywords, seasonKeywords, uploadedImageUrls]);
 
   const handleDynamicKeywordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDynamicKeywordInput(e.target.value);
