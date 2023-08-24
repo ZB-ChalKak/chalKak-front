@@ -1,39 +1,38 @@
-import React, { useState, ChangeEvent, useCallback } from "react";
+// ImagePreview.tsx
+import React, { useState, ChangeEvent } from "react";
 import { useRecoilState } from "recoil";
 import { uploadedImageFilesState } from "../../utils/atoms";
 
 const ImageUpload = () => {
-  const [, setUploadedImageFiles] = useRecoilState(uploadedImageFilesState);
+  const [uploadedImageUrls, setUploadedImageUrls] = useRecoilState(uploadedImageFilesState);
   const [previews, setPreviews] = useState<string[]>([]);
 
-  const handleImageChange = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
 
     const files = e.target.files;
     if (files) {
-      const fileArray = Array.from(files);
+      const imageURLs = Array.from(files).map((file) => URL.createObjectURL(file));
+      setPreviews([...previews, ...imageURLs]);
 
-      const imageURLs = fileArray.map((file) => URL.createObjectURL(file));
-      setPreviews((prevPreviews) => [...prevPreviews, ...imageURLs]);
-
-      // Recoil 상태 업데이트
-      setUploadedImageFiles((prevImages) => [...prevImages, ...fileArray]);
+      // Recoil 상태 변경
+      setUploadedImageUrls([...uploadedImageUrls, ...imageURLs]);
     }
 
     e.target.value = "";
-  }, []);
+  };
 
   return (
     <div>
-      <div className="flex overflow-auto">
+      <div className="flex overflow-auto p-3">
         {previews.map((preview, index) => (
           <img key={index} src={preview} alt={`Preview ${index + 1}`} className="h-[300px] w-[230px] mr-3" />
         ))}
-        <input type="file" id="file-input" onChange={handleImageChange} accept="image/*" multiple className="hidden" />
-        <label htmlFor="file-input" className="btn h-[300px] w-[230px]">
-          <p className=" text-5xl font-light">+</p>
-        </label>
       </div>
+      <input type="file" id="file-input" onChange={handleImageChange} accept="image/*" multiple className="hidden" />
+      <label htmlFor="file-input" className="btn m-5">
+        이미지 선택
+      </label>
     </div>
   );
 };

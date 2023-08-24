@@ -20,7 +20,7 @@ interface postingData {
   dynamicKeywords: string[];
   seasonKeywords: string[];
   weatherKeywords: string[];
-  uploadedImageFiles: File[];
+  uploadedImageFiles: string[];
 }
 
 const HomePage = () => {
@@ -189,15 +189,15 @@ const HomePage = () => {
     submissionFormData.append("weatherKeyword", weatherKeywords.join(","));
 
     try {
-      await axios.post("/postEditor", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      await axios({
+        method: "post",
+        url: "/postEditor",
+        data: formData,
       });
     } catch (error) {
       console.error(error);
     }
-    console.dir(1, Object.entries(submissionFormData));
+    console.log(1, submissionFormData);
     console.log(2, formData);
   };
 

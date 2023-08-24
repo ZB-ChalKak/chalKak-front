@@ -10,18 +10,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  serverTimestamp,
-  setDoc,
-  where,
-} from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { rest } from "msw";
 import axios from "axios";
@@ -175,20 +164,50 @@ export const handlers = [
     const { email } = JSON.parse(user as string);
     const { content, dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords, uploadedImageFiles } =
       await req.json();
-    const imagesArr = [];
 
     try {
-      for (const uploadedFile of uploadedImageFiles) {
-        // const response = await fetch(uploadedFile);
-        // const blob = await response.blob();
+      // const imagesArr = [];
+      // for (const file of uploadedImageFiles) {
+      //   if (file instanceof File) {
+      //     const uniqueId = uuidv4();
+      //     const storageRef = ref(storage, `postImages/${uniqueId}`);
+      //     await uploadBytes(storageRef, file);
+      //     const url = await getDownloadURL(storageRef);
+      //     imagesArr.push({ url });
+      //   }
+      // }
+
+      // await addDoc(collection(db, "posts"), {
+      //   email,
+      //   content,
+      //   dynamicKeywords,
+      //   staticKeywords,
+      //   seasonKeywords,
+      //   weatherKeywords,
+      //   images: imagesArr,
+      //   createdAt: serverTimestamp(),
+      // });
+      const imagesArr = [];
+      for (const file of uploadedImageFiles) {
+        const response = await fetch(file);
+        const blob = await response.blob();
         const uniqueId = uuidv4();
         const storageRef = ref(storage, `postImages/${uniqueId}`);
-        await uploadBytes(storageRef, uploadedFile);
+        await uploadBytes(storageRef, blob);
         const url = await getDownloadURL(storageRef);
         imagesArr.push({ url });
       }
+      // // const response = await fetch(uploadedFile);
+      // // const blob = await response.blob();
+      // // const uniqueId = uuidv4();
+      // // const storageRef = ref(storage, `postImages/${uniqueId}`);
+      // // await uploadBytes(storageRef, uploadedFile);
+      // // const url = await getDownloadURL(storageRef);
+      // // imagesArr.push({ url });
 
-      await addDoc(collection(db, "posts"), {
+      // console.log("uploadedImageFiles", uploadedImageFiles);
+      const docRef = doc(collection(db, "posts", email, "articles"));
+      await setDoc(docRef, {
         email,
         content,
         dynamicKeywords,
@@ -199,7 +218,12 @@ export const handlers = [
         createdAt: serverTimestamp(),
       });
 
-      return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "게시글 작성에 성공하였습니다." }));
+      return res(
+        ctx.status(200),
+        ctx.set("Content-Type", "multipart/form-data"),
+        ctx.json({ success: true }),
+        ctx.json({ message: "게시글 작성에 성공하였습니다." }),
+      );
     } catch (error) {
       return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "게시글 작성에 실패하였습니다." }));
     }
@@ -227,9 +251,10 @@ export const handlers = [
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`,
       );
       const curTemperature = response.data.current_weather.temperature;
+      const weatherCode = response.data.current_weather.weathercode;
       return res(
         ctx.status(200),
-        ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature }),
+        ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature, weatherCode }),
       );
     } catch (error) {
       // 현재 위치의 날씨 정보를 불러오지 못했을 경우, 서울의 날씨 정보를 불러옵니다.
@@ -237,9 +262,10 @@ export const handlers = [
         `https://api.open-meteo.com/v1/forecast?latitude=37.566&longitude=126.9784&current_weather=true&timezone=auto`,
       );
       const curTemperature = response.data.current_weather.temperature;
+      const weatherCode = response.data.current_weather.weathercode;
       return res(
         ctx.status(400),
-        ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다.", curTemperature }),
+        ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다.", curTemperature, weatherCode }),
       );
     }
   }),
