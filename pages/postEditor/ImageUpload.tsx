@@ -50,7 +50,7 @@ const ImageUpload = () => {
 
   return (
     <div>
-      <div className="flex overflow-auto">
+      <div className="flex overflow-auto mt-5">
         {previews.map((preview, index) => (
           <div key={index} className="h-[300px] w-[230px] mr-3 relative flex-shrink-0 ">
             <img src={preview} alt={`Preview ${index + 1}`} className="h-full w-full mr-3 rounded-lg" />
@@ -71,7 +71,8 @@ const ImageUpload = () => {
           <p className=" text-5xl font-light">+</p>
         </label>
       </div>
-      <p className=" text-red-600 text-xs mt-1 ml-1">최대 6장까지 업로드 가능합니다.</p>
+      {previews.length === 0 && <p className="text-red-600 text-xs mt-1 ml-1">한 장 이상 업로드 해주세요.</p>}
+      <p className=" text-gray-600 text-xs mt-1 ml-1">최대 6장까지 업로드 가능합니다.</p>
     </div>
   );
 };

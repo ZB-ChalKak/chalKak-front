@@ -34,6 +34,7 @@ const HomePage = () => {
   const [seasonKeywords, setSeasonKeywords] = useState<string[]>([]);
   const [weatherKeywords, setWeatherKeywords] = useState<string[]>([]);
   const [content, setContent] = useState<string>("");
+  const [onOff, setOnOff] = useState(false);
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
   const [formData, setFormData] = useState<postingData>({
     content: "",
@@ -57,6 +58,10 @@ const HomePage = () => {
     }));
   }, [uploadedImageFiles, staticKeywords, dynamicKeywords, weatherKeywords, seasonKeywords, uploadedImageUrls]);
 
+  const handleToggleChange = () => {
+    setOnOff((prevOnOff) => !prevOnOff);
+  };
+
   const handleDynamicKeywordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDynamicKeywordInput(e.target.value);
   };
@@ -64,7 +69,7 @@ const HomePage = () => {
   const handleDynamicKeywordSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-
+      if (dynamicKeywordInput.trim() === "") return;
       // 중복 키워드 확인
       if (dynamicKeywords.includes(dynamicKeywordInput.trim()) || staticKeywords.includes(dynamicKeywordInput.trim())) {
         alert("이미 있는 키워드입니다!"); // 이미 있는 키워드일 경우 alert 표시
@@ -74,6 +79,7 @@ const HomePage = () => {
       }
     }
   };
+
   const onKeywordCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
     const keyword = e.target.value;
     const isChecked = e.target.checked;
@@ -201,12 +207,17 @@ const HomePage = () => {
       <div className="mb-5">
         <ImageUpload />
       </div>
+      <div>
+        <h2 className="mb-2">체형 공개</h2>
+        <input type="checkbox" checked={onOff} onChange={handleToggleChange} className="toggle" />
+      </div>
       <textarea
         placeholder="내용 입력"
         className="textarea textarea-bordered textarea-sm resize-none w-full max-w-2xl my-5"
         value={content}
         onChange={handleContentChange}
       ></textarea>
+      <div></div>
       <div className="mb-5">
         {dynamicKeywords.map((keyword) => (
           <div key={keyword} className="inline-block m-1 text-blue-400 ">
@@ -256,9 +267,19 @@ const HomePage = () => {
         <h2 className="mb-2 font-medium">Weather*</h2>
         <div className="flex ">{weatherKeywordCheckboxes}</div>
       </div>
-      <button type="button" onClick={handleSubmit} className="btn-neutral w-[600px] p-3 rounded-full text-sm my-10">
-        작성
-      </button>
+      {uploadedImageFiles.length > 0 && seasonKeywords.length > 0 && weatherKeywords.length > 0 ? (
+        <button type="button" onClick={handleSubmit} className="btn-neutral w-[600px] p-3 rounded-full text-sm my-10">
+          작성
+        </button>
+      ) : (
+        <button
+          type="button"
+          disabled
+          className="btn w-[600px] p-3 rounded-full text-sm my-10 bg-gray-200 cursor-not-allowed"
+        >
+          작성
+        </button>
+      )}
     </div>
   );
 };
