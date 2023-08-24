@@ -162,11 +162,11 @@ export const handlers = [
   rest.post("http://localhost:3000/postEditor", async (req, res, ctx) => {
     const user = localStorage.getItem("user");
     const { email } = JSON.parse(user as string);
-    const { content, dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords, uploadedImageFiles } =
+    const { content, dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords, uploadedImageUrls } =
       await req.json();
     try {
       const imagesArr = [];
-      for (const file of uploadedImageFiles) {
+      for (const file of uploadedImageUrls) {
         const response = await fetch(file);
         const blob = await response.blob();
         const uniqueId = uuidv4();
@@ -225,25 +225,3 @@ export const handlers = [
     }
   }),
 ];
-
-{
-  /* 
-{
-  "latitude": 35.1,
-  "longitude": 129.0,
-  "generationtime_ms": 0.8410215377807617,
-  "utc_offset_seconds": 32400,
-  "timezone": "Asia/Seoul",
-  "timezone_abbreviation": "KST",
-  "elevation": 16.0,
-  "current_weather": {
-    "temperature": 29.7,
-    "windspeed": 11.4,
-    "winddirection": 191,
-    "weathercode": 3,
-    "is_day": 1,
-    "time": "2023-08-23T15:00"
-  }
-}
-*/
-}
