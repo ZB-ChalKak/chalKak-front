@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.19.2",
+    "@types/googlemaps": "^3.43.3",
     "@types/node": "20.4.10",
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
@@ -23,6 +25,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.10.1",
+    "react-modal": "^3.16.1",
+    "react-places-autocomplete": "^7.3.0",
     "recoil": "^0.7.7",
     "styled-components": "^6.0.7",
     "tailwindcss": "3.3.3",
@@ -31,6 +35,8 @@
   "devDependencies": {
     "@types/cookie": "^0.5.1",
     "@types/lodash.debounce": "^4.0.7",
+    "@types/react-modal": "^3.16.0",
+    "@types/react-places-autocomplete": "^7.2.9",
     "@typescript-eslint/eslint-plugin": "^6.3.0",
     "@typescript-eslint/parser": "^6.3.0",
     "daisyui": "^3.5.1",

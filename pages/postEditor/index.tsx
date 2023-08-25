@@ -6,6 +6,8 @@ import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import KeywordCheckbox from "./KeywordCheckbox";
 import KeywordRadioButton from "./KeywordRadioButton";
+import GoogleMapsComponent from "./GoogleMap";
+import Divider from "../components/Divider";
 
 const keywordList = {
   style: ["아메카지", "원마일웨어", "미니멀", "댄디", "비즈니스", "캐주얼", "빈티지", "스트릿", "스포티"],
@@ -22,6 +24,8 @@ interface postingData {
   weatherKeywords: string[];
   uploadedImageFiles: File[];
   uploadedImageUrls: string[];
+  privacyHeight: boolean;
+  privacyWeight: boolean;
 }
 
 const HomePage = () => {
@@ -34,7 +38,8 @@ const HomePage = () => {
   const [seasonKeywords, setSeasonKeywords] = useState<string[]>([]);
   const [weatherKeywords, setWeatherKeywords] = useState<string[]>([]);
   const [content, setContent] = useState<string>("");
-  const [onOff, setOnOff] = useState(false);
+  const [privacyHeight, setPrivacyHeight] = useState(false);
+  const [privacyWeight, setPrivacyWeight] = useState(false);
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
   const [formData, setFormData] = useState<postingData>({
     content: "",
@@ -44,6 +49,8 @@ const HomePage = () => {
     seasonKeywords: seasonKeywords,
     weatherKeywords: weatherKeywords,
     uploadedImageUrls: uploadedImageUrls,
+    privacyHeight: privacyHeight,
+    privacyWeight: privacyWeight,
   });
 
   useEffect(() => {
@@ -55,11 +62,28 @@ const HomePage = () => {
       weatherKeywords,
       seasonKeywords,
       uploadedImageUrls,
+      privacyHeight,
+      privacyWeight,
     }));
-  }, [uploadedImageFiles, staticKeywords, dynamicKeywords, weatherKeywords, seasonKeywords, uploadedImageUrls]);
+  }, [
+    uploadedImageFiles,
+    staticKeywords,
+    dynamicKeywords,
+    weatherKeywords,
+    seasonKeywords,
+    uploadedImageUrls,
+    privacyHeight,
+    privacyWeight,
+  ]);
 
-  const handleToggleChange = () => {
-    setOnOff((prevOnOff) => !prevOnOff);
+  const handlePublicCheck = () => {
+    setPrivacyHeight(true);
+    setPrivacyWeight(true);
+  };
+
+  const handlePrivateCheck = () => {
+    setPrivacyHeight(false);
+    setPrivacyWeight(false);
   };
 
   const handleDynamicKeywordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,20 +228,43 @@ const HomePage = () => {
 
   return (
     <div className="w-[600px] m-auto">
+      <div>
+        <GoogleMapsComponent />
+      </div>
+      <Divider width="w-[600px]" />
       <div className="mb-5">
         <ImageUpload />
       </div>
-      <div>
-        <h2 className="mb-2">체형 공개</h2>
-        <input type="checkbox" checked={onOff} onChange={handleToggleChange} className="toggle" />
-      </div>
       <textarea
         placeholder="내용 입력"
-        className="textarea textarea-bordered textarea-sm resize-none w-full max-w-2xl my-5"
+        className="textarea textarea-bordered focus:outline-none leading-tight textarea-sm resize-none w-full max-w-2xl py-2 my-5 h-[70px]"
         value={content}
         onChange={handleContentChange}
       ></textarea>
-      <div></div>
+      <div className="mb-4">
+        <h2 className="mr-3 mb-3 font-medium">체형 공개</h2>
+        <div className="flex items-center">
+          <label className="flex items-center">
+            <div>공개</div>
+            <input
+              type="checkbox"
+              checked={privacyHeight}
+              onChange={handlePublicCheck}
+              className="checkbox checkbox-xs mr-5 ml-1 mt-[1px]"
+            />
+          </label>
+          <label className="flex items-center">
+            <div>비공개</div>
+            <input
+              type="checkbox"
+              checked={!privacyHeight}
+              onChange={handlePrivateCheck}
+              className="checkbox checkbox-xs ml-1 mt-[1px]"
+            />
+          </label>
+        </div>
+      </div>
+      <Divider width="w-[600px]" />
       <div className="mb-5">
         {dynamicKeywords.map((keyword) => (
           <div key={keyword} className="inline-block m-1 text-blue-400 ">
@@ -241,10 +288,10 @@ const HomePage = () => {
         ))}
       </div>
       <div>
-        <h2 className="mb-2">Tag</h2>
+        <h2 className="mb-2 font-medium">Tag</h2>
         <input
           type="text"
-          className="border-b border-gray-200 w-[600px] mb-7 py-2"
+          className="border-b border-gray-200 focus:border-gray-700 transition-colors ease-in duration-100 w-[600px] mb-7 py-2"
           placeholder="키워드를 입력하세요"
           value={dynamicKeywordInput}
           onChange={handleDynamicKeywordInput}

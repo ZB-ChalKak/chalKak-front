@@ -3,7 +3,7 @@ import KeywordModal from "./KeywordModal";
 import axios from "axios";
 import debounce from "lodash.debounce";
 
-type Gender = "male" | "female";
+type Gender = "MALE" | "FEMALE";
 
 interface SignUpData {
   email: string;
@@ -37,7 +37,7 @@ export default function signup() {
     email: "",
     password: "",
     confirmPassword: "",
-    gender: "male",
+    gender: "MALE",
     height: 0,
     weight: 0,
     nickname: "",
@@ -133,7 +133,9 @@ export default function signup() {
   // formData 작성
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    // weight와 height는 숫자로 변환
+    const transformedValue = name === "weight" || name === "height" ? Number(value) : value;
+    setFormData({ ...formData, [name]: transformedValue });
   };
 
   // 입력값 정보 유효성 검사
@@ -365,7 +367,7 @@ export default function signup() {
             !passwordConfirmTouched ||
             !heightTouched ||
             !weightTouched ? (
-              <button type="submit" className="btn w-[500px] p-4 bg-gray-200 rounded-full text-white mb-10">
+              <button type="submit" className="btn w-[500px] p-4 bg-gray-200 rounded-full text-white mb-10" disabled>
                 회원가입
               </button>
             ) : (
