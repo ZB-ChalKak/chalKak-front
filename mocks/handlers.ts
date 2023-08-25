@@ -10,10 +10,32 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
-import { collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { rest } from "msw";
 import axios from "axios";
+
+// type postObj = {
+//   email: string;
+//   content: string;
+//   dynamicKeywords: string[];
+//   staticKeywords: string[];
+//   seasonKeywords: string;
+//   weatherKeywords: string;
+//   images: object[];
+//   createdAt: object;
+// };
 
 export const handlers = [
   // 회원가입 mocking API
@@ -175,8 +197,18 @@ export const handlers = [
         const url = await getDownloadURL(storageRef);
         imagesArr.push({ url });
       }
-      const docRef = doc(collection(db, "posts", email, "articles"));
-      await setDoc(docRef, {
+      // const docRef = doc(collection(db, "posts", email, "articles"));
+      // await setDoc(docRef, {
+      //   email,
+      //   content,
+      //   dynamicKeywords,
+      //   staticKeywords,
+      //   seasonKeywords,
+      //   weatherKeywords,
+      //   images: imagesArr,
+      //   createdAt: serverTimestamp(),
+      // });
+      await addDoc(collection(db, "posts"), {
         email,
         content,
         dynamicKeywords,
@@ -224,4 +256,90 @@ export const handlers = [
       );
     }
   }),
+  // 게시글 불러오기 mocking API (한명의 유저가 작성한 게시글)
+  // axios.get(`/posts?email=${email}`)
+  rest.get(`http://localhost:3000/userPosts`, async (req, res, ctx) => {
+    const email = req.params.email;
+    try {
+      const userPosts: object[] = [];
+
+      const q = query(collection(db, "posts"), where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        userPosts.push(doc.data());
+      });
+      return res(
+        ctx.status(200),
+        ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", userPosts }),
+      );
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+    }
+  }),
+  // 날씨 추천 게시글 불러오기 mocking API (모든 유저가 작성한 게시글 중에서 seasonKeywords와 weatherKeywords 일치하는 게시글)
+  // axios.get(`/posts?seasonKeywords=${seasonKeywords}&weatherKeywords=${weatherKeywords}`)
+  // Url은 위와 같이 작성해주시면 될 것 같습니다.
+  // ft/main 브랜치를 기준으로 설명드리면,
+  // 현재 날씨 정보는 Weather.tsx에서 불러오고 있기 떄문에,
+  // ${}안에 들어가는 날씨 키워드와 계절 키워드는 Weather.tsx에서 불러온 날씨 정보를 기준으로 작성하시면 될 것 같습니다.
+  // 다만, 날씨 추천 게시글 불러오기 api가 main 페이지에서 호출되어야 하므로,
+  // 1. Weather.tsx에서 날씨 정보 호출
+  // 2. 날씨 정보를 토대로, 날씨 키워드와 계절 키워드를 설정하고,
+  // 3. 이때, 날씨 키워드와 계절 키워드는 main페이지에서 사용되어야 하므로, Recoil을 사용하여 전역 상태로 만들어 주시고,
+  // 4. Main 페이지에서 위의 axios 요청에 필요한 키워드를 전역 상태로 만들어둔 키워드를 사용하여 요청하시면 될 것 같습니다.
+  rest.get(`http://localhost:3000/posts`, async (req, res, ctx) => {
+    const { seasonKeywords, weatherKeywords } = req.params;
+    try {
+      const posts: object[] = [];
+      const seasonq = query(
+        collection(db, "posts"),
+        where("seasonKeywords", "==", seasonKeywords),
+        where("weatherKeywords", "==", weatherKeywords),
+      );
+      const seasonQuerySnapshot = await getDocs(seasonq);
+      seasonQuerySnapshot.forEach((doc) => {
+        posts.push(doc.data());
+      });
+      // const weatherq = query(collection(db, "posts"), where("weatherKeywords", "==", weatherKeywords));
+      // const weatherQuerySnapshot = await getDocs(weatherq);
+      // weatherQuerySnapshot.forEach((doc) => {
+      //   posts.push(doc.data());
+      // });
+      return res(ctx.status(200), ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", posts }));
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+    }
+  }),
+  // 게시글 불러오기 mocking API (키워드에 따른 게시글 조회)
+  // rest.get(`http://localhost:3000/posts/`, async (req, res, ctx) => {
+  //   // url에 담긴 키워드를 가져옵니다.
+  //   const { staticKeywords, seasonKeywords, weatherKeywords } = req.params;
+  //   try {
+  //     // dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords가 여러개일 경우, 각각의 키워드를 배열로 만듭니다.
+  //     // dynamicKeywords가 존재할 경우, dynamicKeywords에 해당하는 게시글을 불러옵니다.
+  //     if (staticKeywords) {
+  //       // staticKeywords가 존재할 경우, staticKeywords에 해당하는 게시글을 불러옵니다.
+  //       const posts: object[] = [];
+
+  //       for (const keywords of staticKeywords) {
+  //         const q = query(collection(db, "posts"), where("staticKeywords", "==", keywords));
+  //         const querySnapshot = await getDocs(q);
+  //         querySnapshot.forEach((doc) => {
+  //           posts.push(doc.data());
+  //         });
+  //       }
+  //       // posts에 담긴 게시글 중에서 seasonKeywords와 weatherKeywords가 일치하는 게시글만 불러옵니다.
+  //       const filteredPosts = posts.filter((post) => {
+  //         return post.seasonKeywords === seasonKeywords && post.weatherKeywords === weatherKeywords;
+  //       });
+  //       return res(
+  //         ctx.status(200),
+  //         ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", filteredPosts }),
+  //       );
+  //     }
+  //   } catch (error) {
+  //     return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+  //   }
+  // }),
+  // 게시글 불러오기 mocking API (팔로잉한 유저가 작성한 게시글)
 ];
