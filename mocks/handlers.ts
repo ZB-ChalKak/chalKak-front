@@ -26,16 +26,16 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { rest } from "msw";
 import axios from "axios";
 
-// type postObj = {
-//   email: string;
-//   content: string;
-//   dynamicKeywords: string[];
-//   staticKeywords: string[];
-//   seasonKeywords: string;
-//   weatherKeywords: string;
-//   images: object[];
-//   createdAt: object;
-// };
+interface postObject {
+  email: string;
+  content: string;
+  dynamicKeywords: string[];
+  staticKeywords: string[];
+  seasonKeywords: string;
+  weatherKeywords: string;
+  images: object[];
+  createdAt: object;
+}
 
 export const handlers = [
   // 회원가입 mocking API
@@ -197,17 +197,6 @@ export const handlers = [
         const url = await getDownloadURL(storageRef);
         imagesArr.push({ url });
       }
-      // const docRef = doc(collection(db, "posts", email, "articles"));
-      // await setDoc(docRef, {
-      //   email,
-      //   content,
-      //   dynamicKeywords,
-      //   staticKeywords,
-      //   seasonKeywords,
-      //   weatherKeywords,
-      //   images: imagesArr,
-      //   createdAt: serverTimestamp(),
-      // });
       await addDoc(collection(db, "posts"), {
         email,
         content,
@@ -256,6 +245,20 @@ export const handlers = [
       );
     }
   }),
+  // 모든 게시글 불러오기 mocking API (키워드가 전체인 경우)
+  rest.get(`http://localhost:3000/posts`, async (req, res, ctx) => {
+    try {
+      const posts: postObject[] = [];
+      const q = query(collection(db, "posts"));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        posts.push(doc.data() as postObject);
+      });
+      return res(ctx.status(200), ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", posts }));
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+    }
+  }),
   // 게시글 불러오기 mocking API (한명의 유저가 작성한 게시글)
   // axios.get(`/posts?email=${email}`)
   rest.get(`http://localhost:3000/userPosts`, async (req, res, ctx) => {
@@ -300,46 +303,59 @@ export const handlers = [
       seasonQuerySnapshot.forEach((doc) => {
         posts.push(doc.data());
       });
-      // const weatherq = query(collection(db, "posts"), where("weatherKeywords", "==", weatherKeywords));
-      // const weatherQuerySnapshot = await getDocs(weatherq);
-      // weatherQuerySnapshot.forEach((doc) => {
-      //   posts.push(doc.data());
-      // });
       return res(ctx.status(200), ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", posts }));
     } catch (error) {
       return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
     }
   }),
   // 게시글 불러오기 mocking API (키워드에 따른 게시글 조회)
-  // rest.get(`http://localhost:3000/posts/`, async (req, res, ctx) => {
-  //   // url에 담긴 키워드를 가져옵니다.
-  //   const { staticKeywords, seasonKeywords, weatherKeywords } = req.params;
-  //   try {
-  //     // dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords가 여러개일 경우, 각각의 키워드를 배열로 만듭니다.
-  //     // dynamicKeywords가 존재할 경우, dynamicKeywords에 해당하는 게시글을 불러옵니다.
-  //     if (staticKeywords) {
-  //       // staticKeywords가 존재할 경우, staticKeywords에 해당하는 게시글을 불러옵니다.
-  //       const posts: object[] = [];
+  rest.get(`http://localhost:3000/posts/`, async (req, res, ctx) => {
+    // url에 담긴 키워드를 가져옵니다.
+    const { staticKeywords, seasonKeywords, weatherKeywords } = req.params;
+    try {
+      // dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords가 여러개일 경우, 각각의 키워드를 배열로 만듭니다.
+      // dynamicKeywords가 존재할 경우, dynamicKeywords에 해당하는 게시글을 불러옵니다.
+      if (staticKeywords) {
+        // staticKeywords가 존재할 경우, staticKeywords에 해당하는 게시글을 불러옵니다.
+        const posts: postObject[] = [];
 
-  //       for (const keywords of staticKeywords) {
-  //         const q = query(collection(db, "posts"), where("staticKeywords", "==", keywords));
-  //         const querySnapshot = await getDocs(q);
-  //         querySnapshot.forEach((doc) => {
-  //           posts.push(doc.data());
-  //         });
-  //       }
-  //       // posts에 담긴 게시글 중에서 seasonKeywords와 weatherKeywords가 일치하는 게시글만 불러옵니다.
-  //       const filteredPosts = posts.filter((post) => {
-  //         return post.seasonKeywords === seasonKeywords && post.weatherKeywords === weatherKeywords;
-  //       });
-  //       return res(
-  //         ctx.status(200),
-  //         ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", filteredPosts }),
-  //       );
-  //     }
-  //   } catch (error) {
-  //     return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
-  //   }
-  // }),
+        for (const keywords of staticKeywords) {
+          const q = query(collection(db, "posts"), where("staticKeywords", "==", keywords));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            posts.push(doc.data() as postObject);
+          });
+        }
+        // posts에 담긴 게시글 중에서 seasonKeywords와 weatherKeywords가 일치하는 게시글만 불러옵니다.
+        if (seasonKeywords && weatherKeywords) {
+          posts.filter((post) => {
+            return post.seasonKeywords === seasonKeywords && post.weatherKeywords === weatherKeywords;
+          });
+        }
+        return res(ctx.status(200), ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", posts }));
+      }
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+    }
+  }),
   // 게시글 불러오기 mocking API (팔로잉한 유저가 작성한 게시글)
+  rest.get(`http://localhost:3000/followingPosts`, async (req, res, ctx) => {
+    const followingUsers = req.params.followingUsers;
+    try {
+      const followingPosts: postObject[] = [];
+      for (const email of followingUsers) {
+        const q = query(collection(db, "posts"), where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          followingPosts.push(doc.data() as postObject);
+        });
+      }
+      return res(
+        ctx.status(200),
+        ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", followingPosts }),
+      );
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+    }
+  }),
 ];
