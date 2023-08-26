@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Carousel from '../components/Carousel';
 import Weather from '../components/Weather';
+import { useRecoilValue } from 'recoil';
+import { seasonState, weatherState } from '@/utils/atoms';
+import axios from 'axios';
 
 interface Keyword {
     title: string;
@@ -31,46 +34,30 @@ const CarouselContent: React.FC<{ imageUrl: string }> = ({ imageUrl }) => (
     </div>
 );
 
-const sampleImages = [
-    {image: "https://i.pinimg.com/originals/eb/5e/2e/eb5e2e287820dd4d1e5f1d8efc4a0f35.jpg"},
-    {image: "https://i.pinimg.com/originals/8d/f7/22/8df722763542969f9804aa41fb06b802.jpg"},
-    {image: "https://i.pinimg.com/originals/8d/f7/22/8df722763542969f9804aa41fb06b802.jpg"},
-    {image: "https://i.pinimg.com/originals/8d/f7/22/8df722763542969f9804aa41fb06b802.jpg"},
-    
-];
+interface Post {
+    image: string;
+}
 
 const Main = () => {
-    // const [isModalVisible, setIsModalVisible] = useState(false);
+    const seasonKeywords = useRecoilValue(seasonState);
+    const weatherKeywords = useRecoilValue(weatherState);
 
-    // const showModal = () => {
-    //     setIsModalVisible(true);
-    // };
+    const [posts, setPosts] = useState<Post[]>([]);
 
-    // const closeModal = () => {
-    //     setIsModalVisible(false);
-    // };
-
-    // // 키워드 모달  
-    // const modal = () => {
-    //     return (
-    //         <div className="fixed z-40 top-0 left-0 w-full h-full flex items-center justify-center bg-gray-200 bg-opacity-50">
-    //             <div className="bg-white container mx-auto min-h-screen relative">
-    //                 <h2 className="text-center text-xl font-bold mt-4 border-b pb-4">필터</h2>
-    //                 <GrClose 
-    //                     className="absolute top-5 left-4 text-xl cursor-pointer"
-    //                     onClick={closeModal}>
-    //                 </GrClose>
-    //                 <div className="flex flex-wrap justify-center gap-4 mt-16">
-    //                     {keywords.map((keyword) => (
-    //                         <div key={keyword.title} className="bg-white text-black py-2 px-5 border rounded-full">
-    //                             <p>{keyword.title}</p>
-    //                         </div>
-    //                     ))}
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     )
-    // }
+    useEffect(() => {
+        axios.get(`/posts`, {
+            params: {
+                seasonKeywords: seasonKeywords,
+                weatherKeywords: weatherKeywords
+            }
+        })
+        .then((response) => {
+            setPosts(response.data.posts);
+        })
+        .catch((error) => {
+            console.error("게시글을 불러오는데 실패하였습니다.", error);
+        });
+    }, [seasonKeywords, weatherKeywords]);
 
     return (
         <div className="w-full h-full bg-white">
@@ -79,8 +66,8 @@ const Main = () => {
                 <div className="mt-8 text-xl ml-6 font-bold">오늘 날씨와 어울리는 스타일</div>
                 <div className="mt-6 ml-4">
                     <Carousel>
-                    {sampleImages.map((image, index) => (
-                        <CarouselContent key={index} imageUrl={image.image} />
+                    {posts.map((post, index) => (
+                        <CarouselContent key={index} imageUrl={post.image} />
                     ))}
                     </Carousel>
                 </div>

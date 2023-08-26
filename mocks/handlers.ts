@@ -230,30 +230,48 @@ export const handlers = [
     }
   }),
   //날씨 정보 불러오기 mocking API
+  // rest.post("http://localhost:3000/weather", async (req, res, ctx) => {
+  //   const { lat, lon } = await req.json();
+  //   try {
+  //     // 현재 위치의 날씨 정보를 불러옵니다.
+  //     // 날씨 정보가 있을 때,
+  //     const response = await axios.get(
+  //       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`,
+  //     );
+  //     const curTemperature = response.data.current_weather.temperature;
+  //     const weatherCode = response.data.current_weather.weathercode;
+  //     return res(
+  //       ctx.status(200),
+  //       ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature, weatherCode }),
+  //     );
+  //   } catch (error) {
+  //     // 현재 위치의 날씨 정보를 불러오지 못했을 경우, 서울의 날씨 정보를 불러옵니다.
+  //     const response = await axios.get(
+  //       `https://api.open-meteo.com/v1/forecast?latitude=37.566&longitude=126.9784&current_weather=true&timezone=auto`,
+  //     );
+  //     const curTemperature = response.data.current_weather.temperature;
+  //     const weatherCode = response.data.current_weather.weathercode;
+  //     return res(
+  //       ctx.status(400),
+  //       ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다.", curTemperature, weatherCode }),
+  //     );
+  //   }
+  // }),
   rest.post("http://localhost:3000/weather", async (req, res, ctx) => {
     const { lat, lon } = await req.json();
     try {
       // 현재 위치의 날씨 정보를 불러옵니다.
-      const response = await axios.get(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`,
-      );
-      const curTemperature = response.data.current_weather.temperature;
-      const weatherCode = response.data.current_weather.weathercode;
-      return res(
-        ctx.status(200),
-        ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature, weatherCode }),
-      );
+        const response = await axios.get(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`,
+        );
+        const curTemperature = response.data.current_weather.temperature;
+        const weatherCode = response.data.current_weather.weathercode;
+        return res(
+          ctx.status(200),
+          ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature, weatherCode }),
+        );
     } catch (error) {
-      // 현재 위치의 날씨 정보를 불러오지 못했을 경우, 서울의 날씨 정보를 불러옵니다.
-      const response = await axios.get(
-        `https://api.open-meteo.com/v1/forecast?latitude=37.566&longitude=126.9784&current_weather=true&timezone=auto`,
-      );
-      const curTemperature = response.data.current_weather.temperature;
-      const weatherCode = response.data.current_weather.weathercode;
-      return res(
-        ctx.status(400),
-        ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다.", curTemperature, weatherCode }),
-      );
+      return res(ctx.status(400), ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다." }));
     }
   }),
   // 게시글 불러오기 mocking API (한명의 유저가 작성한 게시글)
@@ -307,7 +325,8 @@ export const handlers = [
       // });
       return res(ctx.status(200), ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", posts }));
     } catch (error) {
-      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+      console.log(seasonKeywords, weatherKeywords)
+      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다람쥐." }));
     }
   }),
   // 게시글 불러오기 mocking API (키워드에 따른 게시글 조회)
