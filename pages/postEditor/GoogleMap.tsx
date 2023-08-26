@@ -5,6 +5,8 @@ import PlacesAutocomplete, { geocodeByAddress, getLatLng } from "react-places-au
 import { googleAPIKey } from "../../constants/apiKeys";
 import { BiLocationPlus } from "react-icons/bi";
 import Modal from "react-modal";
+import { useRecoilState } from "recoil";
+import { locationState } from "@/utils/atoms";
 
 Modal.setAppElement(".wrap");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,7 +14,7 @@ const libraries = ["places"] as any;
 
 const GoogleMapsComponent = () => {
   const [mapVisible, setMapVisible] = useState(false);
-  const [address, setAddress] = useState("");
+  const [location, setLocation] = useRecoilState(locationState);
   const [selectedLatLng, setSelectedLatLng] = useState({ lat: 37.5642135, lng: 127.0016985 });
 
   const mapRef = useRef<GoogleMap | null>(null);
@@ -36,13 +38,13 @@ const GoogleMapsComponent = () => {
   };
 
   const handleChange = (address: string) => {
-    setAddress(address);
+    setLocation(address);
   };
 
   const handleSelect = (address: string) => {
     geocodeByAddress(address)
       .then((results) => {
-        setAddress(results[0].formatted_address);
+        setLocation(results[0].formatted_address);
         return getLatLng(results[0]);
       })
       .then((latLng) => {
@@ -59,7 +61,7 @@ const GoogleMapsComponent = () => {
             <BiLocationPlus className="text-lg mt-[1px]" />
             위치 설정
           </button>
-          <div className="ml-3">{address}</div>
+          <div className="ml-3">{location}</div>
         </div>
         <Modal
           isOpen={mapVisible}
@@ -86,7 +88,7 @@ const GoogleMapsComponent = () => {
             <Marker position={selectedLatLng} />
           </GoogleMap>
           <div className="mx-auto w-[450px] mt-5">
-            <PlacesAutocomplete value={address} onChange={handleChange} onSelect={handleSelect}>
+            <PlacesAutocomplete value={location} onChange={handleChange} onSelect={handleSelect}>
               {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
                 <div>
                   <input

@@ -1,7 +1,7 @@
 // HomePage.tsx
 import { useRecoilState } from "recoil";
 import axios from "axios";
-import { uploadedImageFilesState, uploadedImageUrlsState } from "../../utils/atoms";
+import { uploadedImageFilesState, uploadedImageUrlsState, locationState } from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import KeywordCheckbox from "./KeywordCheckbox";
@@ -27,6 +27,7 @@ interface postingData {
   privacyHeight: boolean;
   privacyWeight: boolean;
   staticKeywords: string[];
+  location: string;
 }
 
 const HomePage = () => {
@@ -34,6 +35,8 @@ const HomePage = () => {
   const [uploadedImageUrls] = useRecoilState(uploadedImageUrlsState);
   // file
   const [uploadedImageFiles] = useRecoilState(uploadedImageFilesState);
+  //locaiton
+  const [location] = useRecoilState(locationState);
   const [staticKeywords, setStaticKeywords] = useState<string[]>([]);
   const [styleKeywords, setStyleKeywords] = useState<string[]>([]);
   const [dynamicKeywords, setDynamicKeywords] = useState<string[]>([]);
@@ -54,6 +57,7 @@ const HomePage = () => {
     privacyHeight: privacyHeight,
     privacyWeight: privacyWeight,
     staticKeywords: staticKeywords,
+    location: location,
   });
 
   useEffect(() => {
@@ -69,6 +73,7 @@ const HomePage = () => {
       privacyHeight,
       privacyWeight,
       staticKeywords,
+      location,
     }));
   }, [
     content,
@@ -81,6 +86,7 @@ const HomePage = () => {
     privacyHeight,
     privacyWeight,
     staticKeywords,
+    location,
   ]);
 
   // 정적 키워드들을 한곳에 담기
