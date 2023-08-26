@@ -19,6 +19,10 @@ export const handlers = [
   // 회원가입 mocking API
   rest.post("http://localhost:3000/signup", async (req, res, ctx) => {
     const { email, password, keywords, gender, height, weight, nickname } = await req.json();
+    const postCount = 0;
+    const followers: string[] = [];
+    const following: string[] = [];
+
     try {
       await createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -33,6 +37,9 @@ export const handlers = [
             weight,
             keywords,
             nickname,
+            postCount,
+            followers,
+            following,
           });
         });
       return res(ctx.status(201), ctx.json({ success: true }), ctx.json({ message: "회원 가입에 성공하였습니다." }));
@@ -186,6 +193,12 @@ export const handlers = [
         images: imagesArr,
         createdAt: serverTimestamp(),
       });
+      // user의 postCount를 1 증가시킵니다.
+      const userRef = doc(db, "users", email);
+      const userDoc = await getDoc(userRef);
+      await setDoc(userRef, {
+        postCount: userDoc.data()?.postCount + 1,
+      });
 
       return res(
         ctx.status(200),
@@ -202,26 +215,39 @@ export const handlers = [
     const { lat, lon } = await req.json();
     try {
       // 현재 위치의 날씨 정보를 불러옵니다.
-      const response = await axios.get(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`,
-      );
-      const curTemperature = response.data.current_weather.temperature;
-      const weatherCode = response.data.current_weather.weathercode;
-      return res(
-        ctx.status(200),
-        ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature, weatherCode }),
-      );
+
+      // 위도경도가 있는 경우
+      if (lat && lon) {
+        const response = await axios.get(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`,
+        );
+        const curTemperature = response.data.current_weather.temperature;
+        const weatherCode = response.data.current_weather.weathercode;
+        return res(
+          ctx.status(200),
+          ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature, weatherCode }),
+        );
+      }
+      // 위도 경도가 없는 경우 서울의 날씨 정보를 불러옵니다.
+      else {
+        // 현재 위치의 날씨 정보를 불러오지 못했을 경우, 서울의 날씨 정보를 불러옵니다.
+        const response = await axios.get(
+          `https://api.open-meteo.com/v1/forecast?latitude=37.566&longitude=126.9784&current_weather=true&timezone=auto`,
+        );
+        const curTemperature = response.data.current_weather.temperature;
+        const weatherCode = response.data.current_weather.weathercode;
+        return res(
+          ctx.status(200),
+          ctx.json({
+            success: true,
+            message: "서울의 날씨 정보를 불러오는데 성공하였습니다.",
+            curTemperature,
+            weatherCode,
+          }),
+        );
+      }
     } catch (error) {
-      // 현재 위치의 날씨 정보를 불러오지 못했을 경우, 서울의 날씨 정보를 불러옵니다.
-      const response = await axios.get(
-        `https://api.open-meteo.com/v1/forecast?latitude=37.566&longitude=126.9784&current_weather=true&timezone=auto`,
-      );
-      const curTemperature = response.data.current_weather.temperature;
-      const weatherCode = response.data.current_weather.weathercode;
-      return res(
-        ctx.status(400),
-        ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다.", curTemperature, weatherCode }),
-      );
+      return res(ctx.status(400), ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다." }));
     }
   }),
 ];
