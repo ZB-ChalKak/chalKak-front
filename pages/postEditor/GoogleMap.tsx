@@ -6,7 +6,7 @@ import { googleAPIKey } from "../../constants/apiKeys";
 import { BiLocationPlus } from "react-icons/bi";
 import Modal from "react-modal";
 
-Modal.setAppElement(".wrap"); // #root is your app element
+Modal.setAppElement(".wrap");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const libraries = ["places"] as any;
 
@@ -17,7 +17,7 @@ const GoogleMapsComponent = () => {
 
   const mapRef = useRef<GoogleMap | null>(null);
 
-  const API_KEY = googleAPIKey; // 여기에 구글 지도 API 키를 삽입하세요.
+  const API_KEY = googleAPIKey;
 
   useEffect(() => {
     if (mapVisible) {
@@ -47,7 +47,6 @@ const GoogleMapsComponent = () => {
       })
       .then((latLng) => {
         setSelectedLatLng(latLng);
-        // setMapVisible(false);
       })
       .catch((error) => console.error("Error", error));
   };

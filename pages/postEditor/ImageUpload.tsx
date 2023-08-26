@@ -8,8 +8,12 @@ const ImageUpload = () => {
   const [previews, setPreviews] = useState<string[]>([]);
 
   const handleDeleteClick = (index: number) => {
+    const urlToRevoke = previews[index];
+    URL.revokeObjectURL(urlToRevoke);
+
     setPreviews((prevPreviews) => prevPreviews.filter((_, i) => i !== index));
     setUploadedImageFiles((prevImages) => prevImages.filter((_, i) => i !== index));
+    setUploadedImageUrls((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
   const handleAddImageButtonClick = (e: React.MouseEvent<HTMLLabelElement>) => {
@@ -28,12 +32,22 @@ const ImageUpload = () => {
       if (files) {
         let fileArray = Array.from(files);
 
-        // Check the number of images
+        //이미지 파일 형식확인
+        for (let i = 0; i < fileArray.length; i++) {
+          const fileType = fileArray[i].type;
+          if (fileType !== "image/jpeg" && fileType !== "image/png") {
+            alert("jpg, png파일만 업로드 가능합니다");
+            return;
+          }
+        }
+
+        // 이미지 개수확인
         if (fileArray.length + previews.length > 6) {
           alert("최대 6개의 이미지만 등록 가능합니다!");
           fileArray = fileArray.slice(0, Math.max(0, 6 - previews.length));
         }
 
+        //blob url 생성
         const imageURLs = fileArray.map((file) => URL.createObjectURL(file));
         setPreviews((prevPreviews) => [...prevPreviews, ...imageURLs]);
 
@@ -62,7 +76,14 @@ const ImageUpload = () => {
             </button>
           </div>
         ))}
-        <input type="file" id="file-input" onChange={handleImageChange} accept="image/*" multiple className="hidden" />
+        <input
+          type="file"
+          id="file-input"
+          onChange={handleImageChange}
+          accept=".jpg, .png"
+          multiple
+          className="hidden"
+        />
         <label
           htmlFor="file-input"
           onClick={handleAddImageButtonClick}

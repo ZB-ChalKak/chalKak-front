@@ -18,7 +18,7 @@ const keywordList = {
 
 interface postingData {
   content: string;
-  staticKeywords: string[];
+  styleKeywords: string[];
   dynamicKeywords: string[];
   seasonKeywords: string[];
   weatherKeywords: string[];
@@ -26,6 +26,7 @@ interface postingData {
   uploadedImageUrls: string[];
   privacyHeight: boolean;
   privacyWeight: boolean;
+  staticKeywords: string[];
 }
 
 const HomePage = () => {
@@ -34,6 +35,7 @@ const HomePage = () => {
   // file
   const [uploadedImageFiles] = useRecoilState(uploadedImageFilesState);
   const [staticKeywords, setStaticKeywords] = useState<string[]>([]);
+  const [styleKeywords, setStyleKeywords] = useState<string[]>([]);
   const [dynamicKeywords, setDynamicKeywords] = useState<string[]>([]);
   const [seasonKeywords, setSeasonKeywords] = useState<string[]>([]);
   const [weatherKeywords, setWeatherKeywords] = useState<string[]>([]);
@@ -44,38 +46,49 @@ const HomePage = () => {
   const [formData, setFormData] = useState<postingData>({
     content: "",
     dynamicKeywords: dynamicKeywords,
-    staticKeywords: staticKeywords,
+    styleKeywords: styleKeywords,
     uploadedImageFiles: uploadedImageFiles,
     seasonKeywords: seasonKeywords,
     weatherKeywords: weatherKeywords,
     uploadedImageUrls: uploadedImageUrls,
     privacyHeight: privacyHeight,
     privacyWeight: privacyWeight,
+    staticKeywords: staticKeywords,
   });
 
   useEffect(() => {
     setFormData((prevFormData) => ({
       ...prevFormData,
+      content,
       uploadedImageFiles,
-      staticKeywords,
+      styleKeywords,
       dynamicKeywords,
       weatherKeywords,
       seasonKeywords,
       uploadedImageUrls,
       privacyHeight,
       privacyWeight,
+      staticKeywords,
     }));
   }, [
+    content,
     uploadedImageFiles,
-    staticKeywords,
+    styleKeywords,
     dynamicKeywords,
     weatherKeywords,
     seasonKeywords,
     uploadedImageUrls,
     privacyHeight,
     privacyWeight,
+    staticKeywords,
   ]);
 
+  // 정적 키워드들을 한곳에 담기
+  useEffect(() => {
+    setStaticKeywords([...styleKeywords, ...seasonKeywords, ...weatherKeywords]);
+  }, [styleKeywords, seasonKeywords, weatherKeywords]);
+
+  // 체형 공개 여부
   const handlePublicCheck = () => {
     setPrivacyHeight(true);
     setPrivacyWeight(true);
@@ -86,10 +99,11 @@ const HomePage = () => {
     setPrivacyWeight(false);
   };
 
-  const handleDynamicKeywordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDynamicKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDynamicKeywordInput(e.target.value);
   };
 
+  // 현재 "봄"이라는 동적메소드가 추가될 수 있는 문제가 발생
   const handleDynamicKeywordSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -104,21 +118,19 @@ const HomePage = () => {
     }
   };
 
+  // 스타일, tpo 태그 클릭시 이벤트
   const onKeywordCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
     const keyword = e.target.value;
     const isChecked = e.target.checked;
-    let _keywords = [...staticKeywords];
+
+    const _keywords = [...styleKeywords];
 
     if (isChecked) {
-      // 이전 계절 키워드를 제거한 후 새로운 계절 키워드 추가
-      _keywords = _keywords.filter((k) => !keywordList.season.includes(k));
       _keywords.push(keyword);
     } else {
-      // 현재 계절 키워드 제거
       _keywords.splice(_keywords.indexOf(keyword), 1);
     }
-
-    setStaticKeywords(_keywords);
+    setStyleKeywords(_keywords);
   };
 
   // 게절 체인지
@@ -145,26 +157,26 @@ const HomePage = () => {
     }
   };
 
-  // 스타일키워드
+  // 스타일키워드 나열
   const styleKeywordCheckboxes = keywordList.style.map((keyword) => (
     <KeywordCheckbox
       key={keyword}
       keyword={keyword}
-      isChecked={staticKeywords.includes(keyword)}
+      isChecked={styleKeywords.includes(keyword)}
       onChange={onKeywordCheckboxChange}
     />
   ));
-  // tpo키워드
+  // tpo키워드 나열
   const tpoKeywordCheckboxes = keywordList.tpo.map((keyword) => (
     <KeywordCheckbox
       key={keyword}
       keyword={keyword}
-      isChecked={staticKeywords.includes(keyword)}
+      isChecked={styleKeywords.includes(keyword)}
       onChange={onKeywordCheckboxChange}
     />
   ));
 
-  // 계절 키워드
+  // 계절 키워드 나열
   const seasonKeywordCheckboxes = keywordList.season.map((keyword) => (
     <KeywordRadioButton
       key={keyword}
@@ -186,17 +198,12 @@ const HomePage = () => {
     />
   ));
 
+  // 내용 입력 창 체인지
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
   };
 
-  useEffect(() => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      content: content,
-    }));
-  }, [content]);
-
+  // submit 함수
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -207,14 +214,14 @@ const HomePage = () => {
     });
 
     submissionFormData.append("content", content);
-    submissionFormData.append("staticKeywords", staticKeywords.join(","));
+    submissionFormData.append("styleKeywords", styleKeywords.join(","));
     submissionFormData.append("dynamicKeywords", dynamicKeywords.join(","));
     submissionFormData.append("seasonKeyword", seasonKeywords.join(","));
     submissionFormData.append("weatherKeyword", weatherKeywords.join(","));
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      await axios.post("/your-api-endpoint", submissionFormData, {
+      await axios.post("/api", submissionFormData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -271,7 +278,7 @@ const HomePage = () => {
             #{keyword}
           </div>
         ))}
-        {staticKeywords.map((keyword) => (
+        {styleKeywords.map((keyword) => (
           <div key={keyword} className="inline-block m-1">
             #{keyword}
           </div>
@@ -294,7 +301,7 @@ const HomePage = () => {
           className="border-b border-gray-200 focus:border-gray-700 transition-colors ease-in duration-100 w-[600px] mb-7 py-2"
           placeholder="키워드를 입력하세요"
           value={dynamicKeywordInput}
-          onChange={handleDynamicKeywordInput}
+          onChange={handleDynamicKeywordChange}
           onKeyUp={handleDynamicKeywordSubmit}
         />
         <input type="text" className="hidden" />
