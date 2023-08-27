@@ -179,6 +179,26 @@ export const handlers = [
     const user = localStorage.getItem("user");
     const { email } = JSON.parse(user as string);
     const curUser = auth.currentUser;
+  // google 로그인 mocking API
+  rest.get("http://localhost:3000/googlelogin", async (req, res, ctx) => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const userCredential = await signInWithPopup(auth, provider);
+      const { email } = userCredential.user;
+      await setDoc(doc(db, "users", email as string), {
+        email,
+      });
+      localStorage.setItem("user", JSON.stringify(userCredential.user));
+      return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "로그인에 성공하였습니다." }));
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "로그인에 실패하였습니다." }));
+    }
+  }),
+  // 회원탈퇴 mocking API
+  rest.delete("http://localhost:3000/deleteuser", async (req, res, ctx) => {
+    const user = localStorage.getItem("user");
+    const { email } = JSON.parse(user as string);
+    const curUser = auth.currentUser;
     try {
       await deleteUser(curUser!);
       await deleteDoc(doc(db, "users", email));
@@ -389,4 +409,36 @@ export const handlers = [
       return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
     }
   }),
+  // 게시글 불러오기 mocking API (키워드에 따른 게시글 조회)
+  // rest.get(`http://localhost:3000/posts/`, async (req, res, ctx) => {
+  //   // url에 담긴 키워드를 가져옵니다.
+  //   const { staticKeywords, seasonKeywords, weatherKeywords } = req.params;
+  //   try {
+  //     // dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords가 여러개일 경우, 각각의 키워드를 배열로 만듭니다.
+  //     // dynamicKeywords가 존재할 경우, dynamicKeywords에 해당하는 게시글을 불러옵니다.
+  //     if (staticKeywords) {
+  //       // staticKeywords가 존재할 경우, staticKeywords에 해당하는 게시글을 불러옵니다.
+  //       const posts: object[] = [];
+
+  //       for (const keywords of staticKeywords) {
+  //         const q = query(collection(db, "posts"), where("staticKeywords", "==", keywords));
+  //         const querySnapshot = await getDocs(q);
+  //         querySnapshot.forEach((doc) => {
+  //           posts.push(doc.data());
+  //         });
+  //       }
+  //       // posts에 담긴 게시글 중에서 seasonKeywords와 weatherKeywords가 일치하는 게시글만 불러옵니다.
+  //       const filteredPosts = posts.filter((post) => {
+  //         return post.seasonKeywords === seasonKeywords && post.weatherKeywords === weatherKeywords;
+  //       });
+  //       return res(
+  //         ctx.status(200),
+  //         ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", filteredPosts }),
+  //       );
+  //     }
+  //   } catch (error) {
+  //     return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+  //   }
+  // }),
+  // 게시글 불러오기 mocking API (팔로잉한 유저가 작성한 게시글)
 ];
