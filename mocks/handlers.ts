@@ -25,22 +25,28 @@ import {
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { rest } from "msw";
 import axios from "axios";
+import { IArticle } from "@/utils/type";
+// import Cookies from "js-cookie";
 
-// type postObj = {
-//   email: string;
-//   content: string;
-//   dynamicKeywords: string[];
-//   staticKeywords: string[];
-//   seasonKeywords: string;
-//   weatherKeywords: string;
-//   images: object[];
-//   createdAt: object;
-// };
+interface postObject {
+  email: string;
+  content: string;
+  dynamicKeywords: string[];
+  staticKeywords: string[];
+  seasonKeywords: string;
+  weatherKeywords: string;
+  images: object[];
+  createdAt: object;
+}
 
 export const handlers = [
   // 회원가입 mocking API
   rest.post("http://localhost:3000/signup", async (req, res, ctx) => {
     const { email, password, keywords, gender, height, weight, nickname } = await req.json();
+    const postCount = 0;
+    const followers: string[] = [];
+    const following: string[] = [];
+
     try {
       await createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -55,6 +61,9 @@ export const handlers = [
             weight,
             keywords,
             nickname,
+            postCount,
+            followers,
+            following,
           });
         });
       return res(ctx.status(201), ctx.json({ success: true }), ctx.json({ message: "회원 가입에 성공하였습니다." }));
@@ -67,8 +76,7 @@ export const handlers = [
     const { email, password } = await req.json();
     try {
       await signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        localStorage.setItem("user", JSON.stringify(userCredential.user));
-        alert("로그인에 성공하였습니다.");
+        // Cookies.set("user", JSON.stringify(userCredential.user));
       });
       return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "로그인에 성공하였습니다." }));
     } catch (error) {
@@ -166,6 +174,26 @@ export const handlers = [
       return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "로그인에 실패하였습니다." }));
     }
   }),
+  // // 회원탈퇴 mocking API
+  // rest.delete("http://localhost:3000/deleteuser", async (req, res, ctx) => {
+  //   const user = localStorage.getItem("user");
+  //   const { email } = JSON.parse(user as string);
+  //   const curUser = auth.currentUser;
+  // google 로그인 mocking API
+  rest.get("http://localhost:3000/googlelogin", async (req, res, ctx) => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const userCredential = await signInWithPopup(auth, provider);
+      const { email } = userCredential.user;
+      await setDoc(doc(db, "users", email as string), {
+        email,
+      });
+      localStorage.setItem("user", JSON.stringify(userCredential.user));
+      return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "로그인에 성공하였습니다." }));
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "로그인에 실패하였습니다." }));
+    }
+  }),
   // 회원탈퇴 mocking API
   rest.delete("http://localhost:3000/deleteuser", async (req, res, ctx) => {
     const user = localStorage.getItem("user");
@@ -197,17 +225,6 @@ export const handlers = [
         const url = await getDownloadURL(storageRef);
         imagesArr.push({ url });
       }
-      // const docRef = doc(collection(db, "posts", email, "articles"));
-      // await setDoc(docRef, {
-      //   email,
-      //   content,
-      //   dynamicKeywords,
-      //   staticKeywords,
-      //   seasonKeywords,
-      //   weatherKeywords,
-      //   images: imagesArr,
-      //   createdAt: serverTimestamp(),
-      // });
       await addDoc(collection(db, "posts"), {
         email,
         content,
@@ -217,6 +234,12 @@ export const handlers = [
         weatherKeywords,
         images: imagesArr,
         createdAt: serverTimestamp(),
+      });
+      // user의 postCount를 1 증가시킵니다.
+      const userRef = doc(db, "users", email);
+      const userDoc = await getDoc(userRef);
+      await setDoc(userRef, {
+        postCount: userDoc.data()?.postCount + 1,
       });
 
       return res(
@@ -230,37 +253,13 @@ export const handlers = [
     }
   }),
   //날씨 정보 불러오기 mocking API
-  // rest.post("http://localhost:3000/weather", async (req, res, ctx) => {
-  //   const { lat, lon } = await req.json();
-  //   try {
-  //     // 현재 위치의 날씨 정보를 불러옵니다.
-  //     // 날씨 정보가 있을 때,
-  //     const response = await axios.get(
-  //       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`,
-  //     );
-  //     const curTemperature = response.data.current_weather.temperature;
-  //     const weatherCode = response.data.current_weather.weathercode;
-  //     return res(
-  //       ctx.status(200),
-  //       ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature, weatherCode }),
-  //     );
-  //   } catch (error) {
-  //     // 현재 위치의 날씨 정보를 불러오지 못했을 경우, 서울의 날씨 정보를 불러옵니다.
-  //     const response = await axios.get(
-  //       `https://api.open-meteo.com/v1/forecast?latitude=37.566&longitude=126.9784&current_weather=true&timezone=auto`,
-  //     );
-  //     const curTemperature = response.data.current_weather.temperature;
-  //     const weatherCode = response.data.current_weather.weathercode;
-  //     return res(
-  //       ctx.status(400),
-  //       ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다.", curTemperature, weatherCode }),
-  //     );
-  //   }
-  // }),
   rest.post("http://localhost:3000/weather", async (req, res, ctx) => {
     const { lat, lon } = await req.json();
     try {
       // 현재 위치의 날씨 정보를 불러옵니다.
+
+      // 위도경도가 있는 경우
+      if (lat && lon) {
         const response = await axios.get(
           `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`,
         );
@@ -270,21 +269,54 @@ export const handlers = [
           ctx.status(200),
           ctx.json({ success: true, message: "날씨 정보를 불러오는데 성공하였습니다.", curTemperature, weatherCode }),
         );
+      }
+      // 위도 경도가 없는 경우 서울의 날씨 정보를 불러옵니다.
+      else {
+        // 현재 위치의 날씨 정보를 불러오지 못했을 경우, 서울의 날씨 정보를 불러옵니다.
+        const response = await axios.get(
+          `https://api.open-meteo.com/v1/forecast?latitude=37.566&longitude=126.9784&current_weather=true&timezone=auto`,
+        );
+        const curTemperature = response.data.current_weather.temperature;
+        const weatherCode = response.data.current_weather.weathercode;
+        return res(
+          ctx.status(200),
+          ctx.json({
+            success: true,
+            message: "서울의 날씨 정보를 불러오는데 성공하였습니다.",
+            curTemperature,
+            weatherCode,
+          }),
+        );
+      }
     } catch (error) {
       return res(ctx.status(400), ctx.json({ success: false, message: "날씨 정보를 불러오는데 실패하였습니다." }));
     }
   }),
-  // 게시글 불러오기 mocking API (한명의 유저가 작성한 게시글)
-  // axios.get(`/posts?email=${email}`)
-  rest.get(`http://localhost:3000/userPosts`, async (req, res, ctx) => {
-    const email = req.params.email;
+  // 모든 게시글 불러오기 mocking API (키워드가 전체인 경우)
+  rest.get(`http://localhost:3000/posts`, async (req, res, ctx) => {
     try {
-      const userPosts: object[] = [];
-
+      const posts: postObject[] = [];
+      const q = query(collection(db, "posts"));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        posts.push(doc.data() as postObject);
+      });
+      return res(ctx.status(200), ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", posts }));
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+    }
+  }),
+  // 게시글 불러오기 mocking API (한명의 유저가 작성한 게시글)
+  rest.post(`http://localhost:3000/userPosts`, async (req, res, ctx) => {
+    const { email } = await req.json();
+    console.log("email", email);
+    try {
+      const userPosts: IArticle[] = [];
       const q = query(collection(db, "posts"), where("email", "==", email));
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
-        userPosts.push(doc.data());
+        const data = doc.data();
+        userPosts.push(data as IArticle);
       });
       return res(
         ctx.status(200),
@@ -308,7 +340,6 @@ export const handlers = [
   rest.get(`http://localhost:3000/posts`, async (req, res, ctx) => {
     const seasonKeywords = req.url.searchParams.get("seasonKeywords");
     const weatherKeywords = req.url.searchParams.get("weatherKeywords");
-
     try {
       const posts: object[] = [];
       const seasonq = query(
@@ -321,14 +352,61 @@ export const handlers = [
         const data = doc.data();
         posts.push(data);
       });
-      // const weatherq = query(collection(db, "posts"), where("weatherKeywords", "==", weatherKeywords));
-      // const weatherQuerySnapshot = await getDocs(weatherq);
-      // weatherQuerySnapshot.forEach((doc) => {
-      //   posts.push(doc.data());
-      // });
       return res(ctx.status(200), ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", posts }));
     } catch (error) {
       return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다람쥐." }));
+    }
+  }),
+  // 게시글 불러오기 mocking API (키워드에 따른 게시글 조회)
+  rest.get(`http://localhost:3000/posts/`, async (req, res, ctx) => {
+    // url에 담긴 키워드를 가져옵니다.
+    const staticKeywords = req.url.searchParams.get("staticKeywords");
+    const seasonKeywords = req.url.searchParams.get("seasonKeywords");
+    const weatherKeywords = req.url.searchParams.get("weatherKeywords");
+    try {
+      // dynamicKeywords, staticKeywords, seasonKeywords, weatherKeywords가 여러개일 경우, 각각의 키워드를 배열로 만듭니다.
+      // dynamicKeywords가 존재할 경우, dynamicKeywords에 해당하는 게시글을 불러옵니다.
+      if (staticKeywords) {
+        // staticKeywords가 존재할 경우, staticKeywords에 해당하는 게시글을 불러옵니다.
+        const posts: postObject[] = [];
+
+        for (const keywords of staticKeywords) {
+          const q = query(collection(db, "posts"), where("staticKeywords", "array-contains", keywords));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            posts.push(doc.data() as postObject);
+          });
+        }
+        // posts에 담긴 게시글 중에서 seasonKeywords와 weatherKeywords가 일치하는 게시글만 불러옵니다.
+        if (seasonKeywords && weatherKeywords) {
+          posts.filter((post) => {
+            return post.seasonKeywords === seasonKeywords && post.weatherKeywords === weatherKeywords;
+          });
+        }
+        return res(ctx.status(200), ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", posts }));
+      }
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
+    }
+  }),
+  // 게시글 불러오기 mocking API (팔로잉한 유저가 작성한 게시글)
+  rest.get(`http://localhost:3000/followingPosts`, async (req, res, ctx) => {
+    const followingUsers = req.params.followingUsers;
+    try {
+      const followingPosts: postObject[] = [];
+      for (const email of followingUsers) {
+        const q = query(collection(db, "posts"), where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          followingPosts.push(doc.data() as postObject);
+        });
+      }
+      return res(
+        ctx.status(200),
+        ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", followingPosts }),
+      );
+    } catch (error) {
+      return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다." }));
     }
   }),
   // 게시글 불러오기 mocking API (키워드에 따른 게시글 조회)

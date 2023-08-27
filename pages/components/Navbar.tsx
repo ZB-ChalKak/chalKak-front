@@ -1,6 +1,7 @@
+import axios from "axios";
+import Image from "next/image";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
-import axios from "axios";
 import { useRouter } from "next/router";
 
 export default function Navbar() {
@@ -36,7 +37,7 @@ export default function Navbar() {
           <div className="dropdown dropdown-end mb-2">
             <label tabIndex={0} className="btn-circle avatar cursor-pointer">
               <div className="mt-[6px]">
-                <CgProfile className="w-[32px] h-[32px]"/>
+                <CgProfile className="w-[32px] h-[32px]" />
                 {/* <Image src="/images/카카오.jpg" width={200} height={200} alt="profile-img" /> */}
               </div>
             </label>

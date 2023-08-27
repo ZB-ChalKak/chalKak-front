@@ -50,6 +50,23 @@ export default function Login() {
     }
   };
 
+  // 구글 로그인 API 호출
+  const handleGoogleLogin = async () => {
+    try {
+      const response = await axios.get("/googlelogin");
+      console.log(response);
+      if (response.status === 200) {
+        router.push("/");
+      } else {
+        setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+        setAlertOpen(true);
+      }
+    } catch (error) {
+      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+      setAlertOpen(true);
+    }
+  };
+
   // 백엔드 API 로그인 호출
   // const handleLogin = async(e:FormEvent) => {
   //   e.preventDefault();

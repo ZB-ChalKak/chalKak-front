@@ -1,9 +1,9 @@
-import { ChangeEvent, FormEvent, useState, useEffect } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect, useCallback } from "react";
 import KeywordModal from "./KeywordModal";
 import axios from "axios";
 import debounce from "lodash.debounce";
 
-type Gender = "male" | "female";
+type Gender = "MALE" | "FEMALE";
 
 interface SignUpData {
   email: string;
@@ -37,7 +37,7 @@ export default function signup() {
     email: "",
     password: "",
     confirmPassword: "",
-    gender: "male",
+    gender: "MALE",
     height: 0,
     weight: 0,
     nickname: "",
@@ -45,49 +45,53 @@ export default function signup() {
   });
 
   // 닉네임 중복 확인
-  const debouncedCheckNicknameDuplication = debounce(checkNicknameDuplication, 500);
-
-  async function checkNicknameDuplication(nickname: string) {
-    try {
-      const response = await axios.post("http://localhost:3000/nicknamecheck", { nickname });
-      // 중복 여부에 따른 처리
-      if (response.data.message === "이미 존재하는 닉네임입니다.") {
-        setNicknameDuplicated(true);
-      } else {
-        setNicknameDuplicated(false);
+  const checkNicknameDuplication = useCallback(
+    debounce(async (nickname: string) => {
+      try {
+        const response = await axios.post("http://localhost:3000/nicknamecheck", { nickname });
+        console.log("test1");
+        // 중복 여부에 따른 처리
+        if (response.data.message === "이미 존재하는 닉네임입니다.") {
+          setNicknameDuplicated(true);
+        } else {
+          setNicknameDuplicated(false);
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }
+    }, 600),
+    [],
+  );
 
   useEffect(() => {
     if (nicknameTouched && checkNicknameFormat(formData.nickname)) {
-      debouncedCheckNicknameDuplication(formData.nickname);
+      checkNicknameDuplication(formData.nickname);
     }
   }, [formData.nickname, nicknameTouched]);
 
   // 이메일 중복 확인
-  async function checkEmailDuplication(email: string) {
-    try {
-      const response = await axios.post("http://localhost:3000/emailcheck", { email });
-      // 중복 여부에 따른 처리
-      if (response.data.message === "이미 존재하는 이메일입니다.") {
-        setEmailDuplicated(true);
-      } else {
-        setEmailDuplicated(false);
+  const checkEmailDuplication = useCallback(
+    debounce(async (email: string) => {
+      try {
+        const response = await axios.post("http://localhost:3000/emailcheck", { email });
+        console.log("test2");
+
+        // 중복 여부에 따른 처리
+        if (response.data.message === "이미 존재하는 이메일입니다.") {
+          setEmailDuplicated(true);
+        } else {
+          setEmailDuplicated(false);
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }
+    }, 600),
+    [],
+  );
 
-  const debouncedCheckEmailDuplication = debounce(checkEmailDuplication, 500);
-
-  // 이메일 중복 처리
   useEffect(() => {
     if (emailTouched && checkEmailFormat(formData.email)) {
-      debouncedCheckEmailDuplication(formData.email);
+      checkEmailDuplication(formData.email);
     }
   }, [formData.email, emailTouched]);
 
@@ -130,10 +134,12 @@ export default function signup() {
     return nicknamePattern.test(nickname);
   };
 
-  // formData 작성
+  // 데이터 변경 시 formData 작성
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    // weight와 height는 숫자로 변환
+    const transformedValue = name === "weight" || name === "height" ? Number(value) : value;
+    setFormData({ ...formData, [name]: transformedValue });
   };
 
   // 입력값 정보 유효성 검사
@@ -365,7 +371,7 @@ export default function signup() {
             !passwordConfirmTouched ||
             !heightTouched ||
             !weightTouched ? (
-              <button type="submit" className="btn w-[500px] p-4 bg-gray-200 rounded-full text-white mb-10">
+              <button type="submit" className="btn w-[500px] p-4 bg-gray-200 rounded-full text-white mb-10" disabled>
                 회원가입
               </button>
             ) : (
