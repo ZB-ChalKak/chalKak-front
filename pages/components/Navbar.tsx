@@ -1,5 +1,4 @@
 import axios from "axios";
-import Image from "next/image";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
 import { useRouter } from "next/router";
