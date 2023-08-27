@@ -26,7 +26,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { rest } from "msw";
 import axios from "axios";
 import { IArticle } from "@/utils/type";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 
 interface postObject {
   email: string;
@@ -76,7 +76,7 @@ export const handlers = [
     const { email, password } = await req.json();
     try {
       await signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        Cookies.set("user", JSON.stringify(userCredential.user));
+        // Cookies.set("user", JSON.stringify(userCredential.user));
       });
       return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "로그인에 성공하였습니다." }));
     } catch (error) {
@@ -174,11 +174,11 @@ export const handlers = [
       return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "로그인에 실패하였습니다." }));
     }
   }),
-  // 회원탈퇴 mocking API
-  rest.delete("http://localhost:3000/deleteuser", async (req, res, ctx) => {
-    const user = localStorage.getItem("user");
-    const { email } = JSON.parse(user as string);
-    const curUser = auth.currentUser;
+  // // 회원탈퇴 mocking API
+  // rest.delete("http://localhost:3000/deleteuser", async (req, res, ctx) => {
+  //   const user = localStorage.getItem("user");
+  //   const { email } = JSON.parse(user as string);
+  //   const curUser = auth.currentUser;
   // google 로그인 mocking API
   rest.get("http://localhost:3000/googlelogin", async (req, res, ctx) => {
     const provider = new GoogleAuthProvider();
