@@ -65,6 +65,8 @@ const HomePage = () => {
     if (e.key === "Enter") {
       e.preventDefault();
 
+      if (dynamicKeywordInput.trim() === "") return;
+
       // 중복 키워드 확인
       if (dynamicKeywords.includes(dynamicKeywordInput.trim()) || staticKeywords.includes(dynamicKeywordInput.trim())) {
         alert("이미 있는 키워드입니다!"); // 이미 있는 키워드일 경우 alert 표시
@@ -184,11 +186,7 @@ const HomePage = () => {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      await axios.post("/your-api-endpoint", submissionFormData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post("/postEditor", formData);
     } catch (error) {
       console.error(error);
     }
