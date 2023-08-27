@@ -25,6 +25,8 @@ import {
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { rest } from "msw";
 import axios from "axios";
+import { IArticle } from "@/utils/type";
+import Cookies from "js-cookie";
 
 interface postObject {
   email: string;
@@ -74,8 +76,7 @@ export const handlers = [
     const { email, password } = await req.json();
     try {
       await signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        localStorage.setItem("user", JSON.stringify(userCredential.user));
-        alert("로그인에 성공하였습니다.");
+        Cookies.set("user", JSON.stringify(userCredential.user));
       });
       return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "로그인에 성공하였습니다." }));
     } catch (error) {
@@ -286,15 +287,16 @@ export const handlers = [
     }
   }),
   // 게시글 불러오기 mocking API (한명의 유저가 작성한 게시글)
-  // axios.get(`/posts?email=${email}`)
-  rest.get(`http://localhost:3000/userPosts`, async (req, res, ctx) => {
-    const email = req.params.email;
+  rest.post(`http://localhost:3000/userPosts`, async (req, res, ctx) => {
+    const { email } = await req.json();
+    console.log("email", email);
     try {
-      const userPosts: object[] = [];
+      const userPosts: IArticle[] = [];
       const q = query(collection(db, "posts"), where("email", "==", email));
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
-        userPosts.push(doc.data());
+        const data = doc.data();
+        userPosts.push(data as IArticle);
       });
       return res(
         ctx.status(200),

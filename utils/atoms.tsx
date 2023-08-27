@@ -26,3 +26,15 @@ export const userState = atom({
     keyword: [],
   },
 });
+
+export const emailState = atom({
+  key: "emailState",
+  default: "",
+});
+
+export const postState = atom({
+  key: "postState",
+  default: {
+    userPosts: [],
+  },
+});
