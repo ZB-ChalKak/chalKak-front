@@ -306,17 +306,20 @@ export const handlers = [
   // 3. 이때, 날씨 키워드와 계절 키워드는 main페이지에서 사용되어야 하므로, Recoil을 사용하여 전역 상태로 만들어 주시고,
   // 4. Main 페이지에서 위의 axios 요청에 필요한 키워드를 전역 상태로 만들어둔 키워드를 사용하여 요청하시면 될 것 같습니다.
   rest.get(`http://localhost:3000/posts`, async (req, res, ctx) => {
-    const { seasonKeywords, weatherKeywords } = req.params;
+    const seasonKeywords = req.url.searchParams.get("seasonKeywords");
+    const weatherKeywords = req.url.searchParams.get("weatherKeywords");
+
     try {
       const posts: object[] = [];
       const seasonq = query(
         collection(db, "posts"),
-        where("seasonKeywords", "==", seasonKeywords),
-        where("weatherKeywords", "==", weatherKeywords),
+        where("seasonKeywords", "==", [seasonKeywords]),
+        where("weatherKeywords", "==", [weatherKeywords]),
       );
       const seasonQuerySnapshot = await getDocs(seasonq);
       seasonQuerySnapshot.forEach((doc) => {
-        posts.push(doc.data());
+        const data = doc.data();
+        posts.push(data);
       });
       // const weatherq = query(collection(db, "posts"), where("weatherKeywords", "==", weatherKeywords));
       // const weatherQuerySnapshot = await getDocs(weatherq);
@@ -325,7 +328,6 @@ export const handlers = [
       // });
       return res(ctx.status(200), ctx.json({ success: true, message: "게시글을 불러오는데 성공하였습니다.", posts }));
     } catch (error) {
-      console.log(seasonKeywords, weatherKeywords)
       return res(ctx.status(400), ctx.json({ success: false, message: "게시글을 불러오는데 실패하였습니다람쥐." }));
     }
   }),
