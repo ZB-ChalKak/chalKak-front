@@ -12,13 +12,19 @@ export const uploadedImageUrlsState = atom<string[]>({
   default: [],
 });
 
+// location
+export const locationState = atom<string>({
+  key: "locationState",
+  default: "",
+});
+
 // season, weather keywords
 export const seasonState = atom({
-  key: 'seasonState',
+  key: "seasonState",
   default: "",
 });
 
 export const weatherState = atom({
-  key: 'weatherState',
+  key: "weatherState",
   default: "",
 });
