@@ -17,3 +17,14 @@ export const locationState = atom<string>({
   key: "locationState",
   default: "",
 });
+
+// season, weather keywords
+export const seasonState = atom({
+  key: "seasonState",
+  default: "",
+});
+
+export const weatherState = atom({
+  key: "weatherState",
+  default: "",
+});
