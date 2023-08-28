@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useState, useEffect, useCallback } from "react"
 import KeywordModal from "./KeywordModal";
 import axios from "axios";
 import debounce from "lodash.debounce";
+import { API_URL_PREFIX } from "../../constants/apiUrl";
 
 type Gender = "MALE" | "FEMALE";
 
@@ -189,9 +190,19 @@ export default function signup() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     // 회원가입 API에 formdata 전송
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { email, password, keywords, gender, height, weight, nickname } = formData;
     try {
-      const response = await axios.post("/signup", { email, password, keywords, gender, height, weight, nickname });
+      const response = await axios.post(`${API_URL_PREFIX}/users/signup`, {
+        email,
+        password,
+        // keywords,
+        styleTags: [1, 2, 3],
+        gender,
+        height,
+        weight,
+        nickname,
+      });
       console.log(response);
       //이메일 인증 구현 예정
     } catch (error) {

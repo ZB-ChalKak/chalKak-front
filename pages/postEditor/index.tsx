@@ -263,7 +263,7 @@ const HomePage = () => {
               type="checkbox"
               checked={privacyHeight}
               onChange={handlePublicCheck}
-              className="checkbox checkbox-xs mr-5 ml-1 mt-[1px]"
+              className="checkbox checkbox-xs mr-5 ml-1 mt-[1.5px]"
             />
           </label>
           <label className="flex items-center">
@@ -272,7 +272,7 @@ const HomePage = () => {
               type="checkbox"
               checked={!privacyHeight}
               onChange={handlePrivateCheck}
-              className="checkbox checkbox-xs ml-1 mt-[1px]"
+              className="checkbox checkbox-xs ml-1 mt-[1.5px]"
             />
           </label>
         </div>
