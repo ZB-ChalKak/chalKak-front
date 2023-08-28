@@ -3,5 +3,5 @@
 #!/bin/sh
 cd ../
 mkdir output
-cp -R ./[chalKak-front]/* ./output
-cp -R ./output ./[chalKak-front]/
+cp -R ./chalKak-front/* ./output
+cp -R ./output ./chalKak-front/
