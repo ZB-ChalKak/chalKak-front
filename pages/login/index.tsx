@@ -50,6 +50,47 @@ export default function Login() {
     }
   };
 
+  // 백엔드 API 로그인 호출
+  // const handleLogin = async(e:FormEvent) => {
+  //   e.preventDefault();
+
+  //   const { email, password } = formData;
+  //   try {
+  //     const response = await axios.post("/users/signin", {
+  //       email,
+  //       password,
+  //     });
+
+  //     if (response.status === 200 && response.data.success) {
+  //       localStorage.setItem('token', response.data.data.token.accessToken);
+  //       localStorage.setItem('refreshToken', response.data.data.token.refreshToken);
+
+  //       router.push("/");
+  //     } else {
+  //       setLoginFailed(true);
+  //     }
+  //   } catch (error) {
+  //     setLoginFailed(true);
+  //   }
+  // };
+
+  // // 구글 로그인 API 호출
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     const response = await axios.get("/googlelogin");
+  //     console.log(response);
+  //     if (response.status === 200) {
+  //       router.push("/");
+  //     } else {
+  //       setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+  //       setAlertOpen(true);
+  //     }
+  //   } catch (error) {
+  //     setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+  //     setAlertOpen(true);
+  //   }
+  // };
+
   // 이메일 양식 확인
   const checkEmailFormat = (email: string) => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -165,7 +206,10 @@ export default function Login() {
             <hr className="flex-grow border-t border-gray-100" />
           </div>
 
-          <div className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer">
+          <div
+            className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer"
+            // onClick={handleGoogleLogin}
+          >
             <FcGoogle className="w-[34px] h-[34px]" />
           </div>
         </div>

@@ -6,6 +6,8 @@ import { seasonState, weatherState } from "@/utils/atoms";
 import axios from "axios";
 import Image from 'next/image'
 import { useInfiniteQuery } from 'react-query';
+import ScrollTopButton from "../components/ScrollTopButton";
+import GoToPostEditorButton from "./GoToPostEditorButton";
 
 interface Keyword {
     title: string;
@@ -315,6 +317,10 @@ const Main = () => {
   return (
     <div className="w-full h-full bg-white">
       <div className="max-auto">
+        <div className="flex items-center justify-start border-b pb-2">
+            <button className="mr-4 text-lg ml-6">팔로잉</button>
+            <button className="text-lg">추천</button>
+        </div>
         <div className="mt-6 ml-6 text-m text-gray-400">
           <Weather />
         </div>
@@ -328,6 +334,8 @@ const Main = () => {
         </div>
 
         <div className="mt-12">
+            <GoToPostEditorButton />
+            <ScrollTopButton />
          <div className="text-xl ml-6 font-bold">키워드 추천</div>
          <div className="mt-6 ml-6 flex flex-wrap justify-flex-start gap-4">
            {keywords.map((keyword) => {
