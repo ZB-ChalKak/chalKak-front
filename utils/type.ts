@@ -24,4 +24,5 @@ export type userInfoType = {
   followers: string[];
   following: string[];
   nickname: string;
+  profileUrl: string;
 };
