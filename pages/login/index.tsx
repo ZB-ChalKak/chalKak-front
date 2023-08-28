@@ -50,21 +50,6 @@ export default function Login() {
     }
   };
 
-  // 구글 로그인 API 호출
-  const handleGoogleLogin = async () => {
-    try {
-      const response = await axios.get("/googlelogin");
-      console.log(response);
-      if (response.status === 200) {
-        router.push("/");
-      } else {
-        setLoginFailed(true);
-      }
-    } catch (error) {
-      setLoginFailed(true);
-    }
-  };
-
   // 이메일 양식 확인
   const checkEmailFormat = (email: string) => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -180,10 +165,7 @@ export default function Login() {
             <hr className="flex-grow border-t border-gray-100" />
           </div>
 
-          <div
-            className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer"
-            onClick={handleGoogleLogin}
-          >
+          <div className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer">
             <FcGoogle className="w-[34px] h-[34px]" />
           </div>
         </div>
