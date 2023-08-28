@@ -1,8 +1,6 @@
 import axios from "axios";
-import Image from "next/image";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
-import axios from "axios";
 import { useRouter } from "next/router";
 
 export default function Navbar() {

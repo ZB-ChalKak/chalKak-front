@@ -26,7 +26,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { rest } from "msw";
 import axios from "axios";
 import { IArticle } from "@/utils/type";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 
 interface postObject {
   email: string;
