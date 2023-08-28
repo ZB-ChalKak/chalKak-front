@@ -1,5 +1,4 @@
 import axios from "axios";
-import Image from "next/image";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
 import { useRouter } from "next/router";
@@ -54,9 +53,7 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-start border-b pb-2">
-        <button className="mr-4 text-lg ml-6">팔로잉</button>
-        <button className="text-lg">추천</button>
+      <div className="flex items-center justify-start pb-2">
       </div>
     </>
   );

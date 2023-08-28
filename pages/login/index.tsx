@@ -50,23 +50,6 @@ export default function Login() {
     }
   };
 
-  // 구글 로그인 API 호출
-  const handleGoogleLogin = async () => {
-    try {
-      const response = await axios.get("/googlelogin");
-      console.log(response);
-      if (response.status === 200) {
-        router.push("/");
-      } else {
-        setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-        setAlertOpen(true);
-      }
-    } catch (error) {
-      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-      setAlertOpen(true);
-    }
-  };
-
   // 백엔드 API 로그인 호출
   // const handleLogin = async(e:FormEvent) => {
   //   e.preventDefault();
@@ -91,22 +74,22 @@ export default function Login() {
   //   }
   // };
 
-  // 구글 로그인 API 호출
-  const handleGoogleLogin = async () => {
-    try {
-      const response = await axios.get("/googlelogin");
-      console.log(response);
-      if (response.status === 200) {
-        router.push("/");
-      } else {
-        setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-        setAlertOpen(true);
-      }
-    } catch (error) {
-      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-      setAlertOpen(true);
-    }
-  };
+  // // 구글 로그인 API 호출
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     const response = await axios.get("/googlelogin");
+  //     console.log(response);
+  //     if (response.status === 200) {
+  //       router.push("/");
+  //     } else {
+  //       setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+  //       setAlertOpen(true);
+  //     }
+  //   } catch (error) {
+  //     setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+  //     setAlertOpen(true);
+  //   }
+  // };
 
   // 이메일 양식 확인
   const checkEmailFormat = (email: string) => {
@@ -225,7 +208,7 @@ export default function Login() {
 
           <div
             className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer"
-            onClick={handleGoogleLogin}
+            // onClick={handleGoogleLogin}
           >
             <FcGoogle className="w-[34px] h-[34px]" />
           </div>
