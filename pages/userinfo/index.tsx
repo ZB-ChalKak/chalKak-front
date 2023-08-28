@@ -229,7 +229,7 @@ export default function UserInfo(): JSX.Element {
   useEffect(() => {
     const fetchUserInfo = async () => {
       const userInfo = localStorage.getItem("userinfo");
-      setUserInfo(JSON.parse(userInfo));
+      setUserInfo(JSON.parse(userInfo!));
     };
     fetchUserInfo();
   }, []);
