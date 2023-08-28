@@ -76,7 +76,11 @@ export const handlers = [
     const { email, password } = await req.json();
     try {
       await signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        Cookies.set("user", JSON.stringify(userCredential.user));
+        // Cookies.set("user", JSON.stringify(userCredential.user));
+        localStorage.setItem("user", JSON.stringify(userCredential.user));
+      });
+      await getDoc(doc(db, "users", email)).then((doc) => {
+        localStorage.setItem("userinfo", JSON.stringify(doc.data()));
       });
       return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "로그인에 성공하였습니다." }));
     } catch (error) {
@@ -87,18 +91,18 @@ export const handlers = [
   rest.get("http://localhost:3000/signout", async (req, res, ctx) => {
     try {
       localStorage.removeItem("user");
+      Cookies.remove("user");
       return res(ctx.status(200), ctx.json({ success: true }), ctx.json({ message: "로그아웃에 성공하였습니다." }));
     } catch (error) {
       return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "로그아웃에 실패하였습니다." }));
     }
   }),
   // 사용자 개인 정보 확인 mocking API
-  rest.get("http://localhost:3000/userinfo", async (req, res, ctx) => {
-    const user = localStorage.getItem("user");
-    const { email } = JSON.parse(user as string);
+  rest.post("http://localhost:3000/userinfo", async (req, res, ctx) => {
+    const { email } = await req.json();
     try {
       getDoc(doc(db, "users", email)).then((doc) => {
-        console.log("userinfo", doc.data());
+        localStorage.setItem("user", JSON.stringify(doc.data()));
       });
       return res(
         ctx.status(200),
@@ -174,11 +178,6 @@ export const handlers = [
       return res(ctx.status(400), ctx.json({ success: false }), ctx.json({ message: "로그인에 실패하였습니다." }));
     }
   }),
-  // 회원탈퇴 mocking API
-  rest.delete("http://localhost:3000/deleteuser", async (req, res, ctx) => {
-    const user = localStorage.getItem("user");
-    const { email } = JSON.parse(user as string);
-    const curUser = auth.currentUser;
   // google 로그인 mocking API
   rest.get("http://localhost:3000/googlelogin", async (req, res, ctx) => {
     const provider = new GoogleAuthProvider();
