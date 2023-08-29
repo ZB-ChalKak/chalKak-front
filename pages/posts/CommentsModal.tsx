@@ -1,15 +1,88 @@
 import Modal from "react-modal";
 import pofileImage from "./img/프로필사진.jpg";
 import Image from "next/image";
-import { useEffect } from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { useEffect, useState } from "react";
+import { AiOutlinePlusCircle, AiOutlineClose } from "react-icons/ai";
 
 interface ModalComponentProps {
   isOpen: boolean;
   closeModal: () => void;
 }
+Modal.setAppElement(".wrap");
+const comments = [
+  {
+    url: pofileImage,
+    name: "eunseok",
+    content:
+      "하하ggggggggggggggggggggggggggg하하ggggdddddddddddddddddddddddddddgkgkgkgdddddddggggggggggggggdddddddddddddddkggkgkgkgkgkgkgkgkgkgkgkgkgk",
+    day: "1일 전",
+  },
+  {
+    url: pofileImage,
+    name: "sohyun",
+    content: "호호",
+    day: "2일 전",
+  },
+  {
+    url: pofileImage,
+    name: "jongjin",
+    content:
+      "히히히ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ",
+    day: "2일 전",
+  },
+  {
+    url: pofileImage,
+    name: "eunseok",
+    content: "하하ggggggggggggggggggggggggggg하하...",
+    day: "15일 전",
+  },
+  {
+    url: pofileImage,
+    name: "sohyun",
+    content: "호호",
+    day: "2일 전",
+  },
+  {
+    url: pofileImage,
+    name: "jongjin",
+    content: "히히",
+    day: "2일 전",
+  },
+  {
+    url: pofileImage,
+    name: "sohyun",
+    content: "호호",
+    day: "2일 전",
+  },
+  {
+    url: pofileImage,
+    name: "jongjin",
+    content: "히히",
+    day: "2일 전",
+  },
+  {
+    url: pofileImage,
+    name: "jongjin",
+    content: "히히",
+    day: "2일 전",
+  },
+  {
+    url: pofileImage,
+    name: "jongjin",
+    content: "히히",
+    day: "2일 전",
+  },
+];
 
 const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal }) => {
+  const [showFullTexts, setShowFullTexts] = useState(comments.map(() => false));
+
+  const toggleFullText = (index: number) => {
+    const newShowFullTexts = [...showFullTexts];
+    newShowFullTexts[index] = !newShowFullTexts[index];
+    setShowFullTexts(newShowFullTexts);
+  };
+
   useEffect(() => {
     if (isOpen) {
       const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
@@ -20,70 +93,6 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal }) =>
       document.body.style.paddingRight = "0px";
     }
   }, [isOpen]);
-
-  const comments = [
-    {
-      url: pofileImage,
-      name: "eunseok",
-      content:
-        "하하ggggggggggggggggggggggggggg하하ggggdddddddddddddddddddddddddddgkgkgkgdddddddggggggggggggggdddddddddddddddkggkgkgkgkgkgkgkgkgkgkgkgkgk",
-      day: "1일 전",
-    },
-    {
-      url: pofileImage,
-      name: "sohyun",
-      content: "호호",
-      day: "2일 전",
-    },
-    {
-      url: pofileImage,
-      name: "jongjin",
-      content: "히히",
-      day: "2일 전",
-    },
-    {
-      url: pofileImage,
-      name: "eunseok",
-      content: "하하ggggggggggggggggggggggggggg하하...",
-      day: "15일 전",
-    },
-    {
-      url: pofileImage,
-      name: "sohyun",
-      content: "호호",
-      day: "2일 전",
-    },
-    {
-      url: pofileImage,
-      name: "jongjin",
-      content: "히히",
-      day: "2일 전",
-    },
-    {
-      url: pofileImage,
-      name: "sohyun",
-      content: "호호",
-      day: "2일 전",
-    },
-    {
-      url: pofileImage,
-      name: "jongjin",
-      content: "히히",
-      day: "2일 전",
-    },
-    {
-      url: pofileImage,
-      name: "jongjin",
-      content: "히히",
-      day: "2일 전",
-    },
-    {
-      url: pofileImage,
-      name: "jongjin",
-      content: "히히",
-      day: "2일 전",
-    },
-  ];
 
   return (
     <div>
@@ -117,7 +126,14 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal }) =>
                 <div className="flex flex-col ml-2">
                   <div className="block">
                     <div className="text-sm font-semibold ml-1">{comment.name}</div>
-                    <div className="text-sm ml-1 col w-[460px] whitespace-pre-wrap break-words">{comment.content}</div>
+                    <div
+                      className={`text-sm ml-1 col w-[460px] whitespace-pre-wrap break-words ${
+                        !showFullTexts[index] ? "line-clamp-2" : ""
+                      }`}
+                      onClick={() => toggleFullText(index)}
+                    >
+                      {comment.content}{" "}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -131,7 +147,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal }) =>
           </div>
         )}
         <button onClick={closeModal} className="absolute top-2 right-4 text-xl">
-          X
+          <AiOutlineClose className="text-2xl" />
         </button>
       </Modal>
     </div>

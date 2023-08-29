@@ -6,18 +6,26 @@ import { API_URL_PREFIX } from "../../constants/apiUrl";
 
 type Gender = "MALE" | "FEMALE";
 
+interface StyleTag {
+  id: number;
+  category: string;
+  keywordImg: string;
+  keyword: string;
+}
+
 interface SignUpData {
+  confirmPassword: string | number | readonly string[] | undefined;
   email: string;
   password: string;
-  confirmPassword: string;
   gender: Gender;
   height: number;
   weight: number;
   nickname: string;
-  keywords: string[];
+  styleTags: number[];
 }
 
 export default function signup() {
+  const [styleTagsData, setStyleTagsData] = useState<StyleTag[]>([]);
   const [invalidEmail, setInvalidEmail] = useState(false);
   const [invalidPassword, setInvalidPassword] = useState(false);
   const [invalidHeight, setInvalidHeight] = useState(false);
@@ -25,6 +33,7 @@ export default function signup() {
   const [invalidNickname, setInvalidNickname] = useState(false);
   const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [styleTags, setStyleTags] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
@@ -37,20 +46,19 @@ export default function signup() {
   const [formData, setFormData] = useState<SignUpData>({
     email: "",
     password: "",
-    confirmPassword: "",
     gender: "MALE",
     height: 0,
     weight: 0,
     nickname: "",
-    keywords: keywords,
+    confirmPassword: "",
+    styleTags: styleTags,
   });
 
   // 닉네임 중복 확인
   const checkNicknameDuplication = useCallback(
     debounce(async (nickname: string) => {
       try {
-        const response = await axios.post("http://localhost:3000/nicknamecheck", { nickname });
-        console.log("test1");
+        const response = await axios.post(`${API_URL_PREFIX}users/validate/nickname`, { nickname });
         // 중복 여부에 따른 처리
         if (response.data.message === "이미 존재하는 닉네임입니다.") {
           setNicknameDuplicated(true);
@@ -65,6 +73,21 @@ export default function signup() {
   );
 
   useEffect(() => {
+    console.log(styleTags);
+  }, [styleTags]);
+
+  useEffect(() => {
+    axios
+      .get(API_URL_PREFIX + "styleTags")
+      .then((response) => {
+        setStyleTagsData(response.data.data.styleTags);
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  }, []);
+
+  useEffect(() => {
     if (nicknameTouched && checkNicknameFormat(formData.nickname)) {
       checkNicknameDuplication(formData.nickname);
     }
@@ -74,7 +97,7 @@ export default function signup() {
   const checkEmailDuplication = useCallback(
     debounce(async (email: string) => {
       try {
-        const response = await axios.post("http://localhost:3000/emailcheck", { email });
+        const response = await axios.post(`${API_URL_PREFIX}users/validate/email`, { email });
         console.log("test2");
 
         // 중복 여부에 따른 처리
@@ -103,12 +126,18 @@ export default function signup() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setFormData({ ...formData, keywords: keywords });
+    setFormData({ ...formData, styleTags: styleTags });
   };
 
   //키워드별 삭제 버튼 클릭 핸들러
   const removeKeyword = (removeItem: string) => {
+    const removeItemId = styleTagsData.find((tag) => tag.keyword === removeItem)?.id;
+
     setKeywords(keywords.filter((keyword) => keyword !== removeItem));
+
+    if (removeItemId !== undefined) {
+      setStyleTags(styleTags.filter((id) => id !== removeItemId));
+    }
   };
 
   // 이메일 양식 확인
@@ -191,13 +220,12 @@ export default function signup() {
     e.preventDefault();
     // 회원가입 API에 formdata 전송
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { email, password, keywords, gender, height, weight, nickname } = formData;
+    const { email, password, gender, height, weight, nickname, styleTags } = formData;
     try {
-      const response = await axios.post(`${API_URL_PREFIX}/users/signup`, {
+      const response = await axios.post(`${API_URL_PREFIX}users/signup`, {
         email,
         password,
-        // keywords,
-        styleTags: [1, 2, 3],
+        styleTags,
         gender,
         height,
         weight,
@@ -364,6 +392,9 @@ export default function signup() {
                 onClose={handleCloseModal}
                 keywords={keywords}
                 setKeywords={setKeywords}
+                styleTags={styleTags}
+                setStyleTags={setStyleTags}
+                styleTagsData={styleTagsData}
               />
             )}
           </div>

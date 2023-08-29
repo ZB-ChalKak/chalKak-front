@@ -2,12 +2,13 @@ import pofileImage from "./img/프로필사진.jpg";
 import { useEffect } from "react";
 import Modal from "react-modal";
 import Image from "next/image";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 
 interface ModalComponentProps {
   isOpen: boolean;
   closeModal: () => void;
 }
+Modal.setAppElement(".wrap");
 
 const hearts = [
   {
@@ -94,6 +95,10 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal }) => {
             </div>
           )}
         </div>
+
+        <button onClick={closeModal} className="absolute top-2 right-4 text-xl">
+          <AiOutlineClose className="text-2xl" />
+        </button>
       </Modal>
     </div>
   );

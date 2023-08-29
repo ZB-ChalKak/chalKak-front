@@ -88,9 +88,9 @@ const HomePage = () => {
       <div className="flex items-center justify-between w-[680px] mx-auto mt-1-">
         <div className="flex flex-1">
           <div>
-            <AiOutlineHeart className="text-4xl" />
+            <AiOutlineHeart className="text-4xl mr-2 cursor-pointer" />
           </div>
-          <div>
+          <div onClick={openCommentsModal} className="relative cursor-pointer">
             <AiOutlineComment className="text-4xl" />
           </div>
         </div>
@@ -100,13 +100,15 @@ const HomePage = () => {
         <ShareModal isOpen={shareModalIsOpen} closeModal={closeShareModal} />
       </div>
       <div>
-        <div className="flex ml-5 mt-2 cursor-pointer" onClick={openHeartsModal}>
-          좋아요 <div className="font-bold ml-1">{heartCount}</div>개
+        <div className="w-[120px]" onClick={openHeartsModal}>
+          <div className="flex ml-5 mt-2 cursor-pointer">
+            좋아요 <div className="font-bold ml-1">{heartCount}</div>개
+          </div>
         </div>
       </div>
       <HeartsModal isOpen={heartsModalIsOpen} closeModal={closeHeartsModal} />
       <div className="mb-4 w-24">
-        <div className="mt-3 ml-5 mb-2 flex cursor-pointer" onClick={openCommentsModal}>
+        <div className="mt-3 ml-5 mb-4 flex cursor-pointer" onClick={openCommentsModal}>
           댓글
           <div className="font-bold ml-1">{commentsCount}</div>개
         </div>
