@@ -73,7 +73,7 @@ export default function Login() {
     try {
       const response: SigninResponse = await axios({
         method: "post",
-        url: "/users/reissue",
+        url: "users/reissue",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
