@@ -3,12 +3,15 @@ import profileImg from "./img/프로필사진.jpg";
 import postImage from "./img/여행룩.png";
 import Carousel from "../components/Carousel";
 import { AiOutlineHeart, AiOutlineComment } from "react-icons/ai";
+import { accessTokenState } from "@/utils/atoms";
 import { BiLinkExternal } from "react-icons/bi";
 import Divider from "../components/Divider";
 import CommentsModal from "./CommentsModal";
 import { useState } from "react";
 import HeartsModal from "./HeartsModal";
 import ShareModal from "./ShareModal";
+import { useRecoilValue } from "recoil";
+import Cookies from "js-cookie";
 
 const img = profileImg;
 const postImages = [postImage, profileImg];
@@ -37,6 +40,10 @@ const HomePage = () => {
   const [commentsModalIsOpen, setcommentsModalIsOpen] = useState(false);
   const [heartsModalIsOpen, setHeartsModalIsOpen] = useState(false);
   const [shareModalIsOpen, setShareModalIsOpen] = useState(false);
+  const accessToken = useRecoilValue(accessTokenState);
+
+  console.log(accessToken);
+  console.log(Cookies.get("userId"));
 
   const openCommentsModal = () => {
     setcommentsModalIsOpen(true);
