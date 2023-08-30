@@ -1,87 +1,68 @@
 import Modal from "react-modal";
 import pofileImage from "./img/프로필사진.jpg";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { AiOutlinePlusCircle, AiOutlineClose } from "react-icons/ai";
+import axios from "axios";
+import { API_URL_PREFIX } from "@/constants/apiUrl";
+import { formatDistanceToNow } from "date-fns";
+import { ko } from "date-fns/locale";
+
+const img = pofileImage;
 
 interface ModalComponentProps {
   isOpen: boolean;
   closeModal: () => void;
+  postId: string | string[] | undefined;
 }
-Modal.setAppElement(".wrap");
-const comments = [
-  {
-    url: pofileImage,
-    name: "eunseok",
-    content:
-      "하하ggggggggggggggggggggggggggg하하ggggdddddddddddddddddddddddddddgkgkgkgdddddddggggggggggggggdddddddddddddddkggkgkgkgkgkgkgkgkgkgkgkgkgk",
-    day: "1일 전",
-  },
-  {
-    url: pofileImage,
-    name: "sohyun",
-    content: "호호",
-    day: "2일 전",
-  },
-  {
-    url: pofileImage,
-    name: "jongjin",
-    content:
-      "히히히ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ",
-    day: "2일 전",
-  },
-  {
-    url: pofileImage,
-    name: "eunseok",
-    content: "하하ggggggggggggggggggggggggggg하하...",
-    day: "15일 전",
-  },
-  {
-    url: pofileImage,
-    name: "sohyun",
-    content: "호호",
-    day: "2일 전",
-  },
-  {
-    url: pofileImage,
-    name: "jongjin",
-    content: "히히",
-    day: "2일 전",
-  },
-  {
-    url: pofileImage,
-    name: "sohyun",
-    content: "호호",
-    day: "2일 전",
-  },
-  {
-    url: pofileImage,
-    name: "jongjin",
-    content: "히히",
-    day: "2일 전",
-  },
-  {
-    url: pofileImage,
-    name: "jongjin",
-    content: "히히",
-    day: "2일 전",
-  },
-  {
-    url: pofileImage,
-    name: "jongjin",
-    content: "히히",
-    day: "2일 전",
-  },
-];
 
-const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal }) => {
+interface Comment {
+  commentId: number;
+  comment: string;
+  nickname: string;
+  profileUrl: string | null;
+  createAt: string;
+}
+
+Modal.setAppElement(".wrap");
+
+const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId }) => {
+  const [comments, setComments] = useState<Comment[]>([]);
   const [showFullTexts, setShowFullTexts] = useState(comments.map(() => false));
+  const [commentInput, setComentInput] = useState("");
 
   const toggleFullText = (index: number) => {
     const newShowFullTexts = [...showFullTexts];
     newShowFullTexts[index] = !newShowFullTexts[index];
     setShowFullTexts(newShowFullTexts);
   };
+
+  function formatDateToRelativeTime(dateString: string | number | Date) {
+    // ISO 8601 형식의 날짜/시간 문자열을 Date 객체로 변환합니다.
+    const date = new Date(dateString);
+
+    // 현재 시각과의 차이를 계산하여 상대적인 시간 표현으로 변환합니다.
+    return formatDistanceToNow(date, { addSuffix: true, locale: ko });
+  }
+
+  useEffect(() => {
+    if (postId) {
+      axios({
+        method: "get",
+        url: `${API_URL_PREFIX}posts/${postId}/comments`,
+      })
+        .then((response) => {
+          setComments(response.data.data);
+        })
+        .catch((error) => {
+          console.error("There was an error!", error);
+        });
+    }
+  }, [postId]);
+
+  useEffect(() => {
+    console.log(comments);
+  }, [comments]);
 
   useEffect(() => {
     if (isOpen) {
@@ -93,6 +74,15 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal }) =>
       document.body.style.paddingRight = "0px";
     }
   }, [isOpen]);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setComentInput(value);
+  };
+
+  const handleSubmit = () => {
+    console.log(commentInput);
+  };
 
   return (
     <div>
@@ -107,16 +97,19 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal }) =>
           <input
             type="text"
             placeholder="댓글을 입력해주세요."
+            onChange={(e) => handleChange(e)}
             className="input input-bordered input-md w-full mb-7 mr-2 focus:border-none rounded-full"
           />
-          <button className="btn">게시</button>
+          <button className="btn" onClick={handleSubmit}>
+            게시
+          </button>
         </div>
         {comments.map((comment, index) => (
           <div key={index} className="flex mb-5 items-center justify-between">
             <div className="flex items-start w-[600px]">
               <div className="relative w-9 h-9">
                 <Image
-                  src={comment.url}
+                  src={comment.profileUrl || img}
                   alt="프로필 사진"
                   layout="fill"
                   className="rounded-full object-cover mt-[2px] items-start"
@@ -125,19 +118,21 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal }) =>
               <div>
                 <div className="flex flex-col ml-2">
                   <div className="block">
-                    <div className="text-sm font-semibold ml-1">{comment.name}</div>
+                    <div className="text-sm font-semibold ml-1">{comment.nickname}</div>
                     <div
                       className={`text-sm ml-1 col w-[460px] whitespace-pre-wrap break-words ${
                         !showFullTexts[index] ? "line-clamp-2" : ""
                       }`}
                       onClick={() => toggleFullText(index)}
                     >
-                      {comment.content}{" "}
+                      {comment.comment}{" "}
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="text-xs text-gray-400 ml-1 mt-1 text-end flex-1">{comment.day}</div>
+              <div className="text-xs text-gray-400 ml-1 mt-1 text-end flex-1">
+                {formatDateToRelativeTime(comment.createAt)}
+              </div>
             </div>
           </div>
         ))}
