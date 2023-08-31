@@ -106,7 +106,7 @@ const HomePage = () => {
         </div>
         <div className="flex items-center">
           <div className="border w-[110px] text-center py-2 rounded-full mr-2 bg-gray-100 text-xs">
-            {postData?.writer.height}cm / {postData?.writer.weight}kg
+            {postData?.writer.height} / {postData?.writer.weight}
           </div>
           <div className="btn">팔로우</div>
         </div>
