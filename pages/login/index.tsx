@@ -2,14 +2,33 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import axios from "axios";
 import Alert from "../components/Alert";
+// import { useRecoilState } from "recoil";
+// import { accessTokenState, refreshTokenState } from "@/utils/atoms";
+// import { on } from "events";
 import Cookies from "js-cookie";
+import { apiInstance } from "../api/api";
 
 // 이메일과 비밀번호를 포함한 객체
 interface LoginData {
   email: string;
   password: string;
+}
+
+interface SigninResponse {
+  data: {
+    success?: boolean;
+    message?: string;
+    data: {
+      userId: number;
+      token: {
+        readonly grantType: string;
+        readonly accessToken: string;
+        readonly refreshToken: string;
+        readonly accessTokenExpireDate: number;
+      };
+    };
+  };
 }
 
 export default function Login() {
@@ -21,27 +40,72 @@ export default function Login() {
     email: "",
     password: "",
   });
+  // const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
+  // const [refreshToken, setRefreshToken] = useRecoilState(refreshTokenState);
+  const [accessToken, setAccessToken] = useState("");
+  const [refreshToken, setRefreshToken] = useState("");
+  // const [expireDate, setExpireDate] = useRecoilState(accessTokenExpireDateState);
 
+  // axios.defaults.baseURL = "http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080/";
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  // 로그인 성공 시, accessToken을 recoil에 저장
+  const onLoginSuccess = (response: SigninResponse) => {
+    const { accessToken, refreshToken, accessTokenExpireDate } = response.data.data.token;
+    // 쿠키에 로그인 정보 저장
+    Cookies.set("userId", String(response.data.data.userId));
+    Cookies.set("accessToken", accessToken);
+
+    // accessToken, refreshToken recoil에 저장
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+    // 현재 시간 (unix time)
+    const now = new Date().getTime();
+    // accessToken 만료 시간
+    const expiration = accessTokenExpireDate;
+    // 만료 시간 - 현재 시간 - 10분
+    const delay = Math.max(expiration - now - 600000, 0);
+    setTimeout(silentRefresh, delay);
+    router.reload();
+  };
+
+  // silentRefresh: accessToken 재발급 및 로그인 성공 실행 함수 실행
+  const silentRefresh = async () => {
+    try {
+      const response: SigninResponse = await apiInstance({
+        method: "post",
+        url: "users/reissue",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+        },
+      });
+      onLoginSuccess(response);
+      console.info("silentRefresh Success");
+    } catch (error) {
+      console.log("silentRefresh Fail");
+      console.log(error);
+    }
+  };
+
   // 로그인 API 호출
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-
     const { email, password } = formData;
-    const response = await axios.post("http://49.142.69.201:8080/users/signin", {
+    try {
+      const tokenResponse = await apiInstance.post("users/signin", {
         email,
         password,
       });
-    try {
-      console.log('res', response)
-      const token = response.data.data.token;
-      const tokenString = JSON.stringify(token);
-      Cookies.set('token', tokenString)
-      router.push("/");
+      console.log(tokenResponse);
+      onLoginSuccess(tokenResponse);
+      setFormData({ email: "", password: "" });
     } catch (error) {
       console.log('err', error)
       setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");

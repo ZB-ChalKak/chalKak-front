@@ -1,7 +1,7 @@
-import { Post, userInfoType } from "@/utils/type";
+import { Post } from "@/utils/type";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { LiaUserCircleSolid } from "react-icons/lia";
+// import { useEffect, useState } from "react";
+// import { LiaUserCircleSolid } from "react-icons/lia";
 
 const tempPosts: Post[] = [
   {
@@ -217,84 +217,81 @@ const tempPosts: Post[] = [
 ];
 
 export default function UserInfo(): JSX.Element {
-  const [userInfo, setUserInfo] = useState({
-    postCount: 0,
-    followers: [],
-    following: [],
-    nickname: "",
-    profileUrl: "",
-  });
+  // const [userInfo, setUserInfo] = useState({
+  //   postCount: 0,
+  //   followers: [],
+  //   following: [],
+  //   nickname: "",
+  //   profileUrl: "",
+  // });
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      const userInfo = localStorage.getItem("userinfo");
-      setUserInfo(JSON.parse(userInfo!));
-    };
-    fetchUserInfo();
-  }, []);
+  // useEffect(() => {
+  //   const fetchUserInfo = async () => {
+  //     const userInfo = localStorage.getItem("userinfo");
+  //     setUserInfo(JSON.parse(userInfo!));
+  //   };
+  //   fetchUserInfo();
+  // }, []);
 
   const moveToModifyPage = () => {
     router.push("/userinfo/modify-userinfo");
   };
 
-  console.log(userInfo);
-  const { postCount, followers, following, nickname, profileUrl } = userInfo as userInfoType;
+  // const { postCount, followers, following, nickname, profileUrl } = userInfo as userInfoType;
 
   const gridRowCount = Math.ceil(tempPosts.length / 3);
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="flex w-full justify-start">
-        {" "}
-        <div className="text-xl font-semibold mt-2 ml-3 text-black">@{nickname}</div>
-      </div>
-
       <div className="flex flex-col w-[550px] items-center mt-[10px]">
         <div className="flex flex-col items-center gap-6 w-[600px] h-[250px]  rounded-lg">
           <div className="flex flex-row items-center justify-around w-[480px] h-[200px] gap-10 mt-2">
             <div className="avatar">
               <div className="w-40 rounded-full">
-                {profileUrl !== "" ? (
+                {/* {profileUrl !== "" ? (
                   <LiaUserCircleSolid className="w-40 h-40" />
                 ) : (
                   <img src={profileUrl} alt="profile-img" />
-                )}
+                )} */}
               </div>
             </div>
             <div className="flex flex-col gap-10 items-center p-5">
+              <div className="flex flex-row items-center justify-center">
+                <div className="text-lg font-semibold ml-3 text-black">@</div>
+                <button
+                  className="btn-neutral ml-4 bg-[#efefef] w-[125px] font-medium rounded-lg text-black"
+                  onClick={moveToModifyPage}
+                >
+                  프로필 관리
+                </button>
+              </div>
               <div className="flex flex-row justify-between items-center gap-10 ">
                 <div className="flex flex-col items-center text-black">
                   <p>게시글</p>
-                  {postCount}
+                  {/* {postCount} */}
                 </div>
                 <div className="flex flex-col items-center text-black">
                   <p>팔로워</p>
-                  {followers.length}
+                  {/* {followers.length} */}
                 </div>
                 <div className="flex flex-col items-center text-black">
                   <p>팔로잉</p>
-                  {following.length}
+                  {/* {following.length} */}
                 </div>
               </div>
             </div>
           </div>
-          <button
-            className="mb-3 btn-neutral bg-[rgb(43,52,64)] w-[125px]  font-medium rounded-full text-md"
-            onClick={moveToModifyPage}
-          >
-            프로필 관리
-          </button>
         </div>
-        <div className="mt-[10px]">
-          <div className="w-[480px] h-[600px]  overflow-y-auto">
+        <div className="mt-[10px] pt-2 border-t-2">
+          <div className="w-[500px] h-[600px]  overflow-y-auto">
             <div className="grid grid-cols-3">
               {Array.from({ length: gridRowCount }).map((_, rowIndex) => (
-                <div key={rowIndex} className="grid grid-cols-1">
+                <div key={rowIndex} className="grid grid-cols-1 ml-1">
                   {tempPosts
                     .slice(rowIndex * 3, rowIndex * 3 + 3) // 현재 행에 해당하는 게시글 추출
                     .map((post, idx) => (
-                      <div className="w-40 h-40 object-cover mt-1 shadow-xl rounded-2xl" key={idx}>
-                        <img src={post.images[0].url} alt="post.img" className="rounded-2xl" />
+                      <div className="w-40 h-40 object-cover mt-1" key={idx}>
+                        <img src={post.images[0].url} alt="post.img" className="" />
                       </div>
                     ))}
                 </div>
