@@ -1,7 +1,7 @@
-import { Post, userInfoType } from "@/utils/type";
+import { Post } from "@/utils/type";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { LiaUserCircleSolid } from "react-icons/lia";
+// import { useEffect, useState } from "react";
+// import { LiaUserCircleSolid } from "react-icons/lia";
 
 const tempPosts: Post[] = [
   {
@@ -217,22 +217,22 @@ const tempPosts: Post[] = [
 ];
 
 export default function UserInfo(): JSX.Element {
-  const [userInfo, setUserInfo] = useState({
-    postCount: 0,
-    followers: [],
-    following: [],
-    nickname: "",
-    profileUrl: "",
-  });
+  // const [userInfo, setUserInfo] = useState({
+  //   postCount: 0,
+  //   followers: [],
+  //   following: [],
+  //   nickname: "",
+  //   profileUrl: "",
+  // });
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      const userInfo = localStorage.getItem("userinfo");
-      setUserInfo(JSON.parse(userInfo!));
-    };
-    fetchUserInfo();
-  }, []);
+  // useEffect(() => {
+  //   const fetchUserInfo = async () => {
+  //     const userInfo = localStorage.getItem("userinfo");
+  //     setUserInfo(JSON.parse(userInfo!));
+  //   };
+  //   fetchUserInfo();
+  // }, []);
 
   const moveToModifyPage = () => {
     router.push("/userinfo/modify-userinfo");
