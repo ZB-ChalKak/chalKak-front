@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
 import Alert from "../components/Alert";
+import Cookies from "js-cookie";
 
 // 이메일과 비밀번호를 포함한 객체
 interface LoginData {
@@ -31,48 +32,22 @@ export default function Login() {
     e.preventDefault();
 
     const { email, password } = formData;
-    try {
-      const response = await axios.post("/signin", {
+    const response = await axios.post("http://49.142.69.201:8080/users/signin", {
         email,
         password,
       });
-      console.log(response);
-
-      if (response.status === 200) {
-        router.push("/");
-      } else {
-        setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-        setAlertOpen(true);
-      }
+    try {
+      console.log('res', response)
+      const token = response.data.data.token;
+      const tokenString = JSON.stringify(token);
+      Cookies.set('token', tokenString)
+      router.push("/");
     } catch (error) {
+      console.log('err', error)
       setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
       setAlertOpen(true);
     }
   };
-
-  // 백엔드 API 로그인 호출
-  // const handleLogin = async(e:FormEvent) => {
-  //   e.preventDefault();
-
-  //   const { email, password } = formData;
-  //   try {
-  //     const response = await axios.post("/users/signin", {
-  //       email,
-  //       password,
-  //     });
-
-  //     if (response.status === 200 && response.data.success) {
-  //       localStorage.setItem('token', response.data.data.token.accessToken);
-  //       localStorage.setItem('refreshToken', response.data.data.token.refreshToken);
-
-  //       router.push("/");
-  //     } else {
-  //       setLoginFailed(true);
-  //     }
-  //   } catch (error) {
-  //     setLoginFailed(true);
-  //   }
-  // };
 
   // // 구글 로그인 API 호출
   // const handleGoogleLogin = async () => {
