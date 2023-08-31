@@ -1,6 +1,6 @@
 import HomePage, { postingData } from "./index";
-import axios from "axios";
 import { GetServerSideProps } from "next";
+import { apiInstance } from "../api/api";
 
 interface PostEditorProps {
   initialPostData: postingData;
@@ -23,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   let postData;
 
   try {
-    const response = await axios.get(`YOUR_API_ENDPOINT/posts/${postId}`);
+    const response = await apiInstance.get(`/posts/${postId}`);
     postData = response.data;
   } catch (error) {
     console.error(error);

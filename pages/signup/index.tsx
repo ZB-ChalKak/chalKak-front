@@ -1,9 +1,7 @@
 import { ChangeEvent, FormEvent, useState, useEffect, useCallback } from "react";
 import KeywordModal from "./KeywordModal";
-import axios from "axios";
 import debounce from "lodash.debounce";
-import { API_URL_PREFIX } from "../../constants/apiUrl";
-
+import { apiInstance } from "../api/api";
 type Gender = "MALE" | "FEMALE";
 
 interface StyleTag {
@@ -58,7 +56,7 @@ export default function signup() {
   const checkNicknameDuplication = useCallback(
     debounce(async (nickname: string) => {
       try {
-        const response = await axios.post(`${API_URL_PREFIX}users/validate/nickname`, { nickname });
+        const response = await apiInstance.post(`users/validate/nickname`, { nickname });
         // 중복 여부에 따른 처리
         if (response.data.message === "이미 존재하는 닉네임입니다.") {
           setNicknameDuplicated(true);
@@ -77,8 +75,8 @@ export default function signup() {
   }, [styleTags]);
 
   useEffect(() => {
-    axios
-      .get(API_URL_PREFIX + "styleTags")
+    apiInstance
+      .get("styleTags")
       .then((response) => {
         setStyleTagsData(response.data.data.styleTags);
       })
@@ -97,7 +95,7 @@ export default function signup() {
   const checkEmailDuplication = useCallback(
     debounce(async (email: string) => {
       try {
-        const response = await axios.post(`${API_URL_PREFIX}users/validate/email`, { email });
+        const response = await apiInstance.post(`users/validate/email`, { email });
         console.log("test2");
 
         // 중복 여부에 따른 처리
@@ -222,7 +220,7 @@ export default function signup() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { email, password, gender, height, weight, nickname, styleTags } = formData;
     try {
-      const response = await axios.post(`${API_URL_PREFIX}users/signup`, {
+      const response = await apiInstance.post(`users/signup`, {
         email,
         password,
         styleTags,

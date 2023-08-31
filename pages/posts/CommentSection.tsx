@@ -2,10 +2,10 @@ import Image from "next/image";
 import CommentsModal from "./CommentsModal";
 import { useEffect, useState } from "react";
 import profileImg from "./img/프로필사진.jpg";
-import axios from "axios";
 import { API_URL_PREFIX } from "@/constants/apiUrl";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { apiInstance } from "../api/api";
 
 interface CommentsSectionProps {
   postId: string | string[] | undefined;
@@ -43,7 +43,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
 
   useEffect(() => {
     if (postId) {
-      axios({
+      apiInstance({
         method: "get",
         url: `${API_URL_PREFIX}posts/${postId}/comments`,
       })

@@ -1,6 +1,5 @@
 // HomePage.tsx
 import { useRecoilState } from "recoil";
-import axios from "axios";
 import { uploadedImageFilesState, uploadedImageUrlsState, locationState } from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
@@ -8,9 +7,9 @@ import KeywordCheckbox from "./KeywordCheckbox";
 import KeywordRadioButton from "./KeywordRadioButton";
 import GoogleMapsComponent from "./GoogleMap";
 import Divider from "../components/Divider";
-import { API_URL_PREFIX } from "@/constants/apiUrl";
 import { AiOutlineClose } from "react-icons/ai";
 import useInitialData from "@/hooks/customHooks";
+import { apiInstance } from "../api/api";
 
 interface StyleTag {
   id: number;
@@ -112,8 +111,8 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
 
   // 키워드 불러오기
   useEffect(() => {
-    axios
-      .get(API_URL_PREFIX + "styleTags")
+    apiInstance
+      .get("styleTags")
       .then((response) => {
         setStyleTagsData(response.data.data.styleTags);
       })
@@ -292,7 +291,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      await axios.post(`${API_URL_PREFIX}posts`, submissionFormData, {
+      await apiInstance.post(`posts`, submissionFormData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

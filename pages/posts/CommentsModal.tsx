@@ -3,10 +3,10 @@ import pofileImage from "./img/프로필사진.jpg";
 import Image from "next/image";
 import { ChangeEvent, useEffect, useState } from "react";
 import { AiOutlinePlusCircle, AiOutlineClose } from "react-icons/ai";
-import axios from "axios";
 import { API_URL_PREFIX } from "@/constants/apiUrl";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { apiInstance } from "../api/api";
 
 const img = pofileImage;
 
@@ -47,7 +47,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
 
   useEffect(() => {
     if (postId) {
-      axios({
+      apiInstance({
         method: "get",
         url: `${API_URL_PREFIX}posts/${postId}/comments`,
       })
