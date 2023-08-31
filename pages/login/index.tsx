@@ -1,9 +1,13 @@
-import { ChangeEvent, FormEvent, FunctionComponent, useEffect, useState } from "react";
-import Link from "next/link";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { FiAlertCircle } from "react-icons/fi";
-import axios from "axios";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import Alert from "../components/Alert";
+// import { useRecoilState } from "recoil";
+// import { accessTokenState, refreshTokenState } from "@/utils/atoms";
+// import { on } from "events";
+import Cookies from "js-cookie";
+import { apiInstance } from "../api/api";
 
 // 이메일과 비밀번호를 포함한 객체
 interface LoginData {
@@ -11,41 +15,120 @@ interface LoginData {
   password: string;
 }
 
+interface SigninResponse {
+  data: {
+    success?: boolean;
+    message?: string;
+    data: {
+      userId: number;
+      token: {
+        readonly grantType: string;
+        readonly accessToken: string;
+        readonly refreshToken: string;
+        readonly accessTokenExpireDate: number;
+      };
+    };
+  };
+}
+
 export default function Login() {
   const router = useRouter();
   const [invalidEmail, setInvalidEmail] = useState(false);
-  const [loginFailed, setLoginFailed] = useState(false); // 로그인 실패 알림
+  const [alertOepn, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [formData, setFormData] = useState<LoginData>({
     email: "",
     password: "",
   });
+  // const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
+  // const [refreshToken, setRefreshToken] = useRecoilState(refreshTokenState);
+  const [accessToken, setAccessToken] = useState("");
+  const [refreshToken, setRefreshToken] = useState("");
+  // const [expireDate, setExpireDate] = useRecoilState(accessTokenExpireDateState);
 
+  // axios.defaults.baseURL = "http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080/";
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-    // 로그인 API 호출
+  // 로그인 성공 시, accessToken을 recoil에 저장
+  const onLoginSuccess = (response: SigninResponse) => {
+    const { accessToken, refreshToken, accessTokenExpireDate } = response.data.data.token;
+    // 쿠키에 로그인 정보 저장
+    Cookies.set("userId", String(response.data.data.userId));
+    Cookies.set("accessToken", accessToken);
+
+    // accessToken, refreshToken recoil에 저장
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+    // 현재 시간 (unix time)
+    const now = new Date().getTime();
+    // accessToken 만료 시간
+    const expiration = accessTokenExpireDate;
+    // 만료 시간 - 현재 시간 - 10분
+    const delay = Math.max(expiration - now - 600000, 0);
+    setTimeout(silentRefresh, delay);
+    router.reload();
+  };
+
+  // silentRefresh: accessToken 재발급 및 로그인 성공 실행 함수 실행
+  const silentRefresh = async () => {
+    try {
+      const response: SigninResponse = await apiInstance({
+        method: "post",
+        url: "users/reissue",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+        },
+      });
+      onLoginSuccess(response);
+      console.info("silentRefresh Success");
+    } catch (error) {
+      console.log("silentRefresh Fail");
+      console.log(error);
+    }
+  };
+
+  // 로그인 API 호출
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-  
     const { email, password } = formData;
     try {
-      const response = await axios.post("/signin", {
+      const tokenResponse = await apiInstance.post("users/signin", {
         email,
         password,
       });
-      console.log(response);
-  
-      if (response.status === 200) {
-        router.push("/");
-      } else {
-        setLoginFailed(true);
-      }
+      console.log(tokenResponse);
+      onLoginSuccess(tokenResponse);
+      setFormData({ email: "", password: "" });
     } catch (error) {
-      setLoginFailed(true);
+      console.log("err", error);
+      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+      setAlertOpen(true);
     }
-  }
+  };
+
+  // // 구글 로그인 API 호출
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     const response = await axios.get("/googlelogin");
+  //     console.log(response);
+  //     if (response.status === 200) {
+  //       router.push("/");
+  //     } else {
+  //       setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+  //       setAlertOpen(true);
+  //     }
+  //   } catch (error) {
+  //     setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+  //     setAlertOpen(true);
+  //   }
+  // };
 
   // 이메일 양식 확인
   const checkEmailFormat = (email: string) => {
@@ -75,49 +158,10 @@ export default function Login() {
       ? "btn-neutral bg-[rgb(43,52,64)] w-full py-3 font-medium rounded-full text-md"
       : "btn w-full py-3 font-medium rounded-full bg-gray-200 text-md";
   }
-  
-  // 알림창 렌더링
-  interface AlertProps {
-    loginFailed: boolean; 
-    setLoginFailed: (state: boolean) => void; 
-  }
-
-  const Alert: FunctionComponent<AlertProps> = ({
-    loginFailed,
-    setLoginFailed,
-  }) => {
-    if (!loginFailed) return null;
-
-    useEffect(() => {
-      let timerId: number | null = null; //timerId 변수를 정의하며 초기값은 null로 설정 나중에 setTimeout 함수에서 반환되는 값을 저장
-
-      if (loginFailed) {
-        timerId = setTimeout(() => {
-          setLoginFailed(false);
-        }, 3000) as unknown as number;
-      }
-      // 클린업 함수 컴포넌트가 언마운트 될 때 호출되거나 useEffect 다시 실행되기 전에 호출, timerId 값이 존재할 경우 clearTimeout 함수를 사용해 타이머를 취소하고 초기화
-      return () => {
-        if (timerId) {
-          clearTimeout(timerId); 
-        }
-      };
-    }, [loginFailed]); 
-
-    return (
-      <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] flex items-center justify-center bg-white ml-6">
-        <FiAlertCircle className="w-[20px] h-[20px]"color="#FF4500" />
-        <span className="font-medium text-center text-xs p-2">이메일 또는 비밀번호를 확인해주세요.</span>
-        <button onClick={() => setLoginFailed(false)} className="ml-4 focus:outline-none">
-          &times;
-        </button>
-      </div>
-    );
-  }
 
   return (
     <>
-      <Alert loginFailed={loginFailed} setLoginFailed={setLoginFailed} />
+      <Alert open={alertOepn} setOpen={setAlertOpen} message={alertMessage} />
       <div className="w-full flex flex-col items-center justify-center bg-white">
         <div className="p-6">
           <h2 className="text-2xl font-medium mt-3 pl-3 text-center leading-9 text-gray-800">로그인</h2>
@@ -147,7 +191,10 @@ export default function Login() {
               </div>
             </div>
             <div>
-              <label htmlFor="password" className="block mt-[40px] pt-2 pb-2 text-md font-medium leading-6 text-gray-800">
+              <label
+                htmlFor="password"
+                className="block mt-[40px] pt-2 pb-2 text-md font-medium leading-6 text-gray-800"
+              >
                 비밀번호
               </label>
               <div>
@@ -198,7 +245,10 @@ export default function Login() {
             <hr className="flex-grow border-t border-gray-100" />
           </div>
 
-          <div className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer">
+          <div
+            className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer"
+            // onClick={handleGoogleLogin}
+          >
             <FcGoogle className="w-[34px] h-[34px]" />
           </div>
         </div>
