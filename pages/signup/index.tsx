@@ -56,9 +56,9 @@ export default function signup() {
   const checkNicknameDuplication = useCallback(
     debounce(async (nickname: string) => {
       try {
-        const response = await apiInstance.post(`users/validate/nickname`, { nickname });
+        const response = await apiInstance.get(`users/validate/nickname/${encodeURIComponent(nickname)}`);
         // 중복 여부에 따른 처리
-        if (response.data.message === "이미 존재하는 닉네임입니다.") {
+        if (response.data.data.isDuplicated === true) {
           setNicknameDuplicated(true);
         } else {
           setNicknameDuplicated(false);
@@ -95,11 +95,9 @@ export default function signup() {
   const checkEmailDuplication = useCallback(
     debounce(async (email: string) => {
       try {
-        const response = await apiInstance.post(`users/validate/email`, { email });
-        console.log("test2");
-
+        const response = await apiInstance.get(`users/validate/email/${email}`);
         // 중복 여부에 따른 처리
-        if (response.data.message === "이미 존재하는 이메일입니다.") {
+        if (response.data.data.isDuplicated === true) {
           setEmailDuplicated(true);
         } else {
           setEmailDuplicated(false);
@@ -318,8 +316,8 @@ export default function signup() {
             <div className="w-1/3 ">
               <p className="text-md font-bold">성별</p>
               <select name="gender" className="text-md h-10 mt-4" value={formData.gender} onChange={handleChange}>
-                <option value="male">남성</option>
-                <option value="female">여성</option>
+                <option value="MALE">남성</option>
+                <option value="FEMALE">여성</option>
               </select>
             </div>
             <br />

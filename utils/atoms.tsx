@@ -67,3 +67,8 @@ export const refreshTokenState = atom({
   key: "refreshTokenState",
   default: "",
 });
+
+export const totalComments = atom({
+  key: "totalComments",
+  default: 0,
+});
