@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { useInfiniteQuery } from 'react-query';
 import ScrollTopButton from "../components/ScrollTopButton";
 import GoToPostEditorButton from "./GoToPostEditorButton";
+import BodyShapeModal from "./BodyShapeModal";
 
 interface Keyword {
     title: string;
@@ -267,6 +268,7 @@ const Main = () => {
     console.log("111", season, weather);
     const [posts, setPosts] = useState<Post[]>([]);
     const [selectedKeyword, setSelectedKeyword] = useState<string>('전체');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchPosts = async ({pageParam = 1}) => {
         // const response = await axios.get(`/posts?page=${pageParam}`,{});
@@ -298,6 +300,7 @@ const Main = () => {
         return () => window.removeEventListener('scroll', onScroll);
     }, [hasNextPage]);
 
+    // 날씨 추천 API
     useEffect(() => {
         axios
         .get(`/posts`, {
@@ -313,6 +316,13 @@ const Main = () => {
             console.error("게시글을 불러오는데 실패하였습니다.", error);
         });
     }, [season, weather]);
+
+    const handleKeywordClick = (keyword: Keyword) => {
+        setSelectedKeyword(keyword.title);
+        if (keyword.title === '체형') {
+            setIsModalOpen(true);
+        }
+    };
 
   return (
     <div className="w-full h-full bg-white">
@@ -345,7 +355,7 @@ const Main = () => {
                     return (
                     <div
                         key={keyword.title}
-                        onClick={() => setSelectedKeyword(keyword.title)}
+                        onClick={() => handleKeywordClick(keyword)}
                         className={`py-[4px] px-4 border rounded-full cursor-pointer text-xs ${isActive ? 'bg-black text-white'  : 'bg-white text-black'}`}>
                         <p>{keyword.title}</p>
                     </div>
@@ -360,6 +370,12 @@ const Main = () => {
             )}
             </div>
         </div>
+        {isModalOpen && 
+          <BodyShapeModal 
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)} 
+          />
+        }
     </div>
     );
 };
