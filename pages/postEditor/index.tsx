@@ -10,7 +10,9 @@ import Divider from "../components/Divider";
 import { AiOutlineClose } from "react-icons/ai";
 import useInitialData from "@/hooks/customHooks";
 import { apiInstance } from "../api/api";
+import InfoAlert from "../components/InfoAlert";
 import Cookies from "js-cookie";
+import router from "next/router";
 
 interface StyleTag {
   id: number;
@@ -55,6 +57,8 @@ interface HomePageProps {
   initialPostData?: editData;
 }
 
+const alertMessage = "게시글이 작성되었습니다!";
+
 const accessToken = Cookies.get("accessToken");
 const testData = ["아메카지", "원마일웨어"];
 const seasonData = ["봄"];
@@ -79,6 +83,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   const [privacyWeight, setPrivacyWeight] = useState(false);
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
   const [allStaticKeywords, setAllStaticKeywords] = useState<string[]>([]);
+  const [alertOepn, setAlertOpen] = useState(false);
   const [formData, setFormData] = useState<postingData>({
     content: "",
     dynamicKeywords: dynamicKeywords,
@@ -345,6 +350,10 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+      setAlertOpen(true);
+      setTimeout(() => {
+        router.push("/main");
+      }, 1000);
     } catch (error) {
       console.error(error);
     }
@@ -459,6 +468,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
           작성
         </button>
       )}
+      <InfoAlert open={alertOepn} setOpen={setAlertOpen} message={alertMessage} />
     </div>
   );
 };

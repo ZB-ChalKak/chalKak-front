@@ -7,6 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { apiInstance } from "../api/api";
 import Cookies from "js-cookie";
+import router from "next/router";
 
 const img = pofileImage;
 
@@ -24,6 +25,7 @@ interface Comment {
   profileUrl: string | null;
   createAt: string;
   updatedAt: string;
+  memberId: number;
 }
 
 Modal.setAppElement(".wrap");
@@ -34,7 +36,11 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
   const [commentInput, setCommentsInput] = useState("");
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const accessToken = Cookies.get("accessToken");
+  const userId = Cookies.get("userId");
 
   const toggleFullText = (index: number) => {
     const newShowFullTexts = [...showFullTexts];
@@ -51,31 +57,37 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
   }
 
   const loadComments = (page: number) => {
+    setIsLoading(true); // loading 시작
     if (postId) {
       apiInstance({
         method: "get",
         url: `posts/${postId}/pageComments?page=${page}&size=9&sort=createdAt,desc`,
       })
         .then((response) => {
-          console.log(response);
           setTotalPages(response.data.data.totalPages);
-          // 기존의 comments와 새로운 comments를 합친다.
           setComments((prevComments) => [...prevComments, ...response.data.data.commentLoadResponses]);
+          setIsLoading(false); // loading 종료
         })
         .catch((error) => {
           console.error("There was an error!", error);
+          setIsLoading(false); // loading 종료
         });
     }
   };
 
   const handleCloseModal = () => {
+    setPage(0);
     closeModal(); // 모달 창 닫기
   };
 
   useEffect(() => {
-    loadComments(0);
-  }, [postId]);
-
+    if (isOpen && !isModalOpen) {
+      setComments([]);
+      loadComments(0);
+    }
+    setIsModalOpen(isOpen);
+    console.log("page" + page);
+  }, [isOpen, isModalOpen, postId]);
   useEffect(() => {
     console.log(comments);
   }, [comments]);
@@ -102,6 +114,26 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
     loadComments(newPage); // 바로 추가적인 댓글 로딩
   };
 
+  const handleEditComment = (commentId: number) => {
+    console.log("edit" + commentId);
+  };
+
+  const handleDeleteComment = (commentId: number) => {
+    apiInstance({
+      method: "delete",
+      url: `/posts/comments/${commentId}`,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then(() => {
+        setComments(comments.filter((comment) => comment.commentId !== commentId));
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  };
+
   const handleSubmitComment = () => {
     console.log(commentInput);
     if (postId) {
@@ -117,20 +149,18 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
         },
       })
         .then(() => {
-          // API 호출이 성공적으로 완료되었을 때 실행될 코드
-          setCommentsInput(""); // 입력 필드 초기화
-
-          // 기존 댓글 데이터 초기화
+          setCommentsInput("");
           setComments([]);
-
-          // 새로운 댓글이 추가된 후 전체 댓글 목록 다시 로드
           loadComments(0);
-
+          setPage(0);
           if (onCommentAdded) {
             onCommentAdded();
           }
         })
         .catch((error) => {
+          if (!userId) {
+            router.push("/login");
+          }
           console.error("There was an error!", error);
         });
     }
@@ -183,8 +213,20 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
                   </div>
                 </div>
               </div>
-              <div className="text-xs text-gray-400 ml-1 mt-1 text-end flex-1 w-16">
-                {formatDateToRelativeTime(comment.createAt)}
+              <div>
+                <div className="text-xs text-gray-400 ml-1 text-end flex-1 w-16">
+                  {formatDateToRelativeTime(comment.createAt)}
+                </div>
+                {comment.memberId === Number(userId) && (
+                  <div className="text-xs text-end mt-1">
+                    <button onClick={() => handleEditComment(comment.commentId)} className="mr-1">
+                      수정
+                    </button>
+                    <button onClick={() => handleDeleteComment(comment.commentId)} className="text-red-700">
+                      삭제
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -192,6 +234,11 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
         {comments.length >= 8 && totalPages > page + 1 && (
           <div className="flex justify-center mt-10">
             <AiOutlinePlusCircle className="text-4xl cursor-pointer" onClick={handlePlusClick} />
+          </div>
+        )}
+        {isLoading && (
+          <div className="flex justify-center mt-10">
+            <span className="loading loading-spinner loading-lg"></span>
           </div>
         )}
         <button onClick={closeModal} className="absolute top-2 right-4 text-xl">
