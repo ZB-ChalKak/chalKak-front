@@ -107,7 +107,7 @@ export default function Login() {
       onLoginSuccess(tokenResponse);
       setFormData({ email: "", password: "" });
     } catch (error) {
-      console.log('err', error)
+      console.log("err", error);
       setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
       setAlertOpen(true);
     }

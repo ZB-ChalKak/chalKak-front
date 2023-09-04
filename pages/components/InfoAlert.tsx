@@ -1,18 +1,16 @@
 import { FunctionComponent, useEffect } from "react";
+import { useRecoilState } from "recoil";
+import { alertState } from "@/utils/atoms";
 
-interface AlertProps {
-  open: boolean;
-  setOpen: (state: boolean) => void;
-  message: string;
-}
+const InfoAlert: FunctionComponent = () => {
+  const [alert, setAlert] = useRecoilState(alertState);
 
-const InfoAlert: FunctionComponent<AlertProps> = ({ open, setOpen, message }) => {
   useEffect(() => {
     let timerId: number | null = null;
 
-    if (open) {
+    if (alert.open) {
       timerId = setTimeout(() => {
-        setOpen(false);
+        setAlert({ open: false, message: "" });
       }, 1500) as unknown as number;
     }
 
@@ -21,12 +19,11 @@ const InfoAlert: FunctionComponent<AlertProps> = ({ open, setOpen, message }) =>
         clearTimeout(timerId);
       }
     };
-  }, [open]);
-
+  }, [alert, setAlert]);
   return (
     <div
       className={`fixed left-5 bottom-5 transition-all duration-500 ease-out transform ${
-        open ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+        alert.open ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
       }`}
     >
       <div
@@ -40,10 +37,16 @@ const InfoAlert: FunctionComponent<AlertProps> = ({ open, setOpen, message }) =>
           fill="currentColor"
           viewBox="0 0 20 20"
         >
-          <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+          <path
+            d="M10 .5a9.5 9.5 0 1 0 
+                    M10 .5ZM9.5 
+                    a1.1h-.8v2h-.2c-.8 
+                    a2H8a1 
+                    Z"
+          />
         </svg>
         <span className="sr-only">Info</span>
-        <div>{message}</div>
+        <div>{alert.message}</div>
       </div>
     </div>
   );

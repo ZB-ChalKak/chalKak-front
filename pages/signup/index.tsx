@@ -2,8 +2,9 @@ import { ChangeEvent, FormEvent, useState, useEffect, useCallback } from "react"
 import KeywordModal from "./KeywordModal";
 import debounce from "lodash.debounce";
 import { apiInstance } from "../api/api";
-import InfoAlert from "../components/InfoAlert";
 import router from "next/router";
+import { useSetRecoilState } from "recoil";
+import { alertState } from "@/utils/atoms";
 type Gender = "MALE" | "FEMALE";
 
 interface StyleTag {
@@ -24,9 +25,8 @@ interface SignUpData {
   styleTags: number[];
 }
 
-const alertMessage = "회원가입이 성공했습니다!!";
-
 export default function signup() {
+  const setAlert = useSetRecoilState(alertState);
   const [styleTagsData, setStyleTagsData] = useState<StyleTag[]>([]);
   const [invalidEmail, setInvalidEmail] = useState(false);
   const [invalidPassword, setInvalidPassword] = useState(false);
@@ -38,6 +38,7 @@ export default function signup() {
   const [styleTags, setStyleTags] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [emailTouched, setEmailTouched] = useState(false);
+
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [nicknameTouched, setNicknamewordTouched] = useState(false);
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false);
@@ -45,7 +46,6 @@ export default function signup() {
   const [weightTouched, setWeightTouched] = useState(false);
   const [emailDuplicated, setEmailDuplicated] = useState(false);
   const [nicknameDuplicated, setNicknameDuplicated] = useState(false);
-  const [alertOepn, setAlertOpen] = useState(false);
   const [formData, setFormData] = useState<SignUpData>({
     email: "",
     password: "",
@@ -233,10 +233,8 @@ export default function signup() {
         nickname,
       });
       console.log(response);
-      setAlertOpen(true);
-      setTimeout(() => {
-        router.push("/main");
-      }, 1000);
+      setAlert({ open: true, message: "회원가입이 성공했습니다!" });
+      router.push("/login");
       //이메일 인증 구현 예정
     } catch (error) {
       console.error(error);
@@ -429,7 +427,6 @@ export default function signup() {
           </div>
         </form>
       </div>
-      <InfoAlert open={alertOepn} setOpen={setAlertOpen} message={alertMessage} />
     </div>
   );
 }

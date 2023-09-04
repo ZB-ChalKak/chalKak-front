@@ -1,6 +1,6 @@
 // HomePage.tsx
-import { useRecoilState } from "recoil";
-import { uploadedImageFilesState, uploadedImageUrlsState, locationState } from "../../utils/atoms";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { uploadedImageFilesState, uploadedImageUrlsState, locationState, alertState } from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import KeywordCheckbox from "./KeywordCheckbox";
@@ -57,8 +57,6 @@ interface HomePageProps {
   initialPostData?: editData;
 }
 
-const alertMessage = "게시글이 작성되었습니다!";
-
 const accessToken = Cookies.get("accessToken");
 const testData = ["아메카지", "원마일웨어"];
 const seasonData = ["봄"];
@@ -83,7 +81,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   const [privacyWeight, setPrivacyWeight] = useState(false);
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
   const [allStaticKeywords, setAllStaticKeywords] = useState<string[]>([]);
-  const [alertOepn, setAlertOpen] = useState(false);
+  const setAlert = useSetRecoilState(alertState);
   const [formData, setFormData] = useState<postingData>({
     content: "",
     dynamicKeywords: dynamicKeywords,
@@ -350,7 +348,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      setAlertOpen(true);
+      setAlert({ open: true, message: "게시물 작성이 완료되었습니다!" });
       setTimeout(() => {
         router.push("/main");
       }, 1000);
@@ -468,7 +466,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
           작성
         </button>
       )}
-      <InfoAlert open={alertOepn} setOpen={setAlertOpen} message={alertMessage} />
+      <InfoAlert />
     </div>
   );
 };
