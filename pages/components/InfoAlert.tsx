@@ -22,7 +22,7 @@ const InfoAlert: FunctionComponent = () => {
   }, [alert, setAlert]);
   return (
     <div
-      className={`fixed left-5 bottom-5 transition-all duration-500 ease-out transform ${
+      className={`fixed left-5 bottom-5 flex items-center transition-all duration-500 ease-out transform ${
         alert.open ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
       }`}
     >
@@ -31,19 +31,17 @@ const InfoAlert: FunctionComponent = () => {
         role="alert"
       >
         <svg
-          className="flex-shrink-0 inline w-4 h-4 mr-3"
-          aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          viewBox="0 0 20 20"
+          fill="none"
+          viewBox="0 0 24 24"
+          className="stroke-info shrink-0 w-7 h-6 mt-1"
         >
           <path
-            d="M10 .5a9.5 9.5 0 1 0 
-                    M10 .5ZM9.5 
-                    a1.1h-.8v2h-.2c-.8 
-                    a2H8a1 
-                    Z"
-          />
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
         </svg>
         <span className="sr-only">Info</span>
         <div>{alert.message}</div>

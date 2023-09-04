@@ -8,6 +8,7 @@ import { ko } from "date-fns/locale";
 import { apiInstance } from "../api/api";
 import Cookies from "js-cookie";
 import router from "next/router";
+import WarningAlert from "@/pages/components/WarningAlert";
 
 const img = pofileImage;
 
@@ -34,6 +35,8 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
   const [comments, setComments] = useState<Comment[]>([]);
   const [showFullTexts, setShowFullTexts] = useState(comments.map(() => false));
   const [commentInput, setCommentsInput] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [currentCommentId, setCurrentCommentId] = useState<number | null>(null);
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -114,11 +117,12 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
     loadComments(newPage); // 바로 추가적인 댓글 로딩
   };
 
-  const handleEditComment = (commentId: number) => {
-    console.log("edit" + commentId);
-  };
+  // const handleEditComment = (commentId: number) => {
+  //   console.log("edit" + commentId);
+  // };
 
   const handleDeleteComment = (commentId: number) => {
+    if (currentCommentId === null) return;
     apiInstance({
       method: "delete",
       url: `/posts/comments/${commentId}`,
@@ -128,11 +132,22 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
     })
       .then(() => {
         setComments(comments.filter((comment) => comment.commentId !== commentId));
+        setAlertOpen(false);
       })
       .catch((error) => {
         console.error("There was an error!", error);
       });
   };
+
+  const openDeleteAlert = (commentId: number) => {
+    // 삭제 버튼 클릭 시 실행되는 함수
+    setCurrentCommentId(commentId); // 삭제할 comment id 저장
+    setAlertOpen(true); // 알림창 열기
+  };
+
+  useEffect(() => {
+    console.log(currentCommentId);
+  }, [currentCommentId]);
 
   const handleSubmitComment = () => {
     console.log(commentInput);
@@ -189,7 +204,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
         </div>
         {comments.map((comment, index) => (
           <div key={index} className="flex mb-5 items-center justify-between">
-            <div className="flex items-start w-[600px]">
+            <div className="flex items-start w-[600px] ">
               <div className="relative w-9 h-9">
                 <Image
                   src={comment.profileUrl || img}
@@ -203,7 +218,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
                   <div className="block">
                     <div className="text-sm font-semibold ml-1">{comment.nickname}</div>
                     <div
-                      className={`text-sm ml-1 col w-[460px] whitespace-pre-wrap break-words ${
+                      className={`text-sm ml-1 col w-[400px] whitespace-pre-wrap break-words ${
                         !showFullTexts[index] ? "line-clamp-2" : ""
                       }`}
                       onClick={() => toggleFullText(index)}
@@ -213,18 +228,27 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
                   </div>
                 </div>
               </div>
-              <div>
-                <div className="text-xs text-gray-400 ml-1 text-end flex-1 w-16">
+              <div className="mr-5 flex flex-col h-full">
+                <div className="text-xs text-gray-400 ml-1 text-end w-24">
                   {formatDateToRelativeTime(comment.createAt)}
                 </div>
                 {comment.memberId === Number(userId) && (
-                  <div className="text-xs text-end mt-1">
-                    <button onClick={() => handleEditComment(comment.commentId)} className="mr-1">
+                  <div className="bottom-1 mt-1 right-5 text-[11px] text-end">
+                    {/* <button onClick={() => handleEditComment(comment.commentId)} className="mr-1">
                       수정
-                    </button>
-                    <button onClick={() => handleDeleteComment(comment.commentId)} className="text-red-700">
+                    </button> */}
+                    <button className="text-red-700" onClick={() => openDeleteAlert(comment.commentId)}>
                       삭제
                     </button>
+                    {isModalOpen && currentCommentId !== null && (
+                      <WarningAlert
+                        open={alertOpen}
+                        setOpen={setAlertOpen}
+                        message="정말로 삭제하시겠습니까?"
+                        onConfirm={handleDeleteComment}
+                        id={currentCommentId}
+                      />
+                    )}
                   </div>
                 )}
               </div>

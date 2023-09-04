@@ -17,6 +17,10 @@ import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import CommentsModal from "./CommentsModal";
 import Alert from "../components/Alert";
+import WarningAlert from "../components/WarningAlert";
+import { useSetRecoilState } from "recoil";
+import { alertState } from "@/utils/atoms";
+import InfoAlert from "../components/InfoAlert";
 interface Writer {
   height: number;
   id: number;
@@ -56,13 +60,21 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [isLogined, setIsLogined] = useState(true);
   const [alertOepn, setAlertOpen] = useState(false);
+  const [deleteAlertModal, setDeleteAlertOpen] = useState(false);
+  const [currentPostId, setCurrentPostId] = useState(0);
   const [alertMessage, setAlertMessage] = useState("");
   const accessToken = Cookies.get("accessToken");
   const userId = Cookies.get("userId");
-
   const writerSrc = postData?.writer.profileImg || img;
   const router = useRouter();
   const { postId } = router.query;
+  const setAlert = useSetRecoilState(alertState);
+
+  useEffect(() => {
+    if (typeof postId === "string") {
+      setCurrentPostId(parseInt(postId));
+    }
+  }, [postId]);
 
   const openCommentsModal = () => {
     setcommentsModalIsOpen(true);
@@ -222,17 +234,22 @@ const HomePage = () => {
     }
   };
 
-  const handleDeletePost = () => {
+  const handleDeletePost = (postId: number) => {
     apiInstance({
       method: "patch",
       url: `posts/${postId}/delete`,
     })
       .then(() => {
+        setAlert({ open: true, message: "게시물 작성이 완료되었습니다!" });
         router.push("/main");
       })
       .catch((error) => {
         console.log(error);
       });
+  };
+
+  const openDeleteAlert = () => {
+    setDeleteAlertOpen(true); // 알림창 열기
   };
 
   // 좋아요 아이콘을 보여주는 함수
@@ -321,7 +338,7 @@ const HomePage = () => {
                 <li>
                   <a>수정</a>
                 </li>
-                <li onClick={handleDeletePost}>
+                <li onClick={openDeleteAlert}>
                   <a className="text-red-600 hover:text-red-600">삭제</a>
                 </li>
               </ul>
@@ -374,6 +391,13 @@ const HomePage = () => {
             </div>
           </div>
         </div>
+        <WarningAlert
+          open={deleteAlertModal}
+          setOpen={setDeleteAlertOpen}
+          message="정말로 삭제하시겠습니까?"
+          onConfirm={handleDeletePost}
+          id={currentPostId}
+        />
         <HeartsModal isOpen={heartsModalIsOpen} closeModal={closeHeartsModal} postId={postId} />
         <div className=" mb-36">
           <CommentsSection postId={postId} />
@@ -382,6 +406,7 @@ const HomePage = () => {
           </div>
           <Divider width="200px" />
         </div>
+        <InfoAlert />
       </div>
     </>
   );

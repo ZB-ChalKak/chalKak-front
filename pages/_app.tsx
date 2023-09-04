@@ -12,6 +12,7 @@ import InfoAlert from "./components/InfoAlert";
 
 const queryClient = new QueryClient();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function StyleTagsFetcher() {
   const currentStyleTags = useRecoilValue(styleTagsState);
   // const shouldFetch = !currentStyleTags || currentStyleTags.category === "";
@@ -30,7 +31,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
-        <StyleTagsFetcher />
+        {/* <StyleTagsFetcher /> */}
         <div className="wrap">
           <div className="container">
             <Navbar />

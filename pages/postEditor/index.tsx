@@ -349,9 +349,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
         },
       });
       setAlert({ open: true, message: "게시물 작성이 완료되었습니다!" });
-      setTimeout(() => {
-        router.push("/main");
-      }, 1000);
+      router.push("/main");
     } catch (error) {
       console.error(error);
     }
