@@ -1,5 +1,4 @@
 import HomePage, { editData } from "./index";
-import HomePage, { postingData } from "./index";
 import { GetServerSideProps } from "next";
 import { apiInstance } from "../api/api";
 
@@ -9,11 +8,6 @@ interface PostEditorProps {
 
 const PostEditor = ({ initialPostData }: PostEditorProps) => {
   console.log(initialPostData);
-  initialPostData: postingData;
-}
-
-const PostEditor = ({ initialPostData }: PostEditorProps) => {
-  console.log("hh");
   return <HomePage initialPostData={initialPostData} />;
 };
 
