@@ -1,6 +1,5 @@
 import Image from "next/image";
 import profileImg from "./img/프로필사진.jpg";
-import postImage from "./img/여행룩.png";
 import Carousel from "../components/Carousel";
 import { AiOutlineHeart, AiOutlineComment, AiFillHeart } from "react-icons/ai";
 import { GrMore } from "react-icons/gr";
@@ -40,7 +39,7 @@ interface Post {
   styleTags: string[];
   seasonTags: string[];
   weatherTags: string[];
-  postPhoto: string[];
+  postPhotos?: PostPhoto[];
   liked: boolean;
   following: boolean;
   viewCount: number;
@@ -48,9 +47,14 @@ interface Post {
   writer: Writer;
 }
 
-const img = profileImg;
-const postImages = [postImage, profileImg];
+interface PostPhoto {
+  id: number;
+  name: string;
+  order: number;
+  url: string;
+}
 
+const img = profileImg;
 const HomePage = () => {
   const [postData, setPostData] = useState<Post | null>(null);
   const [commentsModalIsOpen, setcommentsModalIsOpen] = useState(false);
@@ -66,6 +70,7 @@ const HomePage = () => {
   const [deleteAlertModal, setDeleteAlertOpen] = useState(false);
   const [currentPostId, setCurrentPostId] = useState(0);
   const [alertMessage, setAlertMessage] = useState("");
+  const [postImages, setPostImages] = useState<string[] | undefined>(undefined);
   const accessToken = Cookies.get("accessToken");
   const userId = Cookies.get("userId");
   const writerSrc = postData?.writer.profileImg || img;
@@ -141,6 +146,9 @@ const HomePage = () => {
     setLikeCount(postData?.likeCount || 0);
     if (userId == postData?.writer.id) {
       setIsWriter(true);
+    }
+    if (postData?.postPhotos) {
+      setPostImages(postData.postPhotos.map((photo: PostPhoto) => photo.url));
     }
   }, [postData]);
 
@@ -352,13 +360,32 @@ const HomePage = () => {
         </div>
 
         <Carousel
-          settings={{ slidesToShow: 1, speed: 300, arrows: true, dots: true, centerMode: false, infinite: false }}
+          settings={{
+            slidesToShow: 1,
+            speed: 300,
+            arrows: true,
+            dots: true,
+            infinite: false,
+            centerMode: true,
+            centerPadding: "0px",
+          }}
         >
-          {postImages.map((image, index) => (
-            <div key={index} className="w-[720px] h-[960px] bg-gray-300 flex items-center justify-center mt-4">
-              <Image src={image} alt={`Post Image ${index}`} className="object-cover w-full h-full" />
-            </div>
-          ))}
+          {postImages &&
+            postImages.map((image, index) => (
+              <div
+                key={index}
+                className="w-[720px] h-[960px] min-x-[720px] bg-gray-200 mt-4 flex items-center justify-center"
+              >
+                <Image
+                  src={image}
+                  alt={`Post Image ${index}`}
+                  width={720}
+                  height={960}
+                  quality={100}
+                  layout="responsive"
+                />
+              </div>
+            ))}
         </Carousel>
         <div className="flex items-center justify-between w-[680px] mx-auto mt-1-">
           <div className="flex flex-1">

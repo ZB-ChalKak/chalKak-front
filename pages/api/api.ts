@@ -8,10 +8,9 @@ export const apiInstance = axios.create({
   baseURL: "http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080/",
 });
 
-// Add a request interceptor
+// 인터셉터 사용
 apiInstance.interceptors.request.use(
   (config) => {
-    // Do something before request is sent
     const accessToken = Cookies.get("accessToken");
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -20,7 +19,6 @@ apiInstance.interceptors.request.use(
     return config;
   },
   (error) => {
-    // Do something with request error
     return Promise.reject(error);
   },
 );
