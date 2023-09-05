@@ -38,6 +38,9 @@ interface Post {
   privacyHeight: boolean;
   privacyWeight: boolean;
   styleTags: string[];
+  seasonTags: string[];
+  weatherTags: string[];
+  postPhoto: string[];
   liked: boolean;
   following: boolean;
   viewCount: number;
@@ -382,12 +385,13 @@ const HomePage = () => {
                   #{tag}
                 </div>
               ))}
-
               {postData?.hashTags.map((tag, index) => (
                 <div className="mr-1" key={index}>
                   #{tag}
                 </div>
               ))}
+              <div className="mr-1">#{postData?.seasonTags}</div>
+              <div className="mr-1">#{postData?.weatherTags}</div>
             </div>
           </div>
         </div>

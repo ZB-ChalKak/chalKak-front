@@ -38,17 +38,16 @@ interface postingData {
 
 export interface editData {
   content: string;
-  styleKeywords: string[];
+  styleTags: string[];
   hashTags: string[];
-  seasonKeywords: string[];
-  weatherKeywords: string[];
+  seasonTags: string[];
+  weatherTags: string[];
   uploadedImageFiles: File[];
   uploadedImageUrls: string[];
   privacyHeight: boolean;
   privacyWeight: boolean;
   staticKeywords: string[];
   location: string;
-  styleTags: number[];
   testData: string[];
   testData2: number[];
 }
@@ -58,9 +57,6 @@ interface HomePageProps {
 }
 
 const accessToken = Cookies.get("accessToken");
-const testData = ["아메카지", "원마일웨어"];
-const seasonData = ["봄"];
-const weatherData = ["흐림"];
 
 const HomePage = ({ initialPostData }: HomePageProps) => {
   const [styleTagsData, setStyleTagsData] = useState<StyleTag[]>([]);
@@ -98,14 +94,14 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   });
 
   useInitialData(initialPostData?.location, setLocation);
-  useInitialData(initialPostData?.styleTags, setStyleTags);
+  // useInitialData(initialPostData?.styleTags, setStyleTags);
   useInitialData(initialPostData?.content, setContent);
   useInitialData(initialPostData?.privacyHeight, setPrivacyHeight);
   useInitialData(initialPostData?.privacyWeight, setPrivacyWeight);
   useInitialData(initialPostData?.hashTags, setDynamicKeywords);
-  useInitialData(testData, setStyleKeywords);
-  useInitialData(seasonData, setSeasonKeywords);
-  useInitialData(weatherData, setWeatherKeywords);
+  useInitialData(initialPostData?.styleTags, setStyleKeywords);
+  useInitialData(initialPostData?.seasonTags, setSeasonKeywords);
+  useInitialData(initialPostData?.weatherTags, setWeatherKeywords);
 
   useEffect(() => {
     console.log(styleKeywords);
