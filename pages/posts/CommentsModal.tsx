@@ -1,13 +1,22 @@
+import Modal from "react-modal";
+import pofileImage from "./img/프로필사진.jpg";
 import Image from "next/image";
-import CommentsModal from "./CommentsModal";
-import { useEffect, useState } from "react";
-import profileImg from "./img/프로필사진.jpg";
+import { ChangeEvent, useEffect, useState } from "react";
+import { AiOutlinePlusCircle, AiOutlineClose } from "react-icons/ai";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { apiInstance } from "../api/api";
+import Cookies from "js-cookie";
+import router from "next/router";
+import WarningAlert from "@/pages/components/WarningAlert";
 
-interface CommentsSectionProps {
+const img = pofileImage;
+
+interface ModalComponentProps {
+  isOpen: boolean;
+  closeModal: () => void;
   postId: string | string[] | undefined;
+  onCommentAdded?: () => void; // new prop
 }
 
 interface Comment {
@@ -16,21 +25,30 @@ interface Comment {
   nickname: string;
   profileUrl: string | null;
   createAt: string;
+  updatedAt: string;
+  memberId: number;
 }
 
-const img = profileImg;
+Modal.setAppElement(".wrap");
 
-const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
-  const [commentsModalIsOpen, setcommentsModalIsOpen] = useState(false);
-  const [commentsData, setCommentsData] = useState<Comment[]>([]);
-  const [totalComments, setTotalComments] = useState(0);
+const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId, onCommentAdded }) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [showFullTexts, setShowFullTexts] = useState(comments.map(() => false));
+  const [commentInput, setCommentsInput] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [currentCommentId, setCurrentCommentId] = useState<number | null>(null);
+  const [totalPages, setTotalPages] = useState(0);
+  const [page, setPage] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const openCommentsModal = () => {
-    setcommentsModalIsOpen(true);
-  };
+  const accessToken = Cookies.get("accessToken");
+  const userId = Cookies.get("userId");
 
-  const closeCommentsModal = () => {
-    setcommentsModalIsOpen(false);
+  const toggleFullText = (index: number) => {
+    const newShowFullTexts = [...showFullTexts];
+    newShowFullTexts[index] = !newShowFullTexts[index];
+    setShowFullTexts(newShowFullTexts);
   };
 
   function formatDateToRelativeTime(dateString: string | number | Date) {
@@ -41,81 +59,218 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
     return formatDistanceToNow(date, { addSuffix: true, locale: ko });
   }
 
-  const onCommentAdded = () => {
+  const loadComments = (page: number) => {
+    setIsLoading(true); // loading 시작
+    if (postId) {
+      apiInstance({
+        method: "get",
+        url: `posts/${postId}/pageComments?page=${page}&size=9&sort=createdAt,desc`,
+      })
+        .then((response) => {
+          setTotalPages(response.data.data.totalPages);
+          setComments((prevComments) => [...prevComments, ...response.data.data.commentLoadResponses]);
+          setIsLoading(false); // loading 종료
+        })
+        .catch((error) => {
+          console.error("There was an error!", error);
+          setIsLoading(false); // loading 종료
+        });
+    }
+  };
+
+  const handleCloseModal = () => {
+    setPage(0);
+    closeModal(); // 모달 창 닫기
+  };
+
+  useEffect(() => {
+    if (isOpen && !isModalOpen) {
+      setComments([]);
+      loadComments(0);
+    }
+    setIsModalOpen(isOpen);
+    console.log("page" + page);
+  }, [isOpen, isModalOpen, postId]);
+  useEffect(() => {
+    console.log(comments);
+  }, [comments]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    } else {
+      document.body.style.overflow = "unset";
+      document.body.style.paddingRight = "0px";
+    }
+  }, [isOpen]);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCommentsInput(value);
+  };
+
+  const handlePlusClick = () => {
+    const newPage = page + 1;
+    setPage(newPage); // + 버튼 클릭시 page 증가
+    loadComments(newPage); // 바로 추가적인 댓글 로딩
+  };
+
+  // const handleEditComment = (commentId: number) => {
+  //   console.log("edit" + commentId);
+  // };
+
+  const handleDeleteComment = (commentId: number) => {
+    if (currentCommentId === null) return;
     apiInstance({
-      method: "get",
-      url: `posts/${postId}/pageComments?page=0&size=3&sort=createdAt,desc`,
+      method: "delete",
+      url: `/posts/comments/${commentId}`,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     })
-      .then((response) => {
-        console.log(response);
-        setCommentsData(response.data.data.commentLoadResponses);
-        setTotalComments(response.data.data.totalElements);
+      .then(() => {
+        setComments(comments.filter((comment) => comment.commentId !== commentId));
+        setAlertOpen(false);
       })
       .catch((error) => {
         console.error("There was an error!", error);
       });
   };
 
-  useEffect(() => {
-    if (postId) {
-      onCommentAdded();
-    }
-  }, [postId]);
+  const openDeleteAlert = (commentId: number) => {
+    // 삭제 버튼 클릭 시 실행되는 함수
+    setCurrentCommentId(commentId); // 삭제할 comment id 저장
+    setAlertOpen(true); // 알림창 열기
+  };
 
   useEffect(() => {
-    console.log(commentsData);
-  }, [commentsData]);
+    console.log(currentCommentId);
+  }, [currentCommentId]);
+
+  const handleSubmitComment = () => {
+    console.log(commentInput);
+    if (postId) {
+      apiInstance({
+        method: "post",
+        url: `posts/comments`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
+          content: commentInput,
+          postId: postId,
+        },
+      })
+        .then(() => {
+          setCommentsInput("");
+          setComments([]);
+          loadComments(0);
+          setPage(0);
+          if (onCommentAdded) {
+            onCommentAdded();
+          }
+        })
+        .catch((error) => {
+          if (!userId) {
+            router.push("/login");
+          }
+          console.error("There was an error!", error);
+        });
+    }
+  };
 
   return (
-    <div className="mb-4">
-      <div className="mt-3 ml-5 mb-4 flex cursor-pointer w-24" onClick={openCommentsModal}>
-        댓글
-        <div className="font-bold ml-1">{totalComments}</div>개
-      </div>
-      <CommentsModal
-        isOpen={commentsModalIsOpen}
-        closeModal={closeCommentsModal}
-        postId={postId}
-        onCommentAdded={onCommentAdded}
-      />
-
-      <div className="flex w-[680px] mx-auto ml-5">
-        <div className="flex flex-col">
-          {commentsData.map((comment, index) => (
-            <div key={index} className="flex w-[680px] mb-4 justify-between">
-              <div className="flex items-center">
-                <div className="relative w-9 h-9">
-                  <Image
-                    src={comment.profileUrl || img}
-                    alt="프로필 사진"
-                    layout="fill"
-                    className="rounded-full object-cover mt-[2px]"
-                  />
-                </div>
-                <div>
-                  <div className="flex flex-col ml-2">
-                    <div className="flex">
-                      <div className="text-sm font-semibold ml-1">{comment.nickname}</div>
-                      <div className="text-sm ml-2 col w-96 overflow-hidden overflow-ellipsis whitespace-nowrap">
-                        {comment.comment}
-                      </div>
+    <div>
+      <Modal
+        isOpen={isOpen}
+        onRequestClose={handleCloseModal}
+        contentLabel="Comments Modal"
+        overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-filter"
+        className="bg-white rounded-lg p-10 w-[650px] h-[750px] relative overflow-y-auto "
+      >
+        <div className="flex w-full justify-between">
+          <input
+            type="text"
+            placeholder="댓글을 입력해주세요."
+            value={commentInput}
+            onChange={(e) => handleChange(e)}
+            className="input input-bordered input-md w-full mb-7 mr-2 focus:border-none rounded-full"
+          />
+          <button className="btn" onClick={handleSubmitComment}>
+            게시
+          </button>
+        </div>
+        {comments.map((comment, index) => (
+          <div key={index} className="flex mb-5 items-center justify-between">
+            <div className="flex items-start w-[600px] ">
+              <div className="relative w-9 h-9">
+                <Image
+                  src={comment.profileUrl || img}
+                  alt="프로필 사진"
+                  layout="fill"
+                  className="rounded-full object-cover mt-[2px] items-start"
+                />
+              </div>
+              <div>
+                <div className="flex flex-col ml-2">
+                  <div className="block">
+                    <div className="text-sm font-semibold ml-1">{comment.nickname}</div>
+                    <div
+                      className={`text-sm ml-1 col w-[400px] whitespace-pre-wrap break-words ${
+                        !showFullTexts[index] ? "line-clamp-2" : ""
+                      }`}
+                      onClick={() => toggleFullText(index)}
+                    >
+                      {comment.comment}{" "}
                     </div>
-                    {/* 여기서는 comment.createAt을 그대로 사용하였으나, 실제로는 적절한 형식으로 날짜를 변환해야 합니다. */}
-                    {/* 예: '2023-08-31T01:42:15.578672' -> '1일 전' */}
-                    {/* 이러한 변환을 위해서는 date-fns, moment 등의 라이브러리를 사용할 수 있습니다. */}
-                    <div className="text-xs text-gray-400 ml-1 mt-1">{formatDateToRelativeTime(comment.createAt)}</div>
                   </div>
                 </div>
               </div>
+              <div className="mr-5 flex flex-col h-full">
+                <div className="text-xs text-gray-400 ml-1 text-end w-24">
+                  {formatDateToRelativeTime(comment.createAt)}
+                </div>
+                {comment.memberId === Number(userId) && (
+                  <div className="bottom-1 mt-1 right-5 text-[11px] text-end">
+                    {/* <button onClick={() => handleEditComment(comment.commentId)} className="mr-1">
+                      수정
+                    </button> */}
+                    <button className="text-red-700" onClick={() => openDeleteAlert(comment.commentId)}>
+                      삭제
+                    </button>
+                    {isModalOpen && currentCommentId !== null && (
+                      <WarningAlert
+                        open={alertOpen}
+                        setOpen={setAlertOpen}
+                        message="정말로 삭제하시겠습니까?"
+                        onConfirm={handleDeleteComment}
+                        id={currentCommentId}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          ))}
-          <div className="text-gray-400 ml-2 cursor-pointer" onClick={openCommentsModal}>
-            댓글 더 보기...
           </div>
-        </div>
-      </div>
+        ))}
+        {comments.length >= 8 && totalPages > page + 1 && (
+          <div className="flex justify-center mt-10">
+            <AiOutlinePlusCircle className="text-4xl cursor-pointer" onClick={handlePlusClick} />
+          </div>
+        )}
+        {isLoading && (
+          <div className="flex justify-center mt-10">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        )}
+        <button onClick={closeModal} className="absolute top-2 right-4 text-xl">
+          <AiOutlineClose className="text-2xl" />
+        </button>
+      </Modal>
     </div>
   );
 };
 
-export default CommentsSection;
+export default CommentsModal;
