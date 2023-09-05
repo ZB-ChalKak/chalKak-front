@@ -77,6 +77,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
         closeModal={closeCommentsModal}
         postId={postId}
         onCommentAdded={onCommentAdded}
+        onCommentDeleted={onCommentAdded}
       />
 
       <div className="flex w-[680px] mx-auto ml-5">
@@ -100,18 +101,21 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
                         {comment.comment}
                       </div>
                     </div>
-                    {/* 여기서는 comment.createAt을 그대로 사용하였으나, 실제로는 적절한 형식으로 날짜를 변환해야 합니다. */}
-                    {/* 예: '2023-08-31T01:42:15.578672' -> '1일 전' */}
-                    {/* 이러한 변환을 위해서는 date-fns, moment 등의 라이브러리를 사용할 수 있습니다. */}
                     <div className="text-xs text-gray-400 ml-1 mt-1">{formatDateToRelativeTime(comment.createAt)}</div>
                   </div>
                 </div>
               </div>
             </div>
           ))}
-          <div className="text-gray-400 ml-2 cursor-pointer" onClick={openCommentsModal}>
-            댓글 더 보기...
-          </div>
+          {totalComments > 3 ? (
+            <div className="text-gray-400 ml-2 cursor-pointer" onClick={openCommentsModal}>
+              댓글 더 보기...
+            </div>
+          ) : (
+            <div className="text-gray-400 ml-2 cursor-pointer" onClick={openCommentsModal}>
+              댓글 창 열기
+            </div>
+          )}
         </div>
       </div>
     </div>

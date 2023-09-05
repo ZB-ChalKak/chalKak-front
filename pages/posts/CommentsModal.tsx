@@ -16,7 +16,8 @@ interface ModalComponentProps {
   isOpen: boolean;
   closeModal: () => void;
   postId: string | string[] | undefined;
-  onCommentAdded?: () => void; // new prop
+  onCommentAdded?: () => void;
+  onCommentDeleted?: () => void;
 }
 
 interface Comment {
@@ -31,7 +32,13 @@ interface Comment {
 
 Modal.setAppElement(".wrap");
 
-const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId, onCommentAdded }) => {
+const CommentsModal: React.FC<ModalComponentProps> = ({
+  isOpen,
+  closeModal,
+  postId,
+  onCommentAdded,
+  onCommentDeleted,
+}) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [showFullTexts, setShowFullTexts] = useState(comments.map(() => false));
   const [commentInput, setCommentsInput] = useState("");
@@ -133,6 +140,9 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
       .then(() => {
         setComments(comments.filter((comment) => comment.commentId !== commentId));
         setAlertOpen(false);
+        if (onCommentDeleted) {
+          onCommentDeleted();
+        }
       })
       .catch((error) => {
         console.error("There was an error!", error);

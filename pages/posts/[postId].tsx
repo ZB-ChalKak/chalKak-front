@@ -346,7 +346,7 @@ const HomePage = () => {
                 tabIndex={0}
                 className="dropdown-content z-[5] menu p-2 shadow bg-base-100 rounded-box w-[80px] absolute top-7 left-[-44px] text-center"
               >
-                <li>
+                <li onClick={() => router.push(`/postEditor/${postId}`)}>
                   <a>수정</a>
                 </li>
                 <li onClick={openDeleteAlert}>
@@ -374,7 +374,7 @@ const HomePage = () => {
             postImages.map((image, index) => (
               <div
                 key={index}
-                className="w-[720px] h-[960px] min-x-[720px] bg-gray-200 mt-4 flex items-center justify-center"
+                className="w-[720px] h-[960px] min-x-[720px] bg-gray-200 mt-4 flex items-center justify-center relative overflow-hidden"
               >
                 <Image
                   src={image}
@@ -383,6 +383,7 @@ const HomePage = () => {
                   height={960}
                   quality={100}
                   layout="responsive"
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                 />
               </div>
             ))}
@@ -432,7 +433,7 @@ const HomePage = () => {
         <HeartsModal isOpen={heartsModalIsOpen} closeModal={closeHeartsModal} postId={postId} />
         <div className=" mb-36">
           <CommentsSection postId={postId} />
-          <div className="text-xs text-gray-400 ml-7 mt-[-10px]">
+          <div className="text-xs text-gray-400 ml-7 mt-[10px]">
             {postData?.createdAt ? formatDateToRelativeTime(postData.createdAt) : ""}
           </div>
           <Divider width="200px" />

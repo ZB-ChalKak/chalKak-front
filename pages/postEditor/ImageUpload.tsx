@@ -1,11 +1,13 @@
 import React, { useState, ChangeEvent, useCallback } from "react";
 import { useRecoilState } from "recoil";
 import { uploadedImageFilesState, uploadedImageUrlsState } from "../../utils/atoms";
+import CropModal from "./CropModal";
 
 const ImageUpload = () => {
   const [uploadedImageFiles, setUploadedImageFiles] = useRecoilState(uploadedImageFilesState);
   const [, setUploadedImageUrls] = useRecoilState(uploadedImageUrlsState);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [isCropOpen, setIsCropOpen] = useState(false);
 
   const handleDeleteClick = (index: number) => {
     const urlToRevoke = previews[index];
@@ -30,6 +32,7 @@ const ImageUpload = () => {
       const files = e.target.files;
 
       if (files) {
+        setIsCropOpen(true);
         let fileArray = Array.from(files);
 
         //이미지 파일 형식확인
@@ -64,6 +67,15 @@ const ImageUpload = () => {
 
   return (
     <div>
+      <button onClick={() => setIsCropOpen(true)}>Open Modal</button>
+      <CropModal
+        isOpen={isCropOpen}
+        onRequestClose={() => setIsCropOpen(false)}
+        onCropComplete={(url) => {
+          setPreviews((prevPreviews) => [...prevPreviews, url]);
+          setUploadedImageUrls((prevUrls) => [...prevUrls, url]);
+        }}
+      />
       <div className="flex overflow-auto mt-5">
         {previews.map((preview, index) => (
           <div key={index} className="h-[300px] w-[230px] mr-3 relative flex-shrink-0 ">
