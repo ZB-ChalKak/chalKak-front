@@ -1,18 +1,12 @@
-import Modal from "react-modal";
-import pofileImage from "./img/프로필사진.jpg";
 import Image from "next/image";
-import { ChangeEvent, useEffect, useState } from "react";
-import { AiOutlinePlusCircle, AiOutlineClose } from "react-icons/ai";
-import { API_URL_PREFIX } from "@/constants/apiUrl";
+import CommentsModal from "./CommentsModal";
+import { useEffect, useState } from "react";
+import profileImg from "./img/프로필사진.jpg";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { apiInstance } from "../api/api";
 
-const img = pofileImage;
-
-interface ModalComponentProps {
-  isOpen: boolean;
-  closeModal: () => void;
+interface CommentsSectionProps {
   postId: string | string[] | undefined;
 }
 
@@ -24,17 +18,19 @@ interface Comment {
   createAt: string;
 }
 
-Modal.setAppElement(".wrap");
+const img = profileImg;
 
-const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId }) => {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [showFullTexts, setShowFullTexts] = useState(comments.map(() => false));
-  const [commentInput, setComentInput] = useState("");
+const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
+  const [commentsModalIsOpen, setcommentsModalIsOpen] = useState(false);
+  const [commentsData, setCommentsData] = useState<Comment[]>([]);
+  const [totalComments, setTotalComments] = useState(0);
 
-  const toggleFullText = (index: number) => {
-    const newShowFullTexts = [...showFullTexts];
-    newShowFullTexts[index] = !newShowFullTexts[index];
-    setShowFullTexts(newShowFullTexts);
+  const openCommentsModal = () => {
+    setcommentsModalIsOpen(true);
+  };
+
+  const closeCommentsModal = () => {
+    setcommentsModalIsOpen(false);
   };
 
   function formatDateToRelativeTime(dateString: string | number | Date) {
@@ -45,108 +41,81 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
     return formatDistanceToNow(date, { addSuffix: true, locale: ko });
   }
 
+  const onCommentAdded = () => {
+    apiInstance({
+      method: "get",
+      url: `posts/${postId}/pageComments?page=0&size=3&sort=createdAt,desc`,
+    })
+      .then((response) => {
+        console.log(response);
+        setCommentsData(response.data.data.commentLoadResponses);
+        setTotalComments(response.data.data.totalElements);
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  };
+
   useEffect(() => {
     if (postId) {
-      apiInstance({
-        method: "get",
-        url: `${API_URL_PREFIX}posts/${postId}/comments`,
-      })
-        .then((response) => {
-          setComments(response.data.data);
-        })
-        .catch((error) => {
-          console.error("There was an error!", error);
-        });
+      onCommentAdded();
     }
   }, [postId]);
 
   useEffect(() => {
-    console.log(comments);
-  }, [comments]);
-
-  useEffect(() => {
-    if (isOpen) {
-      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
-    } else {
-      document.body.style.overflow = "unset";
-      document.body.style.paddingRight = "0px";
-    }
-  }, [isOpen]);
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setComentInput(value);
-  };
-
-  const handleSubmit = () => {
-    console.log(commentInput);
-  };
+    console.log(commentsData);
+  }, [commentsData]);
 
   return (
-    <div>
-      <Modal
-        isOpen={isOpen}
-        onRequestClose={closeModal}
-        contentLabel="Comments Modal"
-        overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-filter"
-        className="bg-white rounded-lg p-10 w-[650px] h-[750px] relative overflow-y-auto "
-      >
-        <div className="flex w-full justify-between">
-          <input
-            type="text"
-            placeholder="댓글을 입력해주세요."
-            onChange={(e) => handleChange(e)}
-            className="input input-bordered input-md w-full mb-7 mr-2 focus:border-none rounded-full"
-          />
-          <button className="btn" onClick={handleSubmit}>
-            게시
-          </button>
-        </div>
-        {comments.map((comment, index) => (
-          <div key={index} className="flex mb-5 items-center justify-between">
-            <div className="flex items-start w-[600px]">
-              <div className="relative w-9 h-9">
-                <Image
-                  src={comment.profileUrl || img}
-                  alt="프로필 사진"
-                  layout="fill"
-                  className="rounded-full object-cover mt-[2px] items-start"
-                />
-              </div>
-              <div>
-                <div className="flex flex-col ml-2">
-                  <div className="block">
-                    <div className="text-sm font-semibold ml-1">{comment.nickname}</div>
-                    <div
-                      className={`text-sm ml-1 col w-[460px] whitespace-pre-wrap break-words ${
-                        !showFullTexts[index] ? "line-clamp-2" : ""
-                      }`}
-                      onClick={() => toggleFullText(index)}
-                    >
-                      {comment.comment}{" "}
+    <div className="mb-4">
+      <div className="mt-3 ml-5 mb-4 flex cursor-pointer w-24" onClick={openCommentsModal}>
+        댓글
+        <div className="font-bold ml-1">{totalComments}</div>개
+      </div>
+      <CommentsModal
+        isOpen={commentsModalIsOpen}
+        closeModal={closeCommentsModal}
+        postId={postId}
+        onCommentAdded={onCommentAdded}
+      />
+
+      <div className="flex w-[680px] mx-auto ml-5">
+        <div className="flex flex-col">
+          {commentsData.map((comment, index) => (
+            <div key={index} className="flex w-[680px] mb-4 justify-between">
+              <div className="flex items-center">
+                <div className="relative w-9 h-9">
+                  <Image
+                    src={comment.profileUrl || img}
+                    alt="프로필 사진"
+                    layout="fill"
+                    className="rounded-full object-cover mt-[2px]"
+                  />
+                </div>
+                <div>
+                  <div className="flex flex-col ml-2">
+                    <div className="flex">
+                      <div className="text-sm font-semibold ml-1">{comment.nickname}</div>
+                      <div className="text-sm ml-2 col w-96 overflow-hidden overflow-ellipsis whitespace-nowrap">
+                        {comment.comment}
+                      </div>
                     </div>
+                    {/* 여기서는 comment.createAt을 그대로 사용하였으나, 실제로는 적절한 형식으로 날짜를 변환해야 합니다. */}
+                    {/* 예: '2023-08-31T01:42:15.578672' -> '1일 전' */}
+                    {/* 이러한 변환을 위해서는 date-fns, moment 등의 라이브러리를 사용할 수 있습니다. */}
+                    <div className="text-xs text-gray-400 ml-1 mt-1">{formatDateToRelativeTime(comment.createAt)}</div>
                   </div>
                 </div>
               </div>
-              <div className="text-xs text-gray-400 ml-1 mt-1 text-end flex-1">
-                {formatDateToRelativeTime(comment.createAt)}
-              </div>
             </div>
+          ))}
+          <div className="text-gray-400 ml-2 cursor-pointer" onClick={openCommentsModal}>
+            댓글 더 보기...
           </div>
-        ))}
-        {comments.length >= 8 && (
-          <div className="flex justify-center">
-            <AiOutlinePlusCircle className="text-4xl cursor-pointer" />
-          </div>
-        )}
-        <button onClick={closeModal} className="absolute top-2 right-4 text-xl">
-          <AiOutlineClose className="text-2xl" />
-        </button>
-      </Modal>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default CommentsModal;
+export default CommentsSection;

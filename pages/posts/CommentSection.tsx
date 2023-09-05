@@ -2,7 +2,6 @@ import Image from "next/image";
 import CommentsModal from "./CommentsModal";
 import { useEffect, useState } from "react";
 import profileImg from "./img/프로필사진.jpg";
-import { API_URL_PREFIX } from "@/constants/apiUrl";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { apiInstance } from "../api/api";
@@ -24,6 +23,7 @@ const img = profileImg;
 const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
   const [commentsModalIsOpen, setcommentsModalIsOpen] = useState(false);
   const [commentsData, setCommentsData] = useState<Comment[]>([]);
+  const [totalComments, setTotalComments] = useState(0);
 
   const openCommentsModal = () => {
     setcommentsModalIsOpen(true);
@@ -41,18 +41,24 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
     return formatDistanceToNow(date, { addSuffix: true, locale: ko });
   }
 
+  const onCommentAdded = () => {
+    apiInstance({
+      method: "get",
+      url: `posts/${postId}/pageComments?page=0&size=3&sort=createdAt,desc`,
+    })
+      .then((response) => {
+        console.log(response);
+        setCommentsData(response.data.data.commentLoadResponses);
+        setTotalComments(response.data.data.totalElements);
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  };
+
   useEffect(() => {
     if (postId) {
-      apiInstance({
-        method: "get",
-        url: `${API_URL_PREFIX}posts/${postId}/comments`,
-      })
-        .then((response) => {
-          setCommentsData(response.data.data);
-        })
-        .catch((error) => {
-          console.error("There was an error!", error);
-        });
+      onCommentAdded();
     }
   }, [postId]);
 
@@ -61,12 +67,17 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
   }, [commentsData]);
 
   return (
-    <div className="mb-4 w-24">
-      <div className="mt-3 ml-5 mb-4 flex cursor-pointer" onClick={openCommentsModal}>
+    <div className="mb-4">
+      <div className="mt-3 ml-5 mb-4 flex cursor-pointer w-24" onClick={openCommentsModal}>
         댓글
-        <div className="font-bold ml-1">{commentsData.length}</div>개
+        <div className="font-bold ml-1">{totalComments}</div>개
       </div>
-      <CommentsModal isOpen={commentsModalIsOpen} closeModal={closeCommentsModal} postId={postId} />
+      <CommentsModal
+        isOpen={commentsModalIsOpen}
+        closeModal={closeCommentsModal}
+        postId={postId}
+        onCommentAdded={onCommentAdded}
+      />
 
       <div className="flex w-[680px] mx-auto ml-5">
         <div className="flex flex-col">
@@ -98,6 +109,9 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
               </div>
             </div>
           ))}
+          <div className="text-gray-400 ml-2 cursor-pointer" onClick={openCommentsModal}>
+            댓글 더 보기...
+          </div>
         </div>
       </div>
     </div>

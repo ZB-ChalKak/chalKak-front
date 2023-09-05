@@ -1,6 +1,6 @@
 // HomePage.tsx
-import { useRecoilState } from "recoil";
-import { uploadedImageFilesState, uploadedImageUrlsState, locationState } from "../../utils/atoms";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { uploadedImageFilesState, uploadedImageUrlsState, locationState, alertState } from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import KeywordCheckbox from "./KeywordCheckbox";
@@ -10,6 +10,9 @@ import Divider from "../components/Divider";
 import { AiOutlineClose } from "react-icons/ai";
 import useInitialData from "@/hooks/customHooks";
 import { apiInstance } from "../api/api";
+import InfoAlert from "../components/InfoAlert";
+import Cookies from "js-cookie";
+import router from "next/router";
 
 interface StyleTag {
   id: number;
@@ -18,7 +21,7 @@ interface StyleTag {
   keyword: string;
 }
 
-export interface postingData {
+interface postingData {
   content: string;
   styleKeywords: string[];
   dynamicKeywords: string[];
@@ -33,9 +36,27 @@ export interface postingData {
   styleTags: number[];
 }
 
-interface HomePageProps {
-  initialPostData?: postingData;
+export interface editData {
+  content: string;
+  styleTags: string[];
+  hashTags: string[];
+  seasonTags: string[];
+  weatherTags: string[];
+  uploadedImageFiles: File[];
+  uploadedImageUrls: string[];
+  privacyHeight: boolean;
+  privacyWeight: boolean;
+  staticKeywords: string[];
+  location: string;
+  testData: string[];
+  testData2: number[];
 }
+
+interface HomePageProps {
+  initialPostData?: editData;
+}
+
+const accessToken = Cookies.get("accessToken");
 
 const HomePage = ({ initialPostData }: HomePageProps) => {
   const [styleTagsData, setStyleTagsData] = useState<StyleTag[]>([]);
@@ -55,6 +76,8 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   const [privacyHeight, setPrivacyHeight] = useState(false);
   const [privacyWeight, setPrivacyWeight] = useState(false);
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
+  const [allStaticKeywords, setAllStaticKeywords] = useState<string[]>([]);
+  const setAlert = useSetRecoilState(alertState);
   const [formData, setFormData] = useState<postingData>({
     content: "",
     dynamicKeywords: dynamicKeywords,
@@ -71,14 +94,19 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   });
 
   useInitialData(initialPostData?.location, setLocation);
-  useInitialData(initialPostData?.styleTags, setStyleTags);
+  // useInitialData(initialPostData?.styleTags, setStyleTags);
   useInitialData(initialPostData?.content, setContent);
   useInitialData(initialPostData?.privacyHeight, setPrivacyHeight);
   useInitialData(initialPostData?.privacyWeight, setPrivacyWeight);
-  useInitialData(initialPostData?.dynamicKeywords, setDynamicKeywords);
-  useInitialData(initialPostData?.styleKeywords, setStyleKeywords);
-  useInitialData(initialPostData?.seasonKeywords, setSeasonKeywords);
-  useInitialData(initialPostData?.weatherKeywords, setWeatherKeywords);
+  useInitialData(initialPostData?.hashTags, setDynamicKeywords);
+  useInitialData(initialPostData?.styleTags, setStyleKeywords);
+  useInitialData(initialPostData?.seasonTags, setSeasonKeywords);
+  useInitialData(initialPostData?.weatherTags, setWeatherKeywords);
+
+  useEffect(() => {
+    console.log(styleKeywords);
+    console.log(styleTags);
+  }, [styleKeywords, styleTags]);
 
   useEffect(() => {
     setFormData((prevFormData) => ({
@@ -115,6 +143,9 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
       .get("styleTags")
       .then((response) => {
         setStyleTagsData(response.data.data.styleTags);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const keywordArray = response.data.data.styleTags.map((tag: any) => tag.keyword);
+        setAllStaticKeywords(keywordArray);
       })
       .catch((error) => {
         console.error("There was an error!", error);
@@ -174,6 +205,8 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
       // 중복 키워드 확인
       if (dynamicKeywords.includes(dynamicKeywordInput.trim()) || staticKeywords.includes(dynamicKeywordInput.trim())) {
         alert("이미 있는 키워드입니다!"); // 이미 있는 키워드일 경우 alert 표시
+      } else if (allStaticKeywords.includes(dynamicKeywordInput.trim())) {
+        alert("해당 키워드는 버튼을 눌러주세요!"); // keywords에 존재하는 경우 alert 표시
       } else {
         setDynamicKeywords([...dynamicKeywords, dynamicKeywordInput.trim()]);
         setDynamicKeywordInput("");
@@ -264,6 +297,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   // 내용 입력 창 체인지
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
+    console.log(styleTags);
   };
 
   // 동적 입력 태그 삭제
@@ -277,25 +311,41 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     e.preventDefault();
 
     const submissionFormData = new FormData();
-
-    uploadedImageFiles.forEach((file, index) => {
-      submissionFormData.append(`image-${index}`, file);
+    uploadedImageFiles.forEach((file) => {
+      submissionFormData.append("multipartFileList", file);
     });
 
-    submissionFormData.append("content", content);
-    submissionFormData.append("location", location);
-    submissionFormData.append("privacyHeight", String(privacyHeight));
-    submissionFormData.append("privacyWeight", String(privacyWeight));
-    submissionFormData.append("styleTags", styleTags.join(","));
-    submissionFormData.append("hashTags", dynamicKeywords.join(","));
+    const request = {
+      content: content,
+      location: location,
+      privacyHeight: privacyHeight,
+      privacyWeight: privacyWeight,
+      styleTags: styleTags,
+      hashTags: dynamicKeywords,
+    };
+
+    console.log(request);
+
+    // submissionFormData.append("content", JSON.stringify(content));
+    // submissionFormData.append("location", JSON.stringify(location));
+    // submissionFormData.append("privacyHeight", JSON.stringify(privacyHeight));
+    // submissionFormData.append("privacyWeight", JSON.stringify(privacyWeight));
+    // submissionFormData.append("styleTags", JSON.stringify(styleTags));
+    // submissionFormData.append("hashTags", JSON.stringify(dynamicKeywords));
+
+    const blob = new Blob([JSON.stringify(request)], { type: "application/json" });
+    submissionFormData.append("request", blob);
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       await apiInstance.post(`posts`, submissionFormData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${accessToken}`,
         },
       });
+      setAlert({ open: true, message: "게시물 작성이 완료되었습니다!" });
+      router.push("/main");
     } catch (error) {
       console.error(error);
     }
@@ -397,7 +447,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
         <h2 className="mb-2 font-medium">Weather*</h2>
         <div className="flex ">{weatherKeywordCheckboxes}</div>
       </div>
-      {uploadedImageFiles.length > 0 && seasonKeywords.length > 0 && weatherKeywords.length > 0 ? (
+      {uploadedImageUrls.length > 0 && seasonKeywords.length > 0 && weatherKeywords.length > 0 ? (
         <button type="button" onClick={handleSubmit} className="btn-neutral w-[600px] p-3 rounded-full text-sm my-10">
           작성
         </button>
@@ -410,6 +460,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
           작성
         </button>
       )}
+      <InfoAlert />
     </div>
   );
 };
