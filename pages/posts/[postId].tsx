@@ -374,7 +374,7 @@ const HomePage = () => {
             postImages.map((image, index) => (
               <div
                 key={index}
-                className="w-[720px] h-[960px] min-x-[720px] bg-gray-200 mt-4 flex items-center justify-center relative overflow-hidden"
+                className="w-[720px] h-[960px] min-w-[720px] bg-gray-200 mt-4 flex items-center justify-center relative overflow-hidden"
               >
                 <Image
                   src={image}

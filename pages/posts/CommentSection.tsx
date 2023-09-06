@@ -66,6 +66,8 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
     console.log(commentsData);
   }, [commentsData]);
 
+  console.log(img);
+
   return (
     <div className="mb-4">
       <div className="mt-3 ml-5 mb-4 flex cursor-pointer w-24" onClick={openCommentsModal}>

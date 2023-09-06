@@ -74,8 +74,9 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
         url: `posts/${postId}/pageComments?page=${page}&size=9&sort=createdAt,desc`,
       })
         .then((response) => {
-          setTotalPages(response.data.data.totalPages);
           setComments((prevComments) => [...prevComments, ...response.data.data.commentLoadResponses]);
+          setTotalPages(response.data.data.totalPages);
+
           setIsLoading(false); // loading 종료
         })
         .catch((error) => {
