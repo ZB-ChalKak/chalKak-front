@@ -1,5 +1,6 @@
 import { atom } from "recoil";
 import Cookies from "js-cookie";
+import { userPostsType } from "./type";
 
 // file
 export const uploadedImageFilesState = atom<File[]>({
@@ -84,9 +85,10 @@ export const alertState = atom({
 export const userDetailState = atom({
   key: "userDetailState",
   default: {
-    posts: 0,
+    postsCount: 0,
     followerCount: 0,
     followingCount: 0,
+    profileImg: "",
   },
 });
 
@@ -101,4 +103,16 @@ export const styleTagsState = atom({
       keyword: "",
     },
   ],
+});
+
+// userPosts State
+export const userPostsState = atom({
+  key: "userPostsState",
+  default: {
+    authenticated: false,
+    currentPage: 0,
+    totalPage: 0,
+    totalElements: 0,
+    posts: [] as userPostsType[],
+  },
 });

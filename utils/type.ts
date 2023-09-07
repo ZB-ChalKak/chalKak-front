@@ -32,3 +32,8 @@ export type userDetailPropsType = {
   followers: string[];
   following: string[];
 };
+
+export type userPostsType = {
+  id: number;
+  thumbnail: string | undefined;
+};
