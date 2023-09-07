@@ -7,9 +7,6 @@ import Alert from "../components/Alert";
 // import { accessTokenState, refreshTokenState } from "@/utils/atoms";
 import Cookies from "js-cookie";
 import { apiInstance } from "../api/api";
-import { useRecoilState } from "recoil";
-import { myKeywordsState } from "@/utils/atoms";
-import { set } from "date-fns";
 // import { on } from "events";
 // import { set } from "date-fns";
 
