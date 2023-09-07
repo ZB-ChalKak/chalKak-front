@@ -97,11 +97,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
       loadComments(0);
     }
     setIsModalOpen(isOpen);
-    console.log("page" + page);
   }, [isOpen, isModalOpen, postId]);
-  useEffect(() => {
-    console.log(comments);
-  }, [comments]);
 
   useEffect(() => {
     if (isOpen) {
@@ -156,12 +152,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
     setAlertOpen(true); // 알림창 열기
   };
 
-  useEffect(() => {
-    console.log(currentCommentId);
-  }, [currentCommentId]);
-
   const handleSubmitComment = () => {
-    console.log(commentInput);
     if (postId) {
       apiInstance({
         method: "post",

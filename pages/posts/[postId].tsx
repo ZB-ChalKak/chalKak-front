@@ -137,7 +137,6 @@ const HomePage = () => {
 
   // 초기값 설정
   useEffect(() => {
-    console.log(postData);
     setIsLike(postData?.liked || false);
     setIsFollow(postData?.following || false);
     setLikeCount(postData?.likeCount || 0);

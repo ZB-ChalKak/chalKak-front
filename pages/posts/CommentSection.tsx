@@ -47,7 +47,6 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
       url: `posts/${postId}/pageComments?page=0&size=3&sort=createdAt,desc`,
     })
       .then((response) => {
-        console.log(response);
         setCommentsData(response.data.data.commentLoadResponses);
         setTotalComments(response.data.data.totalElements);
       })
@@ -61,12 +60,6 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
       onCommentAdded();
     }
   }, [postId]);
-
-  useEffect(() => {
-    console.log(commentsData);
-  }, [commentsData]);
-
-  console.log(img);
 
   return (
     <div className="mb-4">

@@ -104,11 +104,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   useInitialData(initialPostData?.weatherTags, setWeatherKeywords);
 
   useEffect(() => {
-    console.log(styleKeywords);
-    console.log(styleTags);
-  }, [styleKeywords, styleTags]);
-
-  useEffect(() => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       content,
@@ -172,10 +167,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
 
     setStyleTags(newStyleTags);
   }, [styleTagsData, staticKeywords]);
-
-  useEffect(() => {
-    console.log(styleTags);
-  }, [styleTags]);
 
   // 정적 키워드들을 한곳에 담기
   useEffect(() => {
@@ -296,7 +287,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   // 내용 입력 창 체인지
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
-    console.log(styleTags);
   };
 
   // 동적 입력 태그 삭제

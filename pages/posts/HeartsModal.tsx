@@ -47,7 +47,6 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
       url: `like/posts/${postId}/liker?page=${page}&size=9&sort=id,desc`,
     })
       .then((response) => {
-        console.log(response);
         setLikeListData((prevLikeListData) => [...prevLikeListData, ...response.data.data.likerResponses]);
         setTotalPages(response.data.data.totalPages);
         setIsLoading(false); // loading 종료
@@ -100,10 +99,6 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
         });
     }
   };
-
-  useEffect(() => {
-    console.log(likeListData);
-  }, [likeListData]);
 
   const handlePlusClick = () => {
     const newPage = page + 1;
