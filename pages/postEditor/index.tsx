@@ -104,11 +104,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   useInitialData(initialPostData?.weatherTags, setWeatherKeywords);
 
   useEffect(() => {
-    console.log(styleKeywords);
-    console.log(styleTags);
-  }, [styleKeywords, styleTags]);
-
-  useEffect(() => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       content,
@@ -173,10 +168,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     setStyleTags(newStyleTags);
   }, [styleTagsData, staticKeywords]);
 
-  useEffect(() => {
-    console.log(styleTags);
-  }, [styleTags]);
-
   // 정적 키워드들을 한곳에 담기
   useEffect(() => {
     setStaticKeywords([...styleKeywords, ...seasonKeywords, ...weatherKeywords]);
@@ -197,7 +188,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     setDynamicKeywordInput(e.target.value);
   };
 
-  // 현재 "봄"이라는 동적메소드가 추가될 수 있는 문제가 발생
   const handleDynamicKeywordSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -297,7 +287,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   // 내용 입력 창 체인지
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
-    console.log(styleTags);
   };
 
   // 동적 입력 태그 삭제
@@ -323,15 +312,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
       styleTags: styleTags,
       hashTags: dynamicKeywords,
     };
-
-    console.log(request);
-
-    // submissionFormData.append("content", JSON.stringify(content));
-    // submissionFormData.append("location", JSON.stringify(location));
-    // submissionFormData.append("privacyHeight", JSON.stringify(privacyHeight));
-    // submissionFormData.append("privacyWeight", JSON.stringify(privacyWeight));
-    // submissionFormData.append("styleTags", JSON.stringify(styleTags));
-    // submissionFormData.append("hashTags", JSON.stringify(dynamicKeywords));
 
     const blob = new Blob([JSON.stringify(request)], { type: "application/json" });
     submissionFormData.append("request", blob);

@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import Image from "next/image";
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { apiInstance } from "../api/api";
+import router from "next/router";
 
 interface ModalComponentProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface ModalComponentProps {
 }
 
 interface LikeList {
+  followed: boolean;
   memberId: number;
   nickName: string;
   profileUrl: string | null;
@@ -24,6 +26,7 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [likeListData, setLikeListData] = useState<LikeList[]>([]);
+  const [followStatuses, setFollowStatuses] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -36,6 +39,7 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
     }
   }, [isOpen]);
 
+  // api호출
   const loadLikeList = (page: number) => {
     setIsLoading(true); // loading 시작
     apiInstance({
@@ -43,8 +47,7 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
       url: `like/posts/${postId}/liker?page=${page}&size=9&sort=id,desc`,
     })
       .then((response) => {
-        console.log(response);
-        setLikeListData(response.data.data.likerResponses);
+        setLikeListData((prevLikeListData) => [...prevLikeListData, ...response.data.data.likerResponses]);
         setTotalPages(response.data.data.totalPages);
         setIsLoading(false); // loading 종료
       })
@@ -54,47 +57,48 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
       });
   };
 
-  // 팔로우 버튼 클릭
-  // const handleClickFollowBtn = (memberId:number) => {
-  //   if (postId) {
-  //     apiInstance({
-  //       method: "get",
-  //       url: `follow/${memberId}`,
-  //     })
-  //       .then(() => {
-  //         // API 호출이 성공했을 때 setIsFollow(true) 실행
-  //         setIsFollow(true);
-  //       })
-  //       .catch((error) => {
-  //         console.error("There was an error!", error);
+  //로그인 페이지로 이동
+  const redirectToLogin = () => {
+    router.push("/login");
+  };
 
-  //         redirectToLogin();
-  //       });
-  //   }
-  // };
-  // // 언팔로우 버튼 클릭
-  // const handleClickUnfollowBtn = () => {
-  //   if (postId) {
-  //     apiInstance({
-  //       method: "delete",
-  //       url: `follow/${postData?.writer.id}`,
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //       },
-  //     })
-  //       .then(() => {
-  //         setIsFollow(false);
-  //       })
-  //       .catch((error) => {
-  //         console.error("There was an error!", error);
-  //         redirectToLogin();
-  //       });
-  //   }
-  // };
+  const handleCloseModal = () => {
+    setPage(0);
+    closeModal(); // 모달 창 닫기
+  };
 
-  useEffect(() => {
-    console.log(likeListData);
-  }, [likeListData]);
+  //팔로우 버튼 클릭
+  const handleClickFollowBtn = (memberId: number) => {
+    if (postId) {
+      apiInstance({
+        method: "get",
+        url: `follow/${memberId}`,
+      })
+        .then(() => {
+          setFollowStatuses({ ...followStatuses, [memberId]: true });
+        })
+        .catch((error) => {
+          console.error("There was an error!", error);
+          redirectToLogin();
+        });
+    }
+  };
+  // 언팔로우 버튼 클릭
+  const handleClickUnfollowBtn = (memberId: number) => {
+    if (postId) {
+      apiInstance({
+        method: "delete",
+        url: `follow/${memberId}`,
+      })
+        .then(() => {
+          setFollowStatuses({ ...followStatuses, [memberId]: false });
+        })
+        .catch((error) => {
+          console.error("There was an error!", error);
+          redirectToLogin();
+        });
+    }
+  };
 
   const handlePlusClick = () => {
     const newPage = page + 1;
@@ -104,6 +108,7 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
 
   useEffect(() => {
     if (isOpen) {
+      setLikeListData([]);
       loadLikeList(page);
     }
   }, [isOpen]);
@@ -112,7 +117,7 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
     <div>
       <Modal
         isOpen={isOpen}
-        onRequestClose={closeModal}
+        onRequestClose={handleCloseModal}
         contentLabel="Comments Modal"
         overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-filter"
         className="bg-white rounded-lg p-10 w-[650px] h-[750px] relative overflow-y-auto "
@@ -132,9 +137,25 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
                 <div className="ml-5 text-lg">{likeList.nickName}</div>
               </div>
 
-              <div>
-                <button className="w-20 h-8 border rounded-md">팔로우</button>
-              </div>
+              {followStatuses[likeList.memberId.toString()] || likeList.followed ? (
+                <div>
+                  <button
+                    className="w-20 h-8 border rounded-md bg-gray-600 text-white hover:bg-gray-800 hover:text-gray-200"
+                    onClick={() => handleClickUnfollowBtn(likeList.memberId)}
+                  >
+                    언팔로우
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <button
+                    className="w-20 h-8 border rounded-md hover:bg-gray-200"
+                    onClick={() => handleClickFollowBtn(likeList.memberId)}
+                  >
+                    팔로우
+                  </button>
+                </div>
+              )}
             </div>
           ))}
           {likeListData.length >= 8 && totalPages > page + 1 && (

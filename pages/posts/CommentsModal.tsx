@@ -16,8 +16,10 @@ interface ModalComponentProps {
   isOpen: boolean;
   closeModal: () => void;
   postId: string | string[] | undefined;
-  onCommentAdded?: () => void; // new prop
+  onCommentAdded?: () => void;
+  onCommentDeleted?: () => void;
 }
+
 
 interface Comment {
   commentId: number;
@@ -31,7 +33,13 @@ interface Comment {
 
 Modal.setAppElement(".wrap");
 
-const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId, onCommentAdded }) => {
+const CommentsModal: React.FC<ModalComponentProps> = ({
+  isOpen,
+  closeModal,
+  postId,
+  onCommentAdded,
+  onCommentDeleted,
+}) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [showFullTexts, setShowFullTexts] = useState(comments.map(() => false));
   const [commentInput, setCommentsInput] = useState("");
@@ -67,8 +75,9 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
         url: `posts/${postId}/pageComments?page=${page}&size=9&sort=createdAt,desc`,
       })
         .then((response) => {
-          setTotalPages(response.data.data.totalPages);
           setComments((prevComments) => [...prevComments, ...response.data.data.commentLoadResponses]);
+          setTotalPages(response.data.data.totalPages);
+
           setIsLoading(false); // loading 종료
         })
         .catch((error) => {
@@ -89,11 +98,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
       loadComments(0);
     }
     setIsModalOpen(isOpen);
-    console.log("page" + page);
   }, [isOpen, isModalOpen, postId]);
-  useEffect(() => {
-    console.log(comments);
-  }, [comments]);
 
   useEffect(() => {
     if (isOpen) {
@@ -133,6 +138,9 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
       .then(() => {
         setComments(comments.filter((comment) => comment.commentId !== commentId));
         setAlertOpen(false);
+        if (onCommentDeleted) {
+          onCommentDeleted();
+        }
       })
       .catch((error) => {
         console.error("There was an error!", error);
@@ -145,12 +153,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, post
     setAlertOpen(true); // 알림창 열기
   };
 
-  useEffect(() => {
-    console.log(currentCommentId);
-  }, [currentCommentId]);
-
   const handleSubmitComment = () => {
-    console.log(commentInput);
     if (postId) {
       apiInstance({
         method: "post",
