@@ -70,6 +70,11 @@ export const refreshTokenState = atom({
   default: "",
 });
 
+export const totalComments = atom({
+  key: "totalComments",
+  default: 0,
+});
+
 type StyleTag = {
   id: number;
   category: string;
@@ -80,4 +85,9 @@ type StyleTag = {
 export const styleTagsState = atom<StyleTag[]>({
   key: "styleTags",
   default: [],
+});
+
+export const alertState = atom({
+  key: "alertState",
+  default: { open: false, message: "" },
 });
