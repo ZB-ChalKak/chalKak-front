@@ -22,8 +22,14 @@ interface SigninResponse {
     success?: boolean;
     message?: string;
     data: {
-      userId: number;
-      styleTags: number[];
+      userInfo: {
+        gender: string;
+        height: number;
+        weight: number;
+        nickname: string;
+        styleTags: number[];
+        userId: number;
+      };
       token: {
         readonly grantType: string;
         readonly accessToken: string;
@@ -60,10 +66,10 @@ export default function Login() {
   // 로그인 성공 시, accessToken을 recoil에 저장
   const onLoginSuccess = (response: SigninResponse) => {
     const { accessToken, refreshToken, accessTokenExpireDate } = response.data.data.token;
-    const styleTags = response.data.data.styleTags;
+    const styleTags = response.data.data.userInfo.styleTags;
     console.log("styleTags", styleTags);
     // 쿠키에 로그인 정보 저장
-    Cookies.set("userId", String(response.data.data.userId));
+    Cookies.set("userId", String(response.data.data.userInfo.userId));
     Cookies.set("accessToken", accessToken);
 
     // accessToken, refreshToken recoil에 저장
