@@ -1,6 +1,13 @@
 // HomePage.tsx
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { uploadedImageFilesState, uploadedImageUrlsState, locationState, alertState } from "../../utils/atoms";
+import {
+  uploadedImageFilesState,
+  uploadedImageUrlsState,
+  locationState,
+  alertState,
+  imageInfoState,
+  imageIdsState,
+} from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import KeywordCheckbox from "./KeywordCheckbox";
@@ -36,6 +43,13 @@ interface postingData {
   styleTags: number[];
 }
 
+interface PostPhoto {
+  id: number;
+  order: number;
+  name: string;
+  url: string;
+}
+
 export interface editData {
   content: string;
   styleTags: string[];
@@ -48,8 +62,7 @@ export interface editData {
   privacyWeight: boolean;
   staticKeywords: string[];
   location: string;
-  testData: string[];
-  testData2: number[];
+  postPhotos: PostPhoto[];
 }
 
 interface HomePageProps {
@@ -77,6 +90,8 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   const [privacyWeight, setPrivacyWeight] = useState(false);
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
   const [allStaticKeywords, setAllStaticKeywords] = useState<string[]>([]);
+  const [imageInfo, setImageInfo] = useRecoilState(imageInfoState);
+  const [imageIds, setImageIds] = useRecoilState(imageIdsState);
   const setAlert = useSetRecoilState(alertState);
   const [formData, setFormData] = useState<postingData>({
     content: "",
@@ -93,6 +108,8 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     location: location,
   });
 
+  console.log(initialPostData);
+
   useInitialData(initialPostData?.location, setLocation);
   // useInitialData(initialPostData?.styleTags, setStyleTags);
   useInitialData(initialPostData?.content, setContent);
@@ -102,6 +119,15 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   useInitialData(initialPostData?.styleTags, setStyleKeywords);
   useInitialData(initialPostData?.seasonTags, setSeasonKeywords);
   useInitialData(initialPostData?.weatherTags, setWeatherKeywords);
+
+  useEffect(() => {
+    setImageInfo(initialPostData?.postPhotos.map((photo) => ({ id: photo.id, url: photo.url })) || []);
+  }, [initialPostData]);
+
+  useEffect(() => {
+    const ids = imageInfo.map((info) => info.id);
+    setImageIds(ids);
+  }, [imageInfo]);
 
   useEffect(() => {
     setFormData((prevFormData) => ({

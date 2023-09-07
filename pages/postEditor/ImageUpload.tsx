@@ -1,19 +1,25 @@
-import React, { useState, ChangeEvent, useCallback } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { uploadedImageFilesState, uploadedImageUrlsState } from "../../utils/atoms";
+import { imageIdsState, imageInfoState, uploadedImageFilesState, uploadedImageUrlsState } from "../../utils/atoms";
 
 const ImageUpload = () => {
   const [uploadedImageFiles, setUploadedImageFiles] = useRecoilState(uploadedImageFilesState);
   const [, setUploadedImageUrls] = useRecoilState(uploadedImageUrlsState);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [imageInfo] = useRecoilState(imageInfoState);
+  const [imageIds, setImageIds] = useRecoilState(imageIdsState);
 
   const handleDeleteClick = (index: number) => {
-    const urlToRevoke = previews[index];
-    URL.revokeObjectURL(urlToRevoke);
+    // const urlToRevoke = previews[index];
+    // URL.revokeObjectURL(urlToRevoke);
+
+    // 삭제할 이미지의 아이디 찾기
+    const idToDelete = imageInfo[index].id;
 
     setPreviews((prevPreviews) => prevPreviews.filter((_, i) => i !== index));
     setUploadedImageFiles((prevImages) => prevImages.filter((_, i) => i !== index));
     setUploadedImageUrls((prevImages) => prevImages.filter((_, i) => i !== index));
+    setImageIds((prevImageIds) => prevImageIds.filter((id) => id !== idToDelete));
   };
 
   const handleAddImageButtonClick = (e: React.MouseEvent<HTMLLabelElement>) => {
@@ -22,6 +28,16 @@ const ImageUpload = () => {
       e.preventDefault();
     }
   };
+
+  useEffect(() => {
+    const urls = imageInfo.map((info) => info.url);
+    setPreviews(urls);
+  }, [imageInfo]);
+
+  useEffect(() => {
+    console.log(previews);
+    console.log(imageIds);
+  }, [previews]);
 
   const handleImageChange = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
