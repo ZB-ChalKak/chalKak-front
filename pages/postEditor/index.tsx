@@ -194,7 +194,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
       if (dynamicKeywordInput.trim() === "") return;
       // 중복 키워드 확인
       if (dynamicKeywords.includes(dynamicKeywordInput.trim()) || staticKeywords.includes(dynamicKeywordInput.trim())) {
-        alert("이미 있는 키워드입니다!"); // 이미 있는 키워드일 경우 alert 표시
+        alert("이미 있는 키워드입니다!"); // 이미 있는 키워드일 경우 alert 표시함
       } else if (allStaticKeywords.includes(dynamicKeywordInput.trim())) {
         alert("해당 키워드는 버튼을 눌러주세요!"); // keywords에 존재하는 경우 alert 표시
       } else {
