@@ -8,6 +8,11 @@ import Alert from "../components/Alert";
 // import { on } from "events";
 import Cookies from "js-cookie";
 import { apiInstance } from "../api/api";
+import { useRecoilState } from "recoil";
+import { myKeywordsState } from "@/utils/atoms";
+import { set } from "date-fns";
+// import { on } from "events";
+// import { set } from "date-fns";
 
 // 이메일과 비밀번호를 포함한 객체
 interface LoginData {
@@ -21,6 +26,7 @@ interface SigninResponse {
     message?: string;
     data: {
       userId: number;
+      styleTags: number[];
       token: {
         readonly grantType: string;
         readonly accessToken: string;
@@ -55,13 +61,15 @@ export default function Login() {
   // 로그인 성공 시, accessToken을 recoil에 저장
   const onLoginSuccess = (response: SigninResponse) => {
     const { accessToken, refreshToken, accessTokenExpireDate } = response.data.data.token;
+    const { styleTags } = response.data.data;
     // 쿠키에 로그인 정보 저장
     Cookies.set("userId", String(response.data.data.userId));
     Cookies.set("accessToken", accessToken);
-
+    Cookies.set("myKeywords", JSON.stringify(styleTags));
     // accessToken, refreshToken recoil에 저장
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
+
     // 현재 시간 (unix time)
     const now = new Date().getTime();
     // accessToken 만료 시간
@@ -113,22 +121,18 @@ export default function Login() {
     }
   };
 
-  // // 구글 로그인 API 호출
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     const response = await axios.get("/googlelogin");
-  //     console.log(response);
-  //     if (response.status === 200) {
-  //       router.push("/");
-  //     } else {
-  //       setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-  //       setAlertOpen(true);
-  //     }
-  //   } catch (error) {
-  //     setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-  //     setAlertOpen(true);
-  //   }
-  // };
+  // ouath2/authorization/google 구글 로그인
+  // 구글 로그인 API 호출
+  const handleGoogleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const tokenResponse = await apiInstance.get("oauth2/authorization/google");
+      tokenResponse;
+    } catch (error) {
+      setAlertMessage("구글 로그인에 실패했습니다.");
+      setAlertOpen(true);
+    }
+  };
 
   // 이메일 양식 확인
   const checkEmailFormat = (email: string) => {
