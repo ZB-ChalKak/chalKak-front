@@ -20,6 +20,7 @@ import WarningAlert from "../components/WarningAlert";
 import { useSetRecoilState } from "recoil";
 import { alertState } from "@/utils/atoms";
 import InfoAlert from "../components/InfoAlert";
+import SkeletonPost from "../components/SkeletonPost";
 interface Writer {
   height: number;
   id: number;
@@ -111,11 +112,7 @@ const HomePage = () => {
   useEffect(() => {
     if (accessToken && userId) {
       setIsLogined(true);
-      console.log("확인");
-      console.log(isLogined);
-      console.log(isWriter);
     } else {
-      console.log("비확인");
       setIsLogined(false);
     }
   }, [accessToken, userId]);
@@ -136,7 +133,7 @@ const HomePage = () => {
           setLoading(false);
         });
     }
-  }, [postId, accessToken]);
+  }, [postId]);
 
   // 초기값 설정
   useEffect(() => {
@@ -307,7 +304,12 @@ const HomePage = () => {
     return formatDistanceToNow(date, { addSuffix: true, locale: ko });
   }
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div>
+        <SkeletonPost />
+      </div>
+    );
 
   return (
     <>
@@ -433,7 +435,7 @@ const HomePage = () => {
         <HeartsModal isOpen={heartsModalIsOpen} closeModal={closeHeartsModal} postId={postId} />
         <div className=" mb-36">
           <CommentsSection postId={postId} />
-          <div className="text-xs text-gray-400 ml-7 mt-[10px]">
+          <div className="text-xs text-gray-400 mr-7 mt-[10px] text-end">
             {postData?.createdAt ? formatDateToRelativeTime(postData.createdAt) : ""}
           </div>
           <Divider width="200px" />

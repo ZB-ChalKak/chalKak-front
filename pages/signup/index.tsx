@@ -5,6 +5,7 @@ import { apiInstance } from "../api/api";
 import router from "next/router";
 import { useSetRecoilState } from "recoil";
 import { alertState } from "@/utils/atoms";
+import SkeletonSignup from "./SkeletonSignup";
 type Gender = "MALE" | "FEMALE";
 
 interface StyleTag {
@@ -38,7 +39,7 @@ export default function signup() {
   const [styleTags, setStyleTags] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [emailTouched, setEmailTouched] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [nicknameTouched, setNicknamewordTouched] = useState(false);
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false);
@@ -76,17 +77,15 @@ export default function signup() {
   );
 
   useEffect(() => {
-    console.log(styleTags);
-  }, [styleTags]);
-
-  useEffect(() => {
     apiInstance
       .get("styleTags")
       .then((response) => {
         setStyleTagsData(response.data.data.styleTags);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("There was an error!", error);
+        setIsLoading(false);
       });
   }, []);
 
@@ -243,7 +242,11 @@ export default function signup() {
     console.log(formData);
   };
 
-  return (
+  return isLoading ? (
+    <div>
+      <SkeletonSignup />
+    </div>
+  ) : (
     <div className="flex justify-center items-center">
       <div className="w-[500px]">
         <div className="flex items-center justify-center mt-10">
