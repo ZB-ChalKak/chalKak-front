@@ -5,7 +5,6 @@ import Link from "next/link";
 import Alert from "../components/Alert";
 // import { useRecoilState } from "recoil";
 // import { accessTokenState, refreshTokenState } from "@/utils/atoms";
-// import { on } from "events";
 import Cookies from "js-cookie";
 import { apiInstance } from "../api/api";
 
@@ -21,6 +20,7 @@ interface SigninResponse {
     message?: string;
     data: {
       userId: number;
+      styleTags: number[];
       token: {
         readonly grantType: string;
         readonly accessToken: string;
@@ -52,16 +52,37 @@ export default function Login() {
     setFormData({ ...formData, [name]: value });
   };
 
+  // 로그인 API 호출
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    const { email, password } = formData;
+    try {
+      const tokenResponse = await apiInstance.post("users/signin", {
+        email,
+        password,
+      });
+      console.log(tokenResponse);
+      onLoginSuccess(tokenResponse);
+      setFormData({ email: "", password: "" });
+    } catch (error) {
+      console.log("err", error);
+      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+      setAlertOpen(true);
+    }
+  };
+
   // 로그인 성공 시, accessToken을 recoil에 저장
   const onLoginSuccess = (response: SigninResponse) => {
     const { accessToken, refreshToken, accessTokenExpireDate } = response.data.data.token;
+    const { styleTags } = response.data.data;
     // 쿠키에 로그인 정보 저장
     Cookies.set("userId", String(response.data.data.userId));
     Cookies.set("accessToken", accessToken);
-
+    Cookies.set("myKeywords", JSON.stringify(styleTags));
     // accessToken, refreshToken recoil에 저장
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
+
     // 현재 시간 (unix time)
     const now = new Date().getTime();
     // accessToken 만료 시간
@@ -69,7 +90,8 @@ export default function Login() {
     // 만료 시간 - 현재 시간 - 10분
     const delay = Math.max(expiration - now - 600000, 0);
     setTimeout(silentRefresh, delay);
-    router.reload();
+    // router.reload();
+    router.push("/main");
   };
 
   // silentRefresh: accessToken 재발급 및 로그인 성공 실행 함수 실행
@@ -94,38 +116,15 @@ export default function Login() {
     }
   };
 
-  // 로그인 API 호출
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    const { email, password } = formData;
-    try {
-      const tokenResponse = await apiInstance.post("users/signin", {
-        email,
-        password,
-      });
-      console.log(tokenResponse);
-      onLoginSuccess(tokenResponse);
-      setFormData({ email: "", password: "" });
-    } catch (error) {
-      console.log("err", error);
-      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-      setAlertOpen(true);
-    }
-  };
-
-  // // 구글 로그인 API 호출
-  // const handleGoogleLogin = async () => {
+  // ouath2/authorization/google 구글 로그인
+  // 구글 로그인 API 호출
+  // const handleGoogleLogin = async (e) => {
+  //   e.preventDefault();
   //   try {
-  //     const response = await axios.get("/googlelogin");
-  //     console.log(response);
-  //     if (response.status === 200) {
-  //       router.push("/");
-  //     } else {
-  //       setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-  //       setAlertOpen(true);
-  //     }
+  //     const tokenResponse = await apiInstance.get("oauth2/authorization/google");
+  //     tokenResponse;
   //   } catch (error) {
-  //     setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+  //     setAlertMessage("구글 로그인에 실패했습니다.");
   //     setAlertOpen(true);
   //   }
   // };
