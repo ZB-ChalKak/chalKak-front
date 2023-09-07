@@ -75,19 +75,30 @@ export const totalComments = atom({
   default: 0,
 });
 
-type StyleTag = {
-  id: number;
-  category: string;
-  keywordImg: string;
-  keyword: string;
-};
-
-export const styleTagsState = atom<StyleTag[]>({
-  key: "styleTags",
-  default: [],
-});
-
 export const alertState = atom({
   key: "alertState",
   default: { open: false, message: "" },
+});
+
+// userDetail State
+export const userDetailState = atom({
+  key: "userDetailState",
+  default: {
+    posts: 0,
+    followerCount: 0,
+    followingCount: 0,
+  },
+});
+
+// styleTags State
+export const styleTagsState = atom({
+  key: "styleTags",
+  default: [
+    {
+      id: 1,
+      category: "",
+      keywordImg: "",
+      keyword: "",
+    },
+  ],
 });
