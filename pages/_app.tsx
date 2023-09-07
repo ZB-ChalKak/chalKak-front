@@ -6,8 +6,6 @@ import "../public/fonts/font.css";
 import "../public/fonts/notoSansKr.css";
 import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
-import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
-import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { styleTagsState } from "@/utils/atoms";
 import { apiInstance } from "./api/api";
@@ -63,6 +61,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       <RecoilRoot>
         <StyleTagsFetcher />
         {getLayout(<Component {...pageProps} />)}
+        <InfoAlert />
       </RecoilRoot>
 
       {/* // 개발 환경에서만 DevTools가 보이도록 설정 */}
