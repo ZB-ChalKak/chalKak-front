@@ -5,11 +5,10 @@ import Link from "next/link";
 import Alert from "../components/Alert";
 // import { useRecoilState } from "recoil";
 // import { accessTokenState, refreshTokenState } from "@/utils/atoms";
-// import { on } from "events";
 import Cookies from "js-cookie";
 import { apiInstance } from "../api/api";
 import { useSetRecoilState } from "recoil";
-import { userState } from "@/utils/atoms";
+import { accessTokenState, userState } from "@/utils/atoms";
 
 // 이메일과 비밀번호를 포함한 객체
 interface LoginData {
@@ -49,7 +48,7 @@ export default function Login() {
     email: "",
     password: "",
   });
-  // const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
+  const setAcToken = useSetRecoilState(accessTokenState);
   // const [refreshToken, setRefreshToken] = useRecoilState(refreshTokenState);
   const [accessToken, setAccessToken] = useState("");
   const [refreshToken, setRefreshToken] = useState("");
@@ -71,10 +70,12 @@ export default function Login() {
     // 쿠키에 로그인 정보 저장
     Cookies.set("userId", String(response.data.data.userInfo.userId));
     Cookies.set("accessToken", accessToken);
-
+    Cookies.set("myKeywords", JSON.stringify(styleTags));
     // accessToken, refreshToken recoil에 저장
+    setAcToken(accessToken);
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
+
     // 현재 시간 (unix time)
     const now = new Date().getTime();
     // accessToken 만료 시간
