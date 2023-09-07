@@ -11,7 +11,7 @@ const InfoAlert: FunctionComponent = () => {
     if (alert.open) {
       timerId = setTimeout(() => {
         setAlert({ open: false, message: "" });
-      }, 1500) as unknown as number;
+      }, 4000) as unknown as number;
     }
 
     return () => {

@@ -3,9 +3,12 @@ import KeywordModal from "./KeywordModal";
 import debounce from "lodash.debounce";
 import { apiInstance } from "../api/api";
 import router from "next/router";
+import { BsQuestionCircle } from "react-icons/bs";
 import { useSetRecoilState } from "recoil";
 import { alertState } from "@/utils/atoms";
 import SkeletonSignup from "./SkeletonSignup";
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
 type Gender = "MALE" | "FEMALE";
 
 interface StyleTag {
@@ -232,7 +235,7 @@ export default function signup() {
         nickname,
       });
       console.log(response);
-      setAlert({ open: true, message: "회원가입이 성공했습니다!" });
+      setAlert({ open: true, message: "회원가입이 성공했습니다! 이메일 인증 후 로그인 해주세요!" });
       router.push("/login");
       //이메일 인증 구현 예정
     } catch (error) {
@@ -254,7 +257,15 @@ export default function signup() {
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4 mt-[100px]">
           <div>
-            <p className="text-md font-medium mb-[-10px]">이메일 주소</p> <br />
+            <div className="flex items-center mb-3">
+              <p className="font-bold">이메일 주소</p>
+              <div className="ml-1">
+                <Tooltip id="my-tooltip" className="text-xs" />
+                <a data-tooltip-id="my-tooltip" data-tooltip-content="인증 가능한 이메일을 입력해주세요!">
+                  <BsQuestionCircle className="cursor-pointer" />
+                </a>
+              </div>
+            </div>
             <input
               type="text"
               className="border-b border-gray-200 w-[500px] pb-2 text-sm focus:border-gray-700 transition-colors ease-in duration-100"

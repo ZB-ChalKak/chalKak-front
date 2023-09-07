@@ -7,7 +7,6 @@ interface PostEditorProps {
 }
 
 const PostEditor = ({ initialPostData }: PostEditorProps) => {
-  console.log("hh");
   return <HomePage initialPostData={initialPostData} />;
 };
 

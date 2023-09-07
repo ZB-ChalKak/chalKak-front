@@ -11,16 +11,6 @@ const WarningAlert: FunctionComponent<WarningAlert> = ({ id, open, onConfirm, se
   if (!open) return null;
 
   return (
-    // <div className="absolute left-1/2 top-0 transform -translate-x-1/2 mt-[12px] w-[400px] flex items-center justify-center bg-white ml-4">
-    //   <FiAlertCircle className="w-[20px] h-[20px]" color="#FF4500" />
-    //   <span className="font-medium text-center text-xs p-2">{message}</span>
-    //   <button onClick={() => setOpen(false)} className="ml-4 focus:outline-none">
-    //     &times;
-    //   </button>
-    //   <button onClick={() => onConfirm(id)} className="ml-4 focus:outline-none">
-    //     확인
-    //   </button>
-    // </div>
     <div
       id="popup-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-x-hidden overflow-y-auto transform translate-y-[-10%]"

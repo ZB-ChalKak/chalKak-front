@@ -197,7 +197,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     setDynamicKeywordInput(e.target.value);
   };
 
-  // 현재 "봄"이라는 동적메소드가 추가될 수 있는 문제가 발생
   const handleDynamicKeywordSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -323,15 +322,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
       styleTags: styleTags,
       hashTags: dynamicKeywords,
     };
-
-    console.log(request);
-
-    // submissionFormData.append("content", JSON.stringify(content));
-    // submissionFormData.append("location", JSON.stringify(location));
-    // submissionFormData.append("privacyHeight", JSON.stringify(privacyHeight));
-    // submissionFormData.append("privacyWeight", JSON.stringify(privacyWeight));
-    // submissionFormData.append("styleTags", JSON.stringify(styleTags));
-    // submissionFormData.append("hashTags", JSON.stringify(dynamicKeywords));
 
     const blob = new Blob([JSON.stringify(request)], { type: "application/json" });
     submissionFormData.append("request", blob);
