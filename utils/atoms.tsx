@@ -1,4 +1,5 @@
 import { atom } from "recoil";
+import Cookies from "js-cookie";
 
 // file
 export const uploadedImageFilesState = atom<File[]>({
@@ -38,9 +39,10 @@ export const userState = atom({
     followers: [],
     followings: [],
     gender: "",
-    height: "",
-    weight: "",
-    keyword: [],
+    height: 180,
+    weight: 70,
+    styleTags: [] as number[],
+    isLoggedIn: !!Cookies.get("accessToken"), // 초기 isLoggedIn 값은 쿠키에 'accessToken'이 있는지 여부로 결정
   },
 });
 
@@ -66,4 +68,16 @@ export const accessTokenState = atom({
 export const refreshTokenState = atom({
   key: "refreshTokenState",
   default: "",
+});
+
+type StyleTag = {
+  id: number;
+  category: string;
+  keywordImg: string;
+  keyword: string;
+};
+
+export const styleTagsState = atom<StyleTag[]>({
+  key: "styleTags",
+  default: [],
 });

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Weather from "../components/Weather";
 // import { seasonState, weatherState } from "@/utils/atoms";
 // import Image from 'next/image'
-import { useInfiniteQuery } from "react-query";
+// import { useInfiniteQuery } from "react-query";
 import ScrollTopButton from "../components/ScrollTopButton";
 import GoToPostEditorButton from "./GoToPostEditorButton";
 import BodyShapeModal from "./BodyShapeModal";
@@ -59,10 +59,10 @@ const Main = () => {
   });
   const [selectedStyleTags, setSelectedStyleTags] = useState<number[]>(user.styleTagIds || []);
 
-  // // 페이지에 들어오자마자 데이터가 다 보여짐
-  // useEffect(() => {
-  //   fetchPosts({ pageParam: 0 });
-  // }, []);
+  // 페이지에 들어오자마자 데이터가 다 보여짐
+  useEffect(() => {
+    fetchPosts({ pageParam: 0 });
+  }, []);
 
   // 키워드 나열 계절과 날씨 제외
   const styleTagsList = styleTags.filter((tag) => tag.category !== "SEASON" && tag.category !== "WEATHER");
@@ -70,12 +70,12 @@ const Main = () => {
   // 게시글 api
   const fetchPosts = async ({ pageParam = 0 }) => {
     try {
-      const response = await apiInstance.post(`filter?page=${pageParam}&size=4`, {
+      const response = await apiInstance.post(`filter?page=${pageParam}&size=10`, {
         height: user.height,
         weight: user.weight,
         styleTagIds: selectedStyleTags,
       });
-      // setFilteredPosts(response.data.data.posts);
+      setFilteredPosts(response.data.data.posts);
       return response.data.data;
       // return response.data.data.posts;
     } catch (error) {
@@ -126,33 +126,33 @@ const Main = () => {
     setIsModalOpen(true);
   };
 
-  // useInfiniteQuery 훅을 사용하여 무한 스크롤 구현
-  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery(
-    ["posts", selectedStyleTags],
-    ({ pageParam = 0 }) => fetchPosts({ pageParam }),
-    {
-      getNextPageParam: (lastPage) => {
-        console.log("Last page data: ", lastPage);
-        return lastPage.currentPage < lastPage.totalPages - 1 ? lastPage.currentPage + 1 : undefined;
-      },
-    },
-  );
+  // // useInfiniteQuery 훅을 사용하여 무한 스크롤 구현
+  // const { data, fetchNextPage, hasNextPage } = useInfiniteQuery(
+  //   ["posts", selectedStyleTags],
+  //   ({ pageParam = 0 }) => fetchPosts({ pageParam }),
+  //   {
+  //     getNextPageParam: (lastPage) => {
+  //       console.log("Last page data: ", lastPage);
+  //       return lastPage.currentPage < lastPage.totalPages - 1 ? lastPage.currentPage + 1 : undefined;
+  //     },
+  //   },
+  // );
 
-  useEffect(() => {
-    const onScroll = () => {
-      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 50) {
-        console.log("Reached bottom of the page");
-        if (hasNextPage) {
-          console.log("Fetching next page");
-          fetchNextPage();
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const onScroll = () => {
+  //     if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 50) {
+  //       console.log("Reached bottom of the page");
+  //       if (hasNextPage) {
+  //         console.log("Fetching next page");
+  //         fetchNextPage();
+  //       }
+  //     }
+  //   };
 
-    window.addEventListener("scroll", onScroll);
+  //   window.addEventListener("scroll", onScroll);
 
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [hasNextPage, fetchNextPage]);
+  //   return () => window.removeEventListener("scroll", onScroll);
+  // }, [hasNextPage, fetchNextPage]);
 
   //   window.addEventListener("scroll", onScroll);
   //   document.addEventListener("visibilitychange", onVisibilityChange);
@@ -261,41 +261,35 @@ const Main = () => {
             )}
           </div>
         </div>
+        {/* {filteredPosts.map((post: Post) => ( */}
+        {/* {data?.pages.map((pageData) =>
+            pageData.posts.map((post: Post) => ( */}
 
         <div className="mt-5 h-auto grid grid-cols-2 gap-4 px-4">
-          {/* {filteredPosts.map((post: Post) => ( */}
-          {data?.pages.map((pageData) =>
-            pageData.posts.map((post: Post) => (
-              <div key={post.id} className="flex flex-col bg-white rounded-lg overflow-hidden">
-                <div className="relative">
-                  <div className="mt-2 flex flex-wrap items-center justify-left">
-                    <img
-                      src={post.writer.profileImg}
-                      alt="profile"
-                      className="ml-1 w5 h5 rounded-full w-[32px] h-[32px]"
-                    />
-                    <p className="text-xs pl-2">{post.writer.nickname}</p>
-                  </div>
+          {filteredPosts.map((post: Post) => (
+            <div key={post.id} className="flex flex-col bg-white rounded-lg overflow-hidden">
+              <div className="mt-2 flex flex-wrap items-center justify-left">
+                <img src={post.writer.profileImg} alt="profile" className="ml-1 w5 h5 rounded-full w-[32px] h-[32px]" />
+                <p className="text-xs pl-2">{post.writer.nickname}</p>
+              </div>
+              <div className="mt-2">
+                <img src={post.thumbnail} alt="content" className="object-cover" />
+              </div>
+              <div className="">
+                <div className="mt-2 text-sm">{post.content}</div>
+                <div className="mt-2 flex items-center justify-start">
+                  <p className="text-xs">
+                    {post.styleTags.join(" ")}
+                    {post.hashTags.join(" ")}
+                  </p>
                 </div>
-                <div className="mt-2">
-                  <img src={post.thumbnail} alt="content" className="object-cover" />
-                </div>
-                <div className="">
-                  <div className="mt-2 text-sm">{post.content}</div>
-                  <div className="mt-2 flex items-center justify-start">
-                    <p className="text-xs">
-                      {post.styleTags.join(" ")}
-                      {post.hashTags.join(" ")}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-end mt-4">
-                    <AiOutlineHeart className="text-sm mr-2 cursor-pointer" />
-                    <p className="text-sm">{post.likeCount}</p>
-                  </div>
+                <div className="flex items-center justify-end mt-4">
+                  <AiOutlineHeart className="text-sm mr-2 cursor-pointer" />
+                  <p className="text-sm">{post.likeCount}</p>
                 </div>
               </div>
-            )),
-          )}
+            </div>
+          ))}
         </div>
       </div>
       {isModalOpen && <BodyShapeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />}
