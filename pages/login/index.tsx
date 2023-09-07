@@ -7,8 +7,8 @@ import Alert from "../components/Alert";
 // import { accessTokenState, refreshTokenState } from "@/utils/atoms";
 import Cookies from "js-cookie";
 import { apiInstance } from "../api/api";
-// import { on } from "events";
-// import { set } from "date-fns";
+import { useSetRecoilState } from "recoil";
+import { userState } from "@/utils/atoms";
 
 // 이메일과 비밀번호를 포함한 객체
 interface LoginData {
@@ -54,29 +54,13 @@ export default function Login() {
     setFormData({ ...formData, [name]: value });
   };
 
-  // 로그인 API 호출
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    const { email, password } = formData;
-    try {
-      const tokenResponse = await apiInstance.post("users/signin", {
-        email,
-        password,
-      });
-      console.log(tokenResponse);
-      onLoginSuccess(tokenResponse);
-      setFormData({ email: "", password: "" });
-    } catch (error) {
-      console.log("err", error);
-      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
-      setAlertOpen(true);
-    }
-  };
+  const setLoggedInUser = useSetRecoilState(userState);
 
   // 로그인 성공 시, accessToken을 recoil에 저장
   const onLoginSuccess = (response: SigninResponse) => {
     const { accessToken, refreshToken, accessTokenExpireDate } = response.data.data.token;
-    const { styleTags } = response.data.data;
+    const styleTags = response.data.data.styleTags;
+    console.log("styleTags", styleTags);
     // 쿠키에 로그인 정보 저장
     Cookies.set("userId", String(response.data.data.userId));
     Cookies.set("accessToken", accessToken);
@@ -92,8 +76,9 @@ export default function Login() {
     // 만료 시간 - 현재 시간 - 10분
     const delay = Math.max(expiration - now - 600000, 0);
     setTimeout(silentRefresh, delay);
-    // router.reload();
     router.push("/main");
+    // 로그인 성공 시 userState 업데이트
+    setLoggedInUser((prevUser) => ({ ...prevUser, isLoggedIn: true, styleTags: styleTags }));
   };
 
   // silentRefresh: accessToken 재발급 및 로그인 성공 실행 함수 실행
@@ -118,18 +103,30 @@ export default function Login() {
     }
   };
 
-  // ouath2/authorization/google 구글 로그인
+  // 로그인 API 호출
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    const { email, password } = formData;
+    try {
+      const tokenResponse = await apiInstance.post("users/signin", {
+        email,
+        password,
+      });
+      console.log(tokenResponse);
+      onLoginSuccess(tokenResponse);
+      setFormData({ email: "", password: "" });
+    } catch (error) {
+      console.log("err", error);
+      setAlertMessage("이메일 또는 비밀번호를 확인해주세요.");
+      setAlertOpen(true);
+    }
+  };
+
   // 구글 로그인 API 호출
-  // const handleGoogleLogin = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const tokenResponse = await apiInstance.get("oauth2/authorization/google");
-  //     tokenResponse;
-  //   } catch (error) {
-  //     setAlertMessage("구글 로그인에 실패했습니다.");
-  //     setAlertOpen(true);
-  //   }
-  // };
+  const handleGoogleLogin = () => {
+    window.location.href =
+      "http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080/oauth2/authorization/google";
+  };
 
   // 이메일 양식 확인
   const checkEmailFormat = (email: string) => {
@@ -248,7 +245,7 @@ export default function Login() {
 
           <div
             className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer"
-            // onClick={handleGoogleLogin}
+            onClick={handleGoogleLogin}
           >
             <FcGoogle className="w-[34px] h-[34px]" />
           </div>
