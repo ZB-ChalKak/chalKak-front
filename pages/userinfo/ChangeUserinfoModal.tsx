@@ -57,9 +57,10 @@ const ChangeUserinfoModal = ({
   console.log("has", hasFile);
 
   useEffect(() => {
-    formData.append("multipartFiles", profileFile as File);
+    // formData.append("multipartFiles", profileFile as File);
+    formData.set("multipartFiles", profileFile as File);
     console.log("formData", formData);
-  }, [profileFile]);
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
