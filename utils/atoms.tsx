@@ -68,6 +68,16 @@ export const refreshTokenState = atom({
   default: "",
 });
 
+export const totalComments = atom({
+  key: "totalComments",
+  default: 0,
+});
+
+export const alertState = atom({
+  key: "alertState",
+  default: { open: false, message: "" },
+});
+
 // userDetail State
 export const userDetailState = atom({
   key: "userDetailState",

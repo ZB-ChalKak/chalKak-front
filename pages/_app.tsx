@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { styleTagsState } from "@/utils/atoms";
 import { apiInstance } from "./api/api";
+import InfoAlert from "./components/InfoAlert";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <Component {...pageProps} />
           </div>
         </div>
+        <InfoAlert />
       </RecoilRoot>
 
       {/* // 개발 환경에서만 DevTools가 보이도록 설정 */}
