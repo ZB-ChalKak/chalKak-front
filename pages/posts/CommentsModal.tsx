@@ -20,6 +20,7 @@ interface ModalComponentProps {
   onCommentDeleted?: () => void;
 }
 
+
 interface Comment {
   commentId: number;
   comment: string;
