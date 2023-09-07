@@ -70,7 +70,7 @@ const Main = () => {
   // 게시글 api
   const fetchPosts = async ({ pageParam = 0 }) => {
     try {
-      const response = await apiInstance.post(`filter?page=${pageParam}&size=10`, {
+      const response = await apiInstance.post(`filter?page=${pageParam}&size=4`, {
         height: user.height,
         weight: user.weight,
         styleTagIds: selectedStyleTags,
@@ -92,13 +92,6 @@ const Main = () => {
     });
   }, [loggedInUser]);
 
-  // 사용자가 선택한 스타일 태그가 변경될 때
-  useEffect(() => {
-    if (selectedStyleTags) {
-      fetchPosts({ pageParam: 0 });
-    }
-  }, [selectedStyleTags]);
-
   useEffect(() => {
     setSelectedStyleTags(user.styleTagIds);
     console.log(selectedStyleTags);
@@ -107,12 +100,14 @@ const Main = () => {
   // 키워드 버튼 선택 해제
   const handleDeleteTag = (tagId: number) => {
     setSelectedStyleTags(selectedStyleTags.filter((id) => id !== tagId));
+    fetchPosts({ pageParam: 0 });
   };
 
   // 키워드 버튼 추가 선택
   const handleAddTag = (tagId: number) => {
     if (!selectedStyleTags.includes(tagId)) {
       setSelectedStyleTags([...selectedStyleTags, tagId]);
+      fetchPosts({ pageParam: 0 });
     }
   };
 
