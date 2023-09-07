@@ -107,14 +107,17 @@ const Main = () => {
   const handleAddTag = (tagId: number) => {
     if (!selectedStyleTags.includes(tagId)) {
       setSelectedStyleTags([...selectedStyleTags, tagId]);
-      fetchPosts({ pageParam: 0 });
     }
   };
+
+  useEffect(() => {
+    console.log(selectedStyleTags);
+    fetchPosts({ pageParam: 0 });
+  }, [selectedStyleTags]);
 
   // 전체 키워드 버튼 클릭
   const handleAllTag = () => {
     setSelectedStyleTags([]); // 모든 선택된 태그 해제
-    fetchPosts({ pageParam: 0 });
   };
 
   const handleBodyClick = () => {
