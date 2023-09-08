@@ -70,6 +70,7 @@ export default function Login() {
     // 쿠키에 로그인 정보 저장
     Cookies.set("userId", String(response.data.data.userInfo.userId));
     Cookies.set("accessToken", accessToken);
+    Cookies.set("refreshToken", refreshToken);
     Cookies.set("myKeywords", JSON.stringify(styleTags));
     // accessToken, refreshToken recoil에 저장
     setAcToken(accessToken);
@@ -84,6 +85,9 @@ export default function Login() {
     const delay = Math.max(expiration - now - 600000, 0);
     setTimeout(silentRefresh, delay);
     router.push("/main");
+    console.log("now", now);
+    console.log("expiration", expiration);
+    console.log("delay", delay);
     // 로그인 성공 시 userState 업데이트
     setLoggedInUser((prevUser) => ({ ...prevUser, isLoggedIn: true, styleTags: styleTags }));
   };
