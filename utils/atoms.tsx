@@ -117,3 +117,8 @@ export const imageIdsState = atom<number[]>({
   key: "imageIds",
   default: [],
 });
+
+export const deleteImageIdsState = atom<number[]>({
+  key: "deleteImageIds",
+  default: [],
+});

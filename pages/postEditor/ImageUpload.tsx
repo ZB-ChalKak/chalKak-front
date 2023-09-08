@@ -1,6 +1,13 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { imageIdsState, imageInfoState, uploadedImageFilesState, uploadedImageUrlsState } from "../../utils/atoms";
+import {
+  imageIdsState,
+  imageInfoState,
+  uploadedImageFilesState,
+  uploadedImageUrlsState,
+  deleteImageIdsState,
+} from "../../utils/atoms";
+import { useRouter } from "next/router";
 
 const ImageUpload = () => {
   const [uploadedImageFiles, setUploadedImageFiles] = useRecoilState(uploadedImageFilesState);
@@ -8,18 +15,27 @@ const ImageUpload = () => {
   const [previews, setPreviews] = useState<string[]>([]);
   const [imageInfo] = useRecoilState(imageInfoState);
   const [imageIds, setImageIds] = useRecoilState(imageIdsState);
+  const [deleteImageIds, setDeleteImageIds] = useRecoilState(deleteImageIdsState);
+
+  const userouter = useRouter();
 
   const handleDeleteClick = (index: number) => {
     // const urlToRevoke = previews[index];
     // URL.revokeObjectURL(urlToRevoke);
 
+    let idToDelete: number | undefined = undefined;
     // 삭제할 이미지의 아이디 찾기
-    const idToDelete = imageInfo[index].id;
+    if (userouter.query.id && imageInfo[index]) {
+      idToDelete = imageInfo[index].id;
+    }
 
     setPreviews((prevPreviews) => prevPreviews.filter((_, i) => i !== index));
     setUploadedImageFiles((prevImages) => prevImages.filter((_, i) => i !== index));
     setUploadedImageUrls((prevImages) => prevImages.filter((_, i) => i !== index));
-    setImageIds((prevImageIds) => prevImageIds.filter((id) => id !== idToDelete));
+    if (idToDelete !== undefined) {
+      setImageIds((prevImageIds) => prevImageIds.filter((id) => id !== idToDelete));
+      setDeleteImageIds((prevDeleteImageId) => [...prevDeleteImageId, idToDelete as number]);
+    }
   };
 
   const handleAddImageButtonClick = (e: React.MouseEvent<HTMLLabelElement>) => {
@@ -37,6 +53,7 @@ const ImageUpload = () => {
   useEffect(() => {
     console.log(previews);
     console.log(imageIds);
+    console.log(deleteImageIds);
   }, [previews]);
 
   const handleImageChange = useCallback(

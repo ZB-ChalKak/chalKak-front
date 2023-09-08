@@ -7,6 +7,7 @@ import {
   alertState,
   imageInfoState,
   imageIdsState,
+  deleteImageIdsState,
 } from "../../utils/atoms";
 import ImageUpload from "./ImageUpload";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
@@ -19,7 +20,8 @@ import useInitialData from "@/hooks/customHooks";
 import { apiInstance } from "../api/api";
 import InfoAlert from "../components/InfoAlert";
 import Cookies from "js-cookie";
-import router from "next/router";
+import router, { useRouter } from "next/router";
+import { GetServerSidePropsContext } from "next";
 
 interface StyleTag {
   id: number;
@@ -92,6 +94,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   const [allStaticKeywords, setAllStaticKeywords] = useState<string[]>([]);
   const [imageInfo, setImageInfo] = useRecoilState(imageInfoState);
   const [imageIds, setImageIds] = useRecoilState(imageIdsState);
+  const [deleteImageIds] = useRecoilState(deleteImageIdsState);
   const setAlert = useSetRecoilState(alertState);
   const [formData, setFormData] = useState<postingData>({
     content: "",
@@ -108,6 +111,11 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     location: location,
   });
 
+  const userouter = useRouter();
+
+  useEffect(() => {
+    console.log(userouter.query.id);
+  }, [userouter.query]);
   console.log(initialPostData);
 
   useInitialData(initialPostData?.location, setLocation);
@@ -310,6 +318,22 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     />
   ));
 
+  const renderButton = (isActive: boolean) => {
+    return isActive ? (
+      <button type="button" onClick={handleSubmit} className="btn-neutral w-[600px] p-3 rounded-full text-sm my-10">
+        작성
+      </button>
+    ) : (
+      <button
+        type="button"
+        disabled
+        className="btn w-[600px] p-3 rounded-full text-sm my-10 bg-gray-200 cursor-not-allowed"
+      >
+        작성
+      </button>
+    );
+  };
+
   // 내용 입력 창 체인지
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -330,28 +354,55 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
       submissionFormData.append("multipartFileList", file);
     });
 
-    const request = {
-      content: content,
-      location: location,
-      privacyHeight: privacyHeight,
-      privacyWeight: privacyWeight,
-      styleTags: styleTags,
-      hashTags: dynamicKeywords,
-    };
+    let request;
+
+    if (userouter.query.id) {
+      request = {
+        content: content,
+        location: location,
+        privacyHeight: privacyHeight,
+        privacyWeight: privacyWeight,
+        styleTags: styleTags,
+        hashTags: dynamicKeywords,
+        deletedImageIds: deleteImageIds,
+      };
+    } else {
+      request = {
+        content: content,
+        location: location,
+        privacyHeight: privacyHeight,
+        privacyWeight: privacyWeight,
+        styleTags: styleTags,
+        hashTags: dynamicKeywords,
+      };
+    }
 
     const blob = new Blob([JSON.stringify(request)], { type: "application/json" });
     submissionFormData.append("request", blob);
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      await apiInstance.post(`posts`, submissionFormData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      setAlert({ open: true, message: "게시물 작성이 완료되었습니다!" });
-      router.push("/main");
+      if (router.query.id) {
+        // postId가 있으면 PATCH 요청으로 게시글 수정
+        const response = await apiInstance.patch(`posts/${router.query.id}`, submissionFormData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        setAlert({ open: true, message: "게시물 수정이 완료되었습니다!" });
+
+        router.push(`/posts/${response.data.data.postId}`);
+      } else {
+        // postId가 없으면 POST 요청으로 게시글 생성
+        const response = await apiInstance.post(`posts`, submissionFormData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        setAlert({ open: true, message: "게시물 업로드가 완료되었습니다!" });
+        router.push(`/posts/${response.data.data.postId}`);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -453,22 +504,23 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
         <h2 className="mb-2 font-medium">Weather*</h2>
         <div className="flex ">{weatherKeywordCheckboxes}</div>
       </div>
-      {uploadedImageUrls.length > 0 && seasonKeywords.length > 0 && weatherKeywords.length > 0 ? (
-        <button type="button" onClick={handleSubmit} className="btn-neutral w-[600px] p-3 rounded-full text-sm my-10">
-          작성
-        </button>
-      ) : (
-        <button
-          type="button"
-          disabled
-          className="btn w-[600px] p-3 rounded-full text-sm my-10 bg-gray-200 cursor-not-allowed"
-        >
-          작성
-        </button>
-      )}
+      {userouter.query.id
+        ? renderButton(
+            (imageIds.length > 0 || uploadedImageUrls.length > 0) &&
+              seasonKeywords.length > 0 &&
+              weatherKeywords.length > 0,
+          )
+        : renderButton(uploadedImageUrls.length > 0 && seasonKeywords.length > 0 && weatherKeywords.length > 0)}
       <InfoAlert />
     </div>
   );
 };
 
 export default HomePage;
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const postId = context.params?.postId ?? null;
+  return {
+    props: { postId },
+  };
+}
