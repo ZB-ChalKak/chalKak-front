@@ -31,7 +31,6 @@ interface StyleTag {
 }
 
 interface postingData {
-interface postingData {
   content: string;
   styleKeywords: string[];
   dynamicKeywords: string[];
@@ -70,10 +69,7 @@ export interface editData {
 
 interface HomePageProps {
   initialPostData?: editData;
-  initialPostData?: editData;
 }
-
-const accessToken = Cookies.get("accessToken");
 
 const accessToken = Cookies.get("accessToken");
 
@@ -179,9 +175,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
       .get("styleTags")
       .then((response) => {
         setStyleTagsData(response.data.data.styleTags);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const keywordArray = response.data.data.styleTags.map((tag: any) => tag.keyword);
-        setAllStaticKeywords(keywordArray);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const keywordArray = response.data.data.styleTags.map((tag: any) => tag.keyword);
         setAllStaticKeywords(keywordArray);
