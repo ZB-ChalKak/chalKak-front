@@ -129,7 +129,7 @@ const HomePage = () => {
           setLoading(false);
         })
         .catch((error) => {
-          console.error("There was an error!", error);
+          alert("There was an error!" + error);
           if (error.response.data.message === "존재하지 않는 게시글 번호입니다.") router.push("/404");
           setLoading(false);
         });
@@ -170,7 +170,7 @@ const HomePage = () => {
         })
         .catch((error) => {
           console.error("There was an error!", error);
-          // redirectToLogin();
+          redirectToLogin();
         });
     }
   };
@@ -216,7 +216,7 @@ const HomePage = () => {
           setIsFollow(true);
         })
         .catch((error) => {
-          console.error("There was an error!", error);
+          alert("There was an error!" + error);
 
           redirectToLogin();
         });
@@ -236,7 +236,7 @@ const HomePage = () => {
           setIsFollow(false);
         })
         .catch((error) => {
-          console.error("There was an error!", error);
+          alert("There was an error!" + error);
           redirectToLogin();
         });
     }
@@ -252,7 +252,7 @@ const HomePage = () => {
         router.push("/main");
       })
       .catch((error) => {
-        console.log(error);
+        alert("There was an error!" + error);
       });
   };
 

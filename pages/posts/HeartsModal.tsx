@@ -55,7 +55,7 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
         setIsLoading(false); // loading 종료
       })
       .catch((error) => {
-        console.error(error);
+        alert("There was an error!" + error);
         setIsLoading(false); // loading 종료
       });
   };
@@ -85,7 +85,7 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
           setFollowStatuses({ ...followStatuses, [memberId]: true });
         })
         .catch((error) => {
-          console.error("There was an error!", error);
+          alert("There was an error!" + error);
           redirectToLogin();
         });
     }
@@ -101,7 +101,7 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
           setFollowStatuses({ ...followStatuses, [memberId]: false });
         })
         .catch((error) => {
-          console.error("There was an error!", error);
+          alert("There was an error!" + error);
           redirectToLogin();
         });
     }

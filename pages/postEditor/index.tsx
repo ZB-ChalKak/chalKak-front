@@ -114,9 +114,11 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   const userouter = useRouter();
 
   useEffect(() => {
-    console.log(userouter.query.id);
-  }, [userouter.query]);
-  console.log(initialPostData);
+    if (!accessToken) {
+      alert("로그인이 필요합니다");
+      router.push("/main");
+    }
+  }, []);
 
   useInitialData(initialPostData?.location, setLocation);
   // useInitialData(initialPostData?.styleTags, setStyleTags);
@@ -177,7 +179,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
         setAllStaticKeywords(keywordArray);
       })
       .catch((error) => {
-        console.error("There was an error!", error);
+        alert("There was an error!" + error);
       });
   }, []);
 
@@ -404,7 +406,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
         router.push(`/posts/${response.data.data.postId}`);
       }
     } catch (error) {
-      console.error(error);
+      alert("There was an error!" + error);
     }
 
     console.log(formData);
