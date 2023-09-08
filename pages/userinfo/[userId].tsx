@@ -1,232 +1,28 @@
 // import { Post } from "@/utils/type";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { apiInstance } from "../api/api";
 import Cookies from "js-cookie";
 import { useRecoilState } from "recoil";
-import { userDetailState, userPostsState } from "@/utils/atoms";
+import { followerListState, followingListState, userDetailState, userPostsState } from "@/utils/atoms";
 import { LiaUserCircleSolid } from "react-icons/lia";
 import dynamic from "next/dynamic";
-
-// const tempPosts: Post[] = [
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["가을"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#스트릿"],
-//     dynamicKeywords: ["#테테테스트"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#테테테스트"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [{ url: "https://blog.kakaocdn.net/dn/CaS0a/btrVpEm6Z0o/4ugD1Sw1j1Bcx3DnG085RK/img.jpg" }],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#엇"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [{ url: "https://blog.kakaocdn.net/dn/CaS0a/btrVpEm6Z0o/4ugD1Sw1j1Bcx3DnG085RK/img.jpg" }],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#가나다라마바사"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [{ url: "https://blog.kakaocdn.net/dn/CaS0a/btrVpEm6Z0o/4ugD1Sw1j1Bcx3DnG085RK/img.jpg" }],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#긴글도되나여어로로로로로롤"],
-//     content: ["긴글테스트트트트트트트트트트긴글긴그ㅡ트트트트트트"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [{ url: "https://blog.kakaocdn.net/dn/CaS0a/btrVpEm6Z0o/4ugD1Sw1j1Bcx3DnG085RK/img.jpg" }],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#여행"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#빈티지"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#미니멀"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#스포티"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [
-//       {
-//         url: "https://mblogthumb-phinf.pstatic.net/MjAyMTA1MjlfMzYg/MDAxNjIyMjE1MDQ3OTM5.Sb1a-fd_f4-G1jEKYkFT1jwKwKccor428hKbg6HAFNkg.yJD7Ww1_Jb0N1X7kO5pI5aKDxdNvnkTrHCvfMBCjwJkg.JPEG.acttosun08/IMG%EF%BC%BF2705.JPG?type=w800",
-//       },
-//     ],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [{ url: "https://blog.kakaocdn.net/dn/CaS0a/btrVpEm6Z0o/4ugD1Sw1j1Bcx3DnG085RK/img.jpg" }],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-//   {
-//     email: "seoul@test.com",
-//     images: [{ url: "https://blog.kakaocdn.net/dn/CaS0a/btrVpEm6Z0o/4ugD1Sw1j1Bcx3DnG085RK/img.jpg" }],
-//     seasonKeywords: ["여름"],
-//     weatherKeywords: ["맑음"],
-//     staticKeywords: ["#데이트"],
-//     dynamicKeywords: ["#내맘대로"],
-//     content: ["블라블라블라"],
-//   },
-// ];
+import FollowerModal from "./FollowerModal";
+import FollowingModal from "./FollowingModal";
 
 export default function UserInfo(): JSX.Element {
   const [userDetail, setUserDetail] = useRecoilState(userDetailState);
   const [userPosts, setUserPosts] = useRecoilState(userPostsState);
+  const [followers, setFollowers] = useRecoilState(followerListState);
+  const [following, setFollowing] = useRecoilState(followingListState);
+  const [isOpenFollowerModal, setIsOpenFollowerModal] = useState<boolean>(false);
+  const [isOpenFollowingModal, setIsOpenFollowingModal] = useState<boolean>(false);
   const curUserId = Cookies.get("userId");
   const router = useRouter();
   const { userId } = router.query;
+  console.log("following", following);
+  console.log("followers", followers);
+  // 사용자 정보 조회 api (프로필 이미지, 게시글 수, 팔로워 수, 팔로잉 수)
   useEffect(() => {
     const fetchUserDetail = async () => {
       try {
@@ -242,7 +38,6 @@ export default function UserInfo(): JSX.Element {
   }, [userId]);
 
   // 사용자 작성 게시글 조회 api
-
   useEffect(() => {
     // const { userId } = router.query;
     const fetchUserPosts = async () => {
@@ -258,6 +53,55 @@ export default function UserInfo(): JSX.Element {
       fetchUserPosts();
     }
   }, [userId]);
+
+  // followerList 조회 api
+  useEffect(() => {
+    const fetchFollowerList = async () => {
+      try {
+        const followerListRes = await apiInstance.get(`/follow/${userId}/pageFollower`);
+        setFollowers(followerListRes.data.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (userId) {
+      fetchFollowerList();
+    }
+  }, [userId]);
+
+  // followingList 조회 api
+  useEffect(() => {
+    const fetchFollowingList = async () => {
+      try {
+        const followingListRes = await apiInstance.get(`/follow/${userId}/pageFollowing`);
+        setFollowing(followingListRes.data.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (userId) {
+      fetchFollowingList();
+    }
+  }, [userId]);
+
+  // follower 모달 handler
+  const openFollowerModal = () => {
+    setIsOpenFollowerModal(true);
+  };
+  const closeFollowerModal = () => {
+    setIsOpenFollowerModal(false);
+  };
+
+  // following 모달 handler
+  const openFollowingModal = () => {
+    setIsOpenFollowingModal(true);
+  };
+  const closeFollowingModal = () => {
+    setIsOpenFollowingModal(false);
+  };
+
   console.log("userpostss", userPosts.posts);
   console.log(userDetail);
   const moveToModifyPage = () => {
@@ -285,7 +129,7 @@ export default function UserInfo(): JSX.Element {
             </div>
             <div className="flex flex-col gap-10 items-center p-5">
               <div className="flex flex-row items-center justify-center">
-                <div className="text-lg font-semibold ml-3 text-black">@</div>
+                <div className="text-lg font-semibold ml-3 text-black">@{userDetail.nickname}</div>
                 {curUserId === userId && <DynamicBtn moveToModifyPage={moveToModifyPage} />}
               </div>
               <div className="flex flex-row justify-between items-center gap-10 ">
@@ -294,16 +138,30 @@ export default function UserInfo(): JSX.Element {
                   {/* {postCount} */}
                   {userDetail.postsCount}
                 </div>
-                <div className="flex flex-col items-center text-black">
+                <div className="flex flex-col items-center text-black" onClick={openFollowerModal}>
                   <p>팔로워</p>
                   {/* {followers.length} */}
                   {userDetail.followerCount}
                 </div>
-                <div className="flex flex-col items-center text-black">
+                {isOpenFollowerModal && (
+                  <FollowerModal
+                    initialFollowerData={followers}
+                    isOpen={isOpenFollowerModal}
+                    handleCloseModal={closeFollowerModal}
+                  />
+                )}
+                <div className="flex flex-col items-center text-black" onClick={openFollowingModal}>
                   <p>팔로잉</p>
                   {/* {following.length} */}
                   {userDetail.followingCount}
                 </div>
+                {isOpenFollowingModal && (
+                  <FollowingModal
+                    initialFollowingData={following}
+                    isOpen={isOpenFollowingModal}
+                    handleCloseModal={closeFollowingModal}
+                  />
+                )}
               </div>
             </div>
           </div>

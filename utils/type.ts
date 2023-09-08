@@ -37,3 +37,29 @@ export type userPostsType = {
   id: number;
   thumbnail: string | undefined;
 };
+
+export type followerResType = {
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+  followerResponses: [
+    {
+      memberId: number;
+      nickName: string;
+      profileUrl: string;
+    },
+  ];
+};
+
+export type followingResType = {
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+  followerResponses: [
+    {
+      memberId: number;
+      nickName: string;
+      profileUrl: string;
+    },
+  ];
+};
