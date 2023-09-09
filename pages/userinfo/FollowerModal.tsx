@@ -1,4 +1,5 @@
 import { followerListState } from "@/utils/atoms";
+import { useRouter } from "next/router";
 import { AiOutlineClose } from "react-icons/ai";
 import { useRecoilValue } from "recoil";
 import { styled } from "styled-components";
@@ -22,6 +23,7 @@ interface FollowerModalProps {
 
 const FollowerModal = ({ initialFollowerData, isOpen, handleCloseModal }: FollowerModalProps) => {
   console.log("followerList", initialFollowerData);
+  const router = useRouter();
   const list = useRecoilValue(followerListState);
   const { followerResponses } = list;
   return (
@@ -35,7 +37,11 @@ const FollowerModal = ({ initialFollowerData, isOpen, handleCloseModal }: Follow
             <div className="flex flex-col h-[600px] w-[500px] gap-4">
               {followerResponses.map((following) => (
                 <>
-                  <div className="flex flex-row w-[400px]" key={following.memberId}>
+                  <div
+                    className="flex flex-row w-[400px] cursor-pointer"
+                    key={following.memberId}
+                    onClick={() => router.push(`/userinfo/${following.memberId}`)}
+                  >
                     <div className="avatar ml-6">
                       <div className="w-10 rounded-full">
                         <img src={following.profileUrl} alt="프로필" />
