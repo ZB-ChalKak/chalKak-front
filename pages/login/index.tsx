@@ -89,9 +89,6 @@ export default function Login() {
     const delay = Math.max(expiration - now - 600000, 0);
     setTimeout(silentRefresh, delay);
     router.push("/main");
-    console.log("now", now);
-    console.log("expiration", expiration);
-    console.log("delay", delay);
     // 로그인 성공 시 userState 업데이트
     setLoggedInUser((prevUser) => ({ ...prevUser, isLoggedIn: true, styleTags: styleTags }));
   };
