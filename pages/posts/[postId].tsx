@@ -65,7 +65,6 @@ const HomePage = () => {
   const [isLike, setIsLike] = useState(postData?.liked || false);
   const [isFollow, setIsFollow] = useState(postData?.liked || false);
   const [likeCount, setLikeCount] = useState(postData?.likeCount || 0);
-  const [likeCount, setLikeCount] = useState(postData?.likeCount || 0);
   const [loading, setLoading] = useState(true);
   const [isLogined, setIsLogined] = useState(true);
   const [alertOepn, setAlertOpen] = useState(false);

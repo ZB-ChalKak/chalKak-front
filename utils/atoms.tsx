@@ -184,26 +184,6 @@ export const deleteImageIdsState = atom<number[]>({
   default: [],
 });
 
-interface ImageInfo {
-  id: number;
-  url: string;
-}
-
-export const imageInfoState = atom<ImageInfo[]>({
-  key: "imageInfo",
-  default: [],
-});
-
-export const imageIdsState = atom<number[]>({
-  key: "imageIds",
-  default: [],
-});
-
-export const deleteImageIdsState = atom<number[]>({
-  key: "deleteImageIds",
-  default: [],
-});
-
 // userinfoState
 export const userinfoState = atom({
   key: "userinfoState",
