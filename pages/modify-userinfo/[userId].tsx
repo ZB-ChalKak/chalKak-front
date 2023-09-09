@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { LiaUserCircleSolid } from "react-icons/lia";
 import ChangeImageModal from "./ChangeImageModal";
 import Cookies from "js-cookie";
-import { apiInstance } from "../api/api";
+
 import { useRecoilValue } from "recoil";
 import { styleTagsState } from "@/utils/atoms";
 import ChangeUserinfoModal from "./ChangeUserinfoModal";
 import ChangePWModal from "./ChangePWModal";
 import WithdrawalModal from "./WithdrawalModal";
+import { apiInstance } from "../api/api";
 
 export type UserinfoType = {
   nickname: string;
@@ -44,14 +45,12 @@ export default function modifyuserinfo() {
     styleTags: [],
   });
   const [profileFile, setProfileFile] = useState<File>();
-  console.log("profileFile", profileFile);
   const [userNickname, setUserNickname] = useState<string>("");
   const userId = Cookies.get("userId");
   const accessToken = Cookies.get("accessToken");
   const styleTagList = useRecoilValue(styleTagsState);
   const myKeywords = styleTagList.filter((obj) => userinfo.styleTags.includes(obj.id));
-  // const formData = new FormData();
-  console.log(formData);
+
   useEffect(() => {
     const userinfoRes = apiInstance.get(`/users/${userId}`, {
       headers: {

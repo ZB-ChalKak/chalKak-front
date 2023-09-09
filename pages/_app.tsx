@@ -31,13 +31,13 @@ type AppPropsWithLayout = AppProps & {
 
 function StyleTagsFetcher() {
   const currentStyleTags = useRecoilValue(styleTagsState);
-  // const shouldFetch = !currentStyleTags || currentStyleTags.category === "";
-  // console.log(shouldFetch);
   const setStyleTags = useSetRecoilState(styleTagsState);
+  const isEmpty = currentStyleTags[0].category === "";
   useQuery("getStyleTags", () => apiInstance.get("/styleTags").then((res) => res.data), {
     onSuccess: (data) => {
       setStyleTags(data.data.styleTags);
     },
+    enabled: isEmpty,
   });
   console.log(currentStyleTags);
   return null;

@@ -1,5 +1,7 @@
 import { atom } from "recoil";
 import Cookies from "js-cookie";
+import { followerResType, followingPostsResType, followingResType, userPostsType } from "./type";
+import { UserinfoType } from "@/pages/modify-userinfo/[userId]";
 
 // file
 export const uploadedImageFilesState = atom<File[]>({
@@ -84,9 +86,11 @@ export const alertState = atom({
 export const userDetailState = atom({
   key: "userDetailState",
   default: {
-    posts: 0,
+    nickname: "",
+    postsCount: 0,
     followerCount: 0,
     followingCount: 0,
+    profileImg: "",
   },
 });
 
@@ -101,4 +105,94 @@ export const styleTagsState = atom({
       keyword: "",
     },
   ],
+});
+
+// userPosts State
+export const userPostsState = atom({
+  key: "userPostsState",
+  default: {
+    authenticated: false,
+    currentPage: 0,
+    totalPage: 0,
+    totalElements: 0,
+    posts: [] as userPostsType[],
+  },
+});
+
+// followerList State
+export const followerListState = atom<followerResType>({
+  key: "followerListState",
+  default: {
+    currentPage: 0,
+    totalPages: 0,
+    totalElements: 0,
+    followerResponses: [{ memberId: 1, nickName: "", profileUrl: "" }],
+  },
+});
+
+// followingList State
+export const followingListState = atom<followingResType>({
+  key: "followingListState",
+  default: {
+    currentPage: 0,
+    totalPages: 0,
+    totalElements: 0,
+    followerResponses: [{ memberId: 1, nickName: "", profileUrl: "" }],
+  },
+});
+
+// followingPosts State
+export const followingPostsState = atom({
+  key: "followingPostsState",
+  default: [
+    {
+      content: "",
+      hashTags: [],
+      id: 0,
+      likeCount: 0,
+      liked: false,
+      location: "",
+      styleTags: [],
+      thumbnail: "",
+      viewCount: 0,
+      writer: {
+        id: 0,
+        nickname: "",
+        profileImg: "",
+      },
+    } as followingPostsResType,
+  ],
+});
+
+interface ImageInfo {
+  id: number;
+  url: string;
+}
+
+export const imageInfoState = atom<ImageInfo[]>({
+  key: "imageInfo",
+  default: [],
+});
+
+export const imageIdsState = atom<number[]>({
+  key: "imageIds",
+  default: [],
+});
+
+export const deleteImageIdsState = atom<number[]>({
+  key: "deleteImageIds",
+  default: [],
+});
+
+// userinfoState
+export const userinfoState = atom({
+  key: "userinfoState",
+  default: {
+    nickname: "",
+    gender: "",
+    userId: 0,
+    height: "",
+    weight: "",
+    styleTags: [],
+  } as UserinfoType,
 });

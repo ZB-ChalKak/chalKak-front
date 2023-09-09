@@ -1,13 +1,12 @@
 import { styled } from "styled-components";
+import { UserinfoType } from "./[userId]";
 import { ChangeEvent, FormEventHandler, useCallback, useEffect, useState } from "react";
 import { apiInstance } from "../api/api";
 import debounce from "lodash.debounce";
-import { styleTagsState, userinfoState } from "@/utils/atoms";
+import { styleTagsState } from "@/utils/atoms";
 import { useRecoilValue } from "recoil";
 import { AiOutlineClose } from "react-icons/ai";
 import Cookies from "js-cookie";
-import { UserinfoType } from "../modify-userinfo/[userId]";
-import { useRecoilState } from "recoil";
 
 interface ChangeUserinfoModalProps {
   formData: FormData;
@@ -32,7 +31,6 @@ const ChangeUserinfoModal = ({
 }: ChangeUserinfoModalProps) => {
   const [invalidNickname, setInvalidNickname] = useState(false);
   const [nicknameTouched, setNicknameTouched] = useState<boolean>(false);
-  const [userinfoProfile, setUserinfoPropfile] = useRecoilState(userinfoState);
   const keywordTagList = useRecoilValue(styleTagsState);
   const styleTagList = keywordTagList.filter((obj) => obj.category === "STYLE");
   const tpoTagList = keywordTagList.filter((obj) => obj.category === "TPO");
@@ -54,6 +52,9 @@ const ChangeUserinfoModal = ({
     });
     handleCloseModal();
   };
+  //
+  const hasFile = formData.has("multipartFiles");
+  console.log("has", hasFile);
 
   useEffect(() => {
     // formData.append("multipartFiles", profileFile as File);
@@ -65,18 +66,15 @@ const ChangeUserinfoModal = ({
     const { name, value } = e.target;
     if (name === "gender") {
       setUserInfo({ ...userinfo, gender: value });
-      setUserinfoPropfile({ ...userinfoProfile, gender: value });
     } else if (name === "height" || name === "weight") {
       setUserInfo({ ...userinfo, [name]: Number(value) });
-      setUserinfoPropfile({ ...userinfoProfile, [name]: Number(value) });
     } else {
       setUserInfo({ ...userinfo, [name]: value });
-      setUserinfoPropfile({ ...userinfoProfile, [name]: value });
     }
   };
 
   const maxCheckedCount = 5;
-  const [checkedKeyword, setCheckedKeyword] = useState<number[]>(userinfoProfile.styleTags);
+  const [checkedKeyword, setCheckedKeyword] = useState<number[]>(userinfo.styleTags);
   console.log("checkedKeyword", checkedKeyword);
   const handleKeywordCheckedChange = (keywordId: number) => {
     if (checkedKeyword.includes(keywordId)) {
@@ -115,7 +113,7 @@ const ChangeUserinfoModal = ({
     if (nicknameTouched && validateNickname(userinfo.nickname)) {
       validateNickname(userinfo.nickname);
     }
-  }, [nicknameTouched, userinfoProfile.nickname]);
+  }, [userinfo.nickname, nicknameTouched]);
 
   return (
     <>
