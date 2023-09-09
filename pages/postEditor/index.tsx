@@ -76,7 +76,7 @@ const accessToken = Cookies.get("accessToken");
 const HomePage = ({ initialPostData }: HomePageProps) => {
   const resetUploadedImageFiles = useResetRecoilState(uploadedImageFilesState);
   const resetUploadedImageUrls = useResetRecoilState(uploadedImageUrlsState);
-
+  const resetDeleteImageIds = useResetRecoilState(deleteImageIdsState);
   const [styleTagsData, setStyleTagsData] = useState<StyleTag[]>([]);
   const [styleTags, setStyleTags] = useState<number[]>([]);
   // blob
@@ -122,6 +122,10 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
       router.push("/main");
     }
   }, []);
+
+  useEffect(() => {
+    console.log(uploadedImageFiles);
+  }, [uploadedImageFiles]);
 
   useInitialData(initialPostData?.location, setLocation);
   // useInitialData(initialPostData?.styleTags, setStyleTags);
@@ -409,10 +413,11 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
         setAlert({ open: true, message: "게시물 업로드가 완료되었습니다!" });
         router.push(`/posts/${response.data.data.postId}`);
       }
-
+      // recoil 상태 초기화
       resetUploadedImageFiles();
       resetUploadedImageUrls();
       setLocation("");
+      resetDeleteImageIds();
       setImageInfo([]);
     } catch (error) {
       alert("There was an error!" + error);
