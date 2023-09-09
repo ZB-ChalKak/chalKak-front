@@ -63,3 +63,20 @@ export type followingResType = {
     },
   ];
 };
+
+export type followingPostsResType = {
+  content: string;
+  hashTags: string[];
+  id: number;
+  likeCount: number;
+  liked: boolean;
+  location: string;
+  styleTags: string[];
+  thumbnail: string;
+  viewCount: number;
+  writer: {
+    id: number;
+    nickname: string;
+    profileImg: string;
+  };
+};

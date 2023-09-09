@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 import Cookies from "js-cookie";
-import { followerResType, followingResType, userPostsType } from "./type";
+import { followerResType, followingPostsResType, followingResType, userPostsType } from "./type";
 
 // file
 export const uploadedImageFilesState = atom<File[]>({
@@ -138,4 +138,27 @@ export const followingListState = atom<followingResType>({
     totalElements: 0,
     followerResponses: [{ memberId: 1, nickName: "", profileUrl: "" }],
   },
+});
+
+// followingPosts State
+export const followingPostsState = atom({
+  key: "followingPostsState",
+  default: [
+    {
+      content: "",
+      hashTags: [],
+      id: 0,
+      likeCount: 0,
+      liked: false,
+      location: "",
+      styleTags: [],
+      thumbnail: "",
+      viewCount: 0,
+      writer: {
+        id: 0,
+        nickname: "",
+        profileImg: "",
+      },
+    } as followingPostsResType,
+  ],
 });
