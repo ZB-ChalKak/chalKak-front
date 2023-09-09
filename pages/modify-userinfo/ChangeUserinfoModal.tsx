@@ -1,5 +1,4 @@
 import { styled } from "styled-components";
-import { UserinfoType } from "./modify-userinfo";
 import { ChangeEvent, FormEventHandler, useCallback, useEffect, useState } from "react";
 import { apiInstance } from "../api/api";
 import debounce from "lodash.debounce";
@@ -7,6 +6,7 @@ import { styleTagsState, userinfoState } from "@/utils/atoms";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { AiOutlineClose } from "react-icons/ai";
 import Cookies from "js-cookie";
+import { UserinfoType } from "./[userId]";
 
 interface ChangeUserinfoModalProps {
   formData: FormData;

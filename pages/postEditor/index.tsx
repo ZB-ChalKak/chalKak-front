@@ -123,10 +123,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     }
   }, []);
 
-  useEffect(() => {
-    console.log(uploadedImageFiles);
-  }, [uploadedImageFiles]);
-
   useInitialData(initialPostData?.location, setLocation);
   // useInitialData(initialPostData?.styleTags, setStyleTags);
   // useInitialData(initialPostData?.styleTags, setStyleTags);
