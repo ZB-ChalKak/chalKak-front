@@ -407,7 +407,10 @@ const Main = () => {
         <div className="mt-5 h-auto grid grid-cols-2 gap-4 px-4">
           {filteredPosts.map((post: Post, index) => (
             <div key={index} className="flex flex-col bg-white overflow-hidden">
-              <div className="mt-2 flex flex-wrap items-center justify-left">
+              <div
+                className="mt-2 flex flex-wrap items-center justify-left cursor-pointer"
+                onClick={() => router.push(`/userinfo/${post.writer.id}`)}
+              >
                 <img src={post.writer.profileImg} alt="profile" className="ml-1 w5 h5 rounded-full w-[32px] h-[32px]" />
                 <p className="text-xs pl-2">{post.writer.nickname}</p>
               </div>
