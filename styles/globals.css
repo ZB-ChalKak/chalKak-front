@@ -12,7 +12,15 @@
   max-width: 720px;
   min-height: 100vh;
   margin: 0px auto;
+  width: 100%;
   background-color: rgb(255, 255, 255);
+}
+
+@media screen and (max-width: 500px) {
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
 }
 
 .title {

@@ -366,7 +366,6 @@ const HomePage = () => {
             <div className="w-[80px] text-center ml-auto"> {renderFollowButton()}</div>
           )}
         </div>
-
         <Carousel
           settings={{
             slidesToShow: 1,
@@ -375,7 +374,7 @@ const HomePage = () => {
             dots: true,
             infinite: false,
             centerMode: true,
-            centerPadding: "0px",
+            lazyLoad: "ondemand",
           }}
         >
           {postImages &&
@@ -416,7 +415,7 @@ const HomePage = () => {
               좋아요 <div className="font-bold ml-1">{likeCount}</div>개
             </div>
             <div className="mt-5 ml-5 w-[660px] text-lg">{postData?.content}</div>
-            <div className="flex ml-5 mt-2 cursor-pointer w-[600px] text-gray-500">
+            <div className="flex flex-wrap ml-5 mt-4 text-sm cursor-pointer w-[660px] text-gray-500">
               {postData?.styleTags.map((tag, index) => (
                 <div className="mr-1" key={index}>
                   #{tag}
