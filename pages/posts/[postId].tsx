@@ -266,14 +266,14 @@ const HomePage = () => {
       // isLike가 true일 때
       return (
         <div className="relative" onClick={handleClickUnlike}>
-          <AiFillHeart className="text-4xl mr-2 cursor-pointer text-red-600" />
+          <AiFillHeart className="md:text-4xl text-3xl mr-2 cursor-pointer text-red-600" />
         </div>
       );
     } else {
       // isLike가 false일 때
       return (
         <div className="relative" onClick={handleClickLike}>
-          <AiOutlineHeart className="text-4xl mr-2 cursor-pointer" />
+          <AiOutlineHeart className="md:text-4xl text-3xl mr-2 cursor-pointer" />
         </div>
       );
     }
@@ -284,7 +284,7 @@ const HomePage = () => {
     if (isFollow) {
       // isFollow가 true일 때
       return (
-        <button className="btn btn-neutral btn-sm h-10" onClick={handleClickUnfollowBtn}>
+        <button className="btn btn-neutral md:btn-sm btn-xs md:h-10 h-8" onClick={handleClickUnfollowBtn}>
           언팔로우
         </button>
       );
@@ -321,12 +321,12 @@ const HomePage = () => {
       <div className=" flex flex-col mt-6">
         <div className=" flex items-center w-full mx-auto">
           <div className="flex items-center">
-            <div className="relative w-12 h-12 cursor-pointer" onClick={moveToProfilePage}>
+            <div className="relative md:w-12 md:h-12 w-10 h-10 cursor-pointer" onClick={moveToProfilePage}>
               <Image src={writerSrc} alt="프로필 사진" layout="fill" className="rounded-full object-cover" />
             </div>
             <div className="ml-3">
               <div className="flex">
-                <div className=" font-semibold cursor-pointer" onClick={moveToProfilePage}>
+                <div className="font-semibold cursor-pointer text-sm md:text-base" onClick={moveToProfilePage}>
                   {postData?.writer.nickname}
                 </div>
                 <div className="ml-3">
@@ -382,7 +382,7 @@ const HomePage = () => {
             postImages.map((image, index) => (
               <div
                 key={index}
-                className="w-full md:h-[960px] h-[700px] max-w-[720px] bg-gray-200 mt-4 flex items-center justify-center relative overflow-hidden"
+                className="w-full md:h-[960px]  sm:h-[700px] h-[500px] max-w-[720px] bg-gray-200 mt-4 flex items-center justify-center relative overflow-hidden"
               >
                 <Image
                   src={image}
@@ -401,22 +401,22 @@ const HomePage = () => {
           <div className="flex flex-1">
             {renderLikeIcon()}
             <div onClick={openCommentsModal} className="relative cursor-pointer">
-              <AiOutlineComment className="text-4xl" />
+              <AiOutlineComment className="md:text-4xl text-3xl" />
             </div>
             <CommentsModal isOpen={commentsModalIsOpen} closeModal={closeCommentsModal} postId={postId} />
           </div>
           <div onClick={openShareModal} className=" w-7 h-7 cursor-pointer relative">
-            <BiLinkExternal className="text-3xl cursor-pointer" />
+            <BiLinkExternal className="md:text-3xl text-2xl cursor-pointer" />
           </div>
           <ShareModal isOpen={shareModalIsOpen} closeModal={closeShareModal} />
         </div>
         <div>
-          <div className=" w-full" onClick={openHeartsModal}>
-            <div className="flex mt-2 cursor-pointer">
+          <div className=" w-full">
+            <div className="flex mt-2 cursor-pointer md:text-md text-sm" onClick={openHeartsModal}>
               좋아요 <div className="font-bold ml-1">{likeCount}</div>개
             </div>
-            <div className="mt-2 w-full text-lg">{postData?.content}</div>
-            <div className="flex flex-wrap mt-4 text-sm cursor-pointer w-full text-gray-500">
+            <div className="mt-2 w-full md:text-lg text-base">{postData?.content}</div>
+            <div className="flex flex-wrap mt-4 md:text-sm text-xs cursor-pointer w-full text-gray-500">
               {postData?.styleTags.map((tag, index) => (
                 <div className="mr-1" key={index}>
                   #{tag}

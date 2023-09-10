@@ -68,7 +68,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
   }, [postId]);
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 md:text-base text-sm">
       <div className="mt-3 mb-4 flex cursor-pointer w-24" onClick={openCommentsModal}>
         댓글
         <div className="font-bold ml-1">{totalComments}</div>개
@@ -98,16 +98,18 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
                   <div className="flex flex-col ml-2">
                     <div className="flex w-full">
                       <div
-                        className="text-sm font-semibold ml-1 cursor-pointer"
+                        className="md:text-sm text-xs font-semibold ml-1 cursor-pointer"
                         onClick={() => goToProfile(comment.memberId)}
                       >
                         {comment.nickname}
                       </div>
-                      <div className="text-sm ml-2 col md:w-96 sm:w-48 w-24 overflow-hidden overflow-ellipsis whitespace-nowrap ">
+                      <div className="md:text-sm text-xs ml-2 col md:w-96 sm:w-48 w-24 overflow-hidden overflow-ellipsis whitespace-nowrap ">
                         {comment.comment}
                       </div>
                     </div>
-                    <div className="text-xs text-gray-400 ml-1 mt-1">{formatDateToRelativeTime(comment.createAt)}</div>
+                    <div className="md:text-xs text-[0.5rem] text-gray-400 ml-1 mt-1">
+                      {formatDateToRelativeTime(comment.createAt)}
+                    </div>
                   </div>
                 </div>
               </div>

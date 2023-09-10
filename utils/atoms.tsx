@@ -37,6 +37,7 @@ export const userState = atom({
   default: {
     email: "",
     nickname: "",
+    profileImg: "",
     postCount: 0,
     followers: [],
     followings: [],
@@ -44,7 +45,7 @@ export const userState = atom({
     height: 0,
     weight: 0,
     styleTags: [] as number[],
-    isLoggedIn: !!Cookies.get("accessToken"), // 초기 isLoggedIn 값은 쿠키에 'accessToken'이 있는지 여부로 결정
+    isLoggedIn: false,
   },
 });
 
