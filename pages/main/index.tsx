@@ -181,6 +181,56 @@ const Main = () => {
     }
   }, [loggedInUser, isMySizeApplied, inputHeight, inputWeight]);
 
+  // // 로그인 유저의 마이사이즈 불러오기, 사용자가 커스텀으로 설정할때
+  // useEffect(() => {
+  //   if (loggedInUser.isLoggedIn) {
+  //     if (isMySizeApplied) {
+  //       // '마이사이즈 적용' 버튼을 클릭한 경우
+  //       setUser({
+  //         height: loggedInUser.height,
+  //         weight: loggedInUser.weight,
+  //         styleTagIds: loggedInUser.styleTags,
+  //       });
+  //     } else if (inputHeight !== null && inputWeight !== null) {
+  //       // 사용자가 직접 키와 몸무게 값을 입력한 경우
+  //       setUser({
+  //         ...user,
+  //         height: inputHeight,
+  //         weight: inputWeight,
+  //       });
+  //     }
+  //   } else {
+  //     if (inputHeight !== null && inputWeight !== null) {
+  //       // 비로그인 상태에서 사용자가 직접 키와 몸무게 값을 입력한 경우
+  //       setUser({
+  //         ...user,
+  //         height: inputHeight,
+  //         weight: inputWeight,
+  //       });
+  //     }
+  //   }
+  // }, [loggedInUser, isMySizeApplied, inputHeight, inputWeight]);
+
+  useEffect(() => {
+    if (loggedInUser.isLoggedIn && isMySizeApplied) {
+      // '마이사이즈 적용' 버튼을 클릭한 경우
+      setUser({
+        height: loggedInUser.height,
+        weight: loggedInUser.weight,
+        styleTagIds: loggedInUser.styleTags,
+      });
+    }
+
+    if (inputHeight !== null && inputWeight !== null) {
+      // 사용자(로그인 유저 또는 비로그인 유저)가 직접 키와 몸무게 값을 입력한 경우
+      setUser({
+        ...user,
+        height: inputHeight,
+        weight: inputWeight,
+      });
+    }
+  }, [loggedInUser, isMySizeApplied, inputHeight, inputWeight]);
+
   // 키워드 버튼 선택 해제
   const handleDeleteTag = (tagId: number) => {
     setSelectedStyleTags(selectedStyleTags.filter((id) => id !== tagId));
@@ -202,6 +252,7 @@ const Main = () => {
 
   const handleBodyClick = () => {
     setIsModalOpen(true);
+    setIsMySizeApplied(true);
   };
 
   const handleClose = () => {

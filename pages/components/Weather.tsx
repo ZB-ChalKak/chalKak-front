@@ -4,6 +4,9 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import { locationState, seasonState, weatherState } from "@/utils/atoms";
 import { useRecoilValue } from "recoil";
 
+// const local = "http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080";
+const vercel = "https://www.chla-kak-back.store";
+
 // 날씨 데이터의 인터페이스를 정의
 interface WeatherData {
   success: boolean;
@@ -37,11 +40,8 @@ const Weather = () => {
         console.log(latitude, longitude);
 
         try {
-          const response = await axios.get<WeatherData>(
-            `http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080/weather?lat=${latitude}&lon=${longitude}`,
-          );
+          const response = await axios.get<WeatherData>(`${vercel}/weather?lat=${latitude}&lon=${longitude}`);
           setWeatherData(response.data);
-          console.log(response.data);
         } catch (error) {
           console.error("날씨 정보 실패", error);
         }
@@ -50,10 +50,7 @@ const Weather = () => {
         console.error("위치 정보 실패", error);
 
         try {
-          // 사용자가 위치 접근을 거부하면 기본값으로 설정된 위치(서울)로 날씨 요청
-          const response = await axios.get<WeatherData>(
-            `http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080/weather?lat=${location.latitude}&lon=${location.longitude}`,
-          );
+          const response = await axios.get<WeatherData>(`${vercel}/weather?lat=37.5665&lon=126.9784`);
           setWeatherData(response.data);
           console.log(location.latitude, location.longitude);
         } catch (error) {
