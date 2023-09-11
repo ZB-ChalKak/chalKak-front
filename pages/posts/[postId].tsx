@@ -412,7 +412,7 @@ const HomePage = () => {
         </div>
         <div>
           <div className=" w-full">
-            <div className="flex mt-2 cursor-pointer md:text-md text-sm" onClick={openHeartsModal}>
+            <div className="flex mt-2 cursor-pointer md:text-base text-sm" onClick={openHeartsModal}>
               좋아요 <div className="font-bold ml-1">{likeCount}</div>개
             </div>
             <div className="mt-2 w-full md:text-lg text-base">{postData?.content}</div>

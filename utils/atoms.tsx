@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 import { followerResType, followingPostsResType, followingResType, userPostsType } from "./type";
 import { UserinfoType } from "@/pages/modify-userinfo/[userId]";
 

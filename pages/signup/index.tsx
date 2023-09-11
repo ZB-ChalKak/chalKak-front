@@ -163,7 +163,7 @@ export default function signup() {
 
   // 닉네임 양식 확인
   const checkNicknameFormat = (nickname: string) => {
-    const nicknamePattern = /(^[a-zA-Z]{4,16}$)|(^[가-힣]{2,8}$)/;
+    const nicknamePattern = /(^[a-zA-Z0-9_]{4,16}$)|(^[가-힣0-9_]{2,8}$)/;
     return nicknamePattern.test(nickname);
   };
 

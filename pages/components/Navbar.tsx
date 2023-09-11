@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import { accessTokenState, userState } from "@/utils/atoms";
-import defaultProfileImg from "../posts/img/프로필사진.jpg";
 import { useRecoilState } from "recoil";
 import { parseCookies } from "nookies";
 import { useEffect, useState } from "react";
@@ -12,7 +11,6 @@ export default function Navbar() {
   const router = useRouter();
   const [actoken, setActoken] = useRecoilState(accessTokenState);
   const [myUserState] = useRecoilState(userState);
-
   const [login, setLogin] = useState(false);
   const [profileImg, setProfileImg] = useState("");
   const [cookies, setCookies] = useState({});
@@ -68,16 +66,20 @@ export default function Navbar() {
         <div className="flex-none mt-2 justify-end">
           <div className="mb-4 mr-2">
             <Link href={"/search"}>
-              <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" viewBox="0 0 512 512" className="mt-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="1.6em"
+                viewBox="0 0 512 512"
+                className="mt-[6px] text-base"
+              >
                 <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
               </svg>
             </Link>
           </div>
           <div className="dropdown dropdown-end mb-2 text-end">
-            <label tabIndex={0} className="btn-circle avatar cursor-pointer flex justify-end">
-              <div className="mt-[6px] ">
-                {/* <CgProfile className="w-[32px] h-[32px]" /> */}
-                <Image src={profileImg || defaultProfileImg} width={200} height={200} alt="profile-img" />
+            <label tabIndex={0} className="avatar cursor-pointer flex justify-end mb-1 ml-1">
+              <div className="mt-[2px] rounded-full">
+                <Image src={profileImg || "/images/defaultImg.jpg"} width={24} height={24} alt="profile-img" />
               </div>
             </label>
             <ul
