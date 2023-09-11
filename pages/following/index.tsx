@@ -119,18 +119,14 @@ const Following = () => {
                     {post.likeCount}
                   </div>
                 </div>
-                <div className="flex flex-col justify-start mb-10 w-[20rem]">
-                  <div>{post.content}</div>
-                  <div className="items-start mt-2">
+                <div className="flex flex-col justify-start mb-10 w-full">
+                  <div className="text-sm">{post.content}</div>
+                  <div className="items-start mt-2 whitespace-pre-wrap break-all">
                     {post.hashTags.map((tag) => (
-                      <div key={tag} className="text-xs float-left mr-1">
-                        #{tag}
-                      </div>
+                      <span key={tag} className="text-xs inline-block mr-1">{`#${tag}`}</span>
                     ))}
                     {post.styleTags.map((tag) => (
-                      <div key={tag} className="text-xs float-left mr-1">
-                        #{tag}
-                      </div>
+                      <span key={tag} className="text-xs inline-block mr-1">{`#${tag}`}</span>
                     ))}
                   </div>
                 </div>

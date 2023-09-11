@@ -43,7 +43,10 @@ const FollowingModal = ({ initialFollowingData, isOpen, handleCloseModal }: Foll
                   <div
                     className="flex flex-row w-[400px] cursor-pointer"
                     key={following.memberId}
-                    onClick={() => router.push(`/userinfo/${following.memberId}`)}
+                    onClick={() => {
+                      handleCloseModal();
+                      router.push(`/userinfo/${following.memberId}`);
+                    }}
                   >
                     <div className="avatar ml-6">
                       <div className="w-10 rounded-full">
