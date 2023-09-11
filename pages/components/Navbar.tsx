@@ -79,7 +79,7 @@ export default function Navbar() {
           <div className="dropdown dropdown-end mb-2 text-end">
             <label tabIndex={0} className="avatar cursor-pointer flex justify-end mb-1 ml-1">
               <div className="mt-[2px] rounded-full">
-                <Image src={profileImg || "/images/defaultImg.jpg"} width={24} height={24} alt="profile-img" />
+                <Image src={profileImg || "/images/defaultImg.jpg"} width={32} height={32} alt="profile-img" />
               </div>
             </label>
             <ul
