@@ -1,7 +1,7 @@
 import { atom } from "recoil";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 import { followerResType, followingPostsResType, followingResType, userPostsType } from "./type";
-import { UserinfoType } from "@/pages/userinfo/modify-userinfo";
+import { UserinfoType } from "@/pages/modify-userinfo/[userId]";
 
 // file
 export const uploadedImageFilesState = atom<File[]>({
@@ -37,14 +37,15 @@ export const userState = atom({
   default: {
     email: "",
     nickname: "",
+    profileImg: "",
     postCount: 0,
     followers: [],
     followings: [],
     gender: "",
-    height: 180,
-    weight: 70,
+    height: 0,
+    weight: 0,
     styleTags: [] as number[],
-    isLoggedIn: !!Cookies.get("accessToken"), // 초기 isLoggedIn 값은 쿠키에 'accessToken'이 있는지 여부로 결정
+    isLoggedIn: false,
   },
 });
 

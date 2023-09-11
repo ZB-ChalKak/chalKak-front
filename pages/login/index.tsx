@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -7,7 +7,7 @@ import Alert from "../components/Alert";
 // import { accessTokenState, refreshTokenState } from "@/utils/atoms";
 import Cookies from "js-cookie";
 import { apiInstance } from "../api/api";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { accessTokenState, userState } from "@/utils/atoms";
 
 // 이메일과 비밀번호를 포함한 객체
@@ -61,14 +61,18 @@ export default function Login() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const setLoggedInUser = useSetRecoilState(userState);
+  const [loggedInUser, setLoggedInUser] = useRecoilState(userState);
+
+  useEffect(() => {
+    console.log(loggedInUser);
+  }, [loggedInUser]);
 
   // 로그인 성공 시, accessToken을 recoil에 저장
   const onLoginSuccess = (response: SigninResponse) => {
     const { accessToken, refreshToken, accessTokenExpireDate } = response.data.data.token;
-    // const styleTags = response.data.data.userInfo.styleTags;
-    const { styleTags, profileImg } = response.data.data.userInfo;
+    const { styleTags, profileImg, height, weight } = response.data.data.userInfo;
     console.log("styleTags", styleTags);
+
     // 쿠키에 로그인 정보 저장
     Cookies.set("userId", String(response.data.data.userInfo.userId));
     Cookies.set("accessToken", accessToken);
@@ -88,9 +92,17 @@ export default function Login() {
     // 만료 시간 - 현재 시간 - 10분
     const delay = Math.max(expiration - now - 600000, 0);
     setTimeout(silentRefresh, delay);
-    router.push("/main");
     // 로그인 성공 시 userState 업데이트
-    setLoggedInUser((prevUser) => ({ ...prevUser, isLoggedIn: true, styleTags: styleTags }));
+    setLoggedInUser((prevUser) => ({
+      ...prevUser,
+      isLoggedIn: true,
+      styleTags: styleTags,
+      height: height,
+      weight: weight,
+      profileImg: profileImg,
+    }));
+    console.log(response);
+    router.push("/main");
   };
 
   // silentRefresh: accessToken 재발급 및 로그인 성공 실행 함수 실행
@@ -126,6 +138,7 @@ export default function Login() {
       });
       console.log(tokenResponse);
       onLoginSuccess(tokenResponse);
+      console.log(tokenResponse);
       setFormData({ email: "", password: "" });
     } catch (error) {
       console.log("err", error);
