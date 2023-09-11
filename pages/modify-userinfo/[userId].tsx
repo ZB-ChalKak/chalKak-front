@@ -3,8 +3,8 @@ import { LiaUserCircleSolid } from "react-icons/lia";
 import ChangeImageModal from "./ChangeImageModal";
 import Cookies from "js-cookie";
 
-import { useRecoilValue } from "recoil";
-import { styleTagsState } from "@/utils/atoms";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { styleTagsState, userinfoState } from "@/utils/atoms";
 import ChangeUserinfoModal from "./ChangeUserinfoModal";
 import ChangePWModal from "./ChangePWModal";
 import WithdrawalModal from "./WithdrawalModal";
@@ -17,6 +17,7 @@ export type UserinfoType = {
   height: string;
   weight: string;
   styleTags: number[];
+  profileImg?: string;
 };
 
 export interface ModifiedFormdata {
@@ -36,6 +37,7 @@ export default function modifyuserinfo() {
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState<boolean>(false);
   const [, setProfileUrl] = useState<string>("");
   const [formData, setFormData] = useState(new FormData());
+  const [userinfoProfile, setUserinfoPropfile] = useRecoilState(userinfoState);
   const [userinfo, setUserinfo] = useState<UserinfoType>({
     nickname: "",
     gender: "",
@@ -49,7 +51,7 @@ export default function modifyuserinfo() {
   const userId = Cookies.get("userId");
   const accessToken = Cookies.get("accessToken");
   const styleTagList = useRecoilValue(styleTagsState);
-  const myKeywords = styleTagList.filter((obj) => userinfo.styleTags.includes(obj.id));
+  const myKeywords = styleTagList.filter((obj) => userinfoProfile.styleTags.includes(obj.id));
 
   useEffect(() => {
     const userinfoRes = apiInstance.get(`/users/${userId}`, {
@@ -59,9 +61,10 @@ export default function modifyuserinfo() {
     });
     userinfoRes.then((res) => {
       setUserinfo(res.data.data);
+      setUserinfoPropfile(res.data.data);
       setUserNickname(res.data.data.nickname);
     });
-  }, []);
+  }, [isModifyModalOpen]);
 
   const hasFile = formData.has("multipartFiles");
   console.log(hasFile);
@@ -108,19 +111,19 @@ export default function modifyuserinfo() {
         <div className="flex items-center justify-center">
           <div className="avatar">
             <div className="w-40 rounded-full">
-              {/* {!userinfo.profileImageUrl ? (
+              {!userinfoProfile.profileImg ? (
                 <LiaUserCircleSolid className="w-40 h-40" />
               ) : (
-                <img src={userinfo.profileImageUrl as string | undefined} alt="profile-img" />
-              )} */}
-              <LiaUserCircleSolid className="w-40 h-40" />
+                <img src={userinfoProfile.profileImg as string | undefined} alt="profile-img" />
+              )}
+              {/* <LiaUserCircleSolid className="w-40 h-40" /> */}
             </div>
           </div>
         </div>
         <div className="flex flex-row">
           <div>
             <button
-              className="btn btn-sm ml-4 bg-[#efefef] w-[125px] font-medium rounded-lg text-black"
+              className="btn btn-sm ml-4 bg-[#efefef] w-[125px] font-medium rounded-lg text-black mt-4"
               onClick={handleOpenModal}
             >
               이미지 편집
@@ -141,35 +144,37 @@ export default function modifyuserinfo() {
         </div>
       </div>
       {/* 개인정보 표시 부분 박스 (닉네임, 성별, 키, 몸무게) */}
-      <div className="flex flex-col mt-[60px] mx-4 w-[700px] items-center">
-        <div className="flex flex-row w-[400px] mt-4">
-          <label className="w-[200px] block mr-10 text-xl">nickname</label>
-          <div className="block text-xl">{userinfo.nickname}</div>
+      <div className="flex flex-col mt-[60px] mx-4 w-full justify-center items-center">
+        <div className="flex flex-row justify-between items-center w-[70%] mt-4">
+          <label className="w-[200px] mr-10 text-xl">nickname</label>
+          <div className="text-xl">{userinfoProfile.nickname}</div>
         </div>
-        <div className="flex flex-row w-[400px] mt-4">
-          <div className="w-[200px] block mr-10 text-xl">gender</div>
-          <div className="block text-xl">{userinfo.gender}</div>
+        <div className="flex flex-row justify-between w-[70%] mt-4">
+          <div className="w-[200px] mr-10 text-xl">gender</div>
+          <div className="text-xl">{userinfoProfile.gender}</div>
         </div>
-        <div className="flex flex-row w-[400px] mt-4">
-          <div className="w-[200px] block mr-10 text-xl">height</div>
-          <div className="block text-xl">{userinfo.height}</div>
+        <div className="flex flex-row justify-between w-[70%] mt-4">
+          <div className="w-[200px] mr-10 text-xl">height</div>
+          <div className="text-xl">{userinfoProfile.height}</div>
         </div>
-        <div className="flex flex-row w-[400px] mt-4">
-          <div className="w-[200px] block mr-10 text-xl">weight</div>
-          <div className="block text-xl">{userinfo.weight}</div>
+        <div className="flex flex-row justify-between w-[70%] mt-4">
+          <div className="w-[200px] mr-10 text-xl">weight</div>
+          <div className="text-xl">{userinfoProfile.weight}</div>
         </div>
-        <div className="flex flex-row w-[400px] mt-4">
-          <div className="w-[200px] block mr-10 text-xl">styletag</div>
-          {myKeywords.map((keyword) => {
-            return (
-              <div className="badge text-xs badge-outline mr-2 mb-2 h-7 w-[5rem]" key={keyword.id}>
-                {keyword.keyword}
-              </div>
-            );
-          })}
+        <div className="flex flex-row justify-between w-[70%] mt-4">
+          <div className=" mr-10 text-xl">styletag</div>
+          <div className="flex flex-row flex-wrap justify-center w-[70%] gap-y-2">
+            {myKeywords.map((keyword) => {
+              return (
+                <div className="badge text-xs items-center  badge-outline mr-2 h-6 w-auto " key={keyword.id}>
+                  {keyword.keyword}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
-      <div className="flex flex-row">
+      <div className="flex flex-row mt-36">
         <div>
           <button
             className="btn btn-sm ml-4 bg-[#efefef] w-[125px] font-medium rounded-lg text-black"
