@@ -9,6 +9,8 @@ import { LiaUserCircleSolid } from "react-icons/lia";
 import dynamic from "next/dynamic";
 import FollowerModal from "./FollowerModal";
 import FollowingModal from "./FollowingModal";
+import { useInfiniteQuery } from "react-query";
+import { userPostsType } from "@/utils/type";
 
 export default function UserInfo(): JSX.Element {
   const [userDetail, setUserDetail] = useRecoilState(userDetailState);
@@ -38,21 +40,48 @@ export default function UserInfo(): JSX.Element {
   }, [userId]);
 
   // 사용자 작성 게시글 조회 api
-  useEffect(() => {
-    // const { userId } = router.query;
-    const fetchUserPosts = async () => {
-      try {
-        const userPostsRes = await apiInstance.get(`/users/${userId}/posts?page=0&size=4`);
-        setUserPosts(userPostsRes.data.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
+  // useEffect(() => {
+  //   // const { userId } = router.query;
+  //   const fetchUserPosts = async () => {
+  //     try {
+  //       const userPostsRes = await apiInstance.get(`/users/${userId}/posts?page=0&size=12`);
+  //       setUserPosts(userPostsRes.data.data);
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   };
 
-    if (userId) {
-      fetchUserPosts();
+  //   if (userId) {
+  //     fetchUserPosts();
+  //   }
+  // }, [userId]);
+  const fetchUserPosts = async ({ pageParam = 0 }) => {
+    try {
+      const userPostsRes = await apiInstance.get(`/users/${userId}/posts?page=${pageParam}&size=12`);
+      return userPostsRes.data.data;
+    } catch (err) {
+      console.log(err);
     }
-  }, [userId]);
+  };
+
+  const {
+    data: userPostsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery("userPosts", fetchUserPosts, {
+    getNextPageParam: (lastPage) => lastPage.page + 1,
+  });
+
+  useEffect(() => {
+    if (userPostsData) {
+      const allPages: userPostsType[] = userPostsData.pages.flatMap((page) => page.posts);
+      setUserPosts((prev) => ({
+        ...prev,
+        posts: allPages,
+      }));
+    }
+  }, [userPostsData]);
 
   // followerList 조회 api
   useEffect(() => {
@@ -109,15 +138,15 @@ export default function UserInfo(): JSX.Element {
   };
   const DynamicBtn = dynamic(() => import("../modify-userinfo/ModifyButton"), { ssr: false });
   // const gridRowCount = Math.ceil(tempPosts.length / 3);
-  const { posts } = userPosts;
-  const gridRowCount = Math.ceil(posts.length / 3);
+  // const { posts } = userPosts;
+  // const gridRowCount = Math.ceil(posts.length / 3);
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="flex flex-col w-[550px] items-center mt-[10px]">
-        <div className="flex flex-col items-center gap-6 w-[600px] h-[250px]  rounded-lg">
-          <div className="flex flex-row items-center justify-around w-[480px] h-[200px] gap-10 mt-2">
+    <div className="flex flex-col w-full items-center justify-center">
+      <div className="flex flex-col w-full items-center mt-[10px]">
+        <div className="flex flex-col items-center gap-6 w-full h-[250px]  rounded-lg">
+          <div className="flex flex-row items-center justify-around w-auto h-[200px] gap-10 mt-2">
             <div className="avatar">
-              <div className="w-40 rounded-full">
+              <div className="w-32 rounded-full">
                 {userDetail.profileImg === "" && <LiaUserCircleSolid className="w-40 h-40" />}
                 {userDetail.profileImg !== "" && <img src={userDetail.profileImg} alt="profile-img" />}
                 {/* {userDetail.profileImg !== "" ? (
@@ -133,12 +162,12 @@ export default function UserInfo(): JSX.Element {
                 {curUserId === userId && <DynamicBtn moveToModifyPage={moveToModifyPage} />}
               </div>
               <div className="flex flex-row justify-between items-center gap-10 ">
-                <div className="flex flex-col items-center text-black">
+                <div className="flex flex-col items-center text-sm text-black">
                   <p>게시글</p>
                   {/* {postCount} */}
                   {userDetail.postsCount}
                 </div>
-                <div className="flex flex-col items-center text-black" onClick={openFollowerModal}>
+                <div className="flex flex-col items-center text-sm text-black" onClick={openFollowerModal}>
                   <p>팔로워</p>
                   {/* {followers.length} */}
                   {userDetail.followerCount}
@@ -150,7 +179,7 @@ export default function UserInfo(): JSX.Element {
                     handleCloseModal={closeFollowerModal}
                   />
                 )}
-                <div className="flex flex-col items-center text-black" onClick={openFollowingModal}>
+                <div className="flex flex-col items-center text-sm text-black" onClick={openFollowingModal}>
                   <p>팔로잉</p>
                   {/* {following.length} */}
                   {userDetail.followingCount}
@@ -167,9 +196,8 @@ export default function UserInfo(): JSX.Element {
           </div>
         </div>
         <div className="mt-[10px] pt-2 border-t-2">
-          <div className="w-[500px] h-[600px]  overflow-y-auto">
-            <div className="grid grid-cols-3">
-              {Array.from({ length: gridRowCount }).map((_, rowIndex) => (
+          <div className="w-3/4 h-[600px] overflow-y-auto mx-auto">
+            {/* {Array.from({ length: gridRowCount }).map((_, rowIndex) => (
                 <div key={rowIndex} className="grid grid-cols-1 ml-1">
                   {posts
                     .slice(rowIndex * 3, rowIndex * 3 + 3) // 현재 행에 해당하는 게시글 추출
@@ -183,8 +211,44 @@ export default function UserInfo(): JSX.Element {
                       </div>
                     ))}
                 </div>
+              ))} */}
+            <div className="flex flex-row flex-wrap justify-center gap-x-4 gap-y-4">
+              {/* {posts.map((post) => (
+                <div key={post.id} className="w-40 h-40" onClick={() => router.push(`/posts/${post.id}`)}>
+                  <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                    <img
+                      src={post.thumbnail}
+                      alt="post.img"
+                      style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                    />
+                  </div>
+                </div>
+              ))} */}
+              {userPosts.posts.map((post) => (
+                <div
+                  key={post.id}
+                  className="w-40 h-40 object-cover mt-4"
+                  onClick={() => router.push(`/posts/${post.id}`)}
+                >
+                  <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                    <img
+                      src={post.thumbnail}
+                      alt="post.img"
+                      style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                    />
+                  </div>
+                </div>
               ))}
             </div>
+            {hasNextPage && (
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="bg-blue-500 text-white px-4 py-2 mt-4 rounded disabled:bg-gray-300"
+              >
+                {isFetchingNextPage ? "로딩 중..." : "더 불러오기"}
+              </button>
+            )}
           </div>
         </div>
       </div>
