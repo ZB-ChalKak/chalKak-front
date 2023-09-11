@@ -50,10 +50,6 @@ export default function Login() {
     password: "",
   });
   const setAcToken = useSetRecoilState(accessTokenState);
-  // const [refreshToken, setRefreshToken] = useRecoilState(refreshTokenState);
-  const [accessToken, setAccessToken] = useState("");
-  const [refreshToken, setRefreshToken] = useState("");
-  // const [expireDate, setExpireDate] = useRecoilState(accessTokenExpireDateState);
 
   // axios.defaults.baseURL = "http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080/";
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +65,7 @@ export default function Login() {
 
   // 로그인 성공 시, accessToken을 recoil에 저장
   const onLoginSuccess = (response: SigninResponse) => {
-    const { accessToken, refreshToken, accessTokenExpireDate } = response.data.data.token;
+    const { accessToken, refreshToken } = response.data.data.token;
     const { styleTags, profileImg, height, weight } = response.data.data.userInfo;
     console.log("styleTags", styleTags);
 
@@ -82,16 +78,7 @@ export default function Login() {
     Cookies.set("isLoggedIn", "true");
     // accessToken, refreshToken recoil에 저장
     setAcToken(accessToken);
-    setAccessToken(accessToken);
-    setRefreshToken(refreshToken);
 
-    // 현재 시간 (unix time)
-    const now = new Date().getTime();
-    // accessToken 만료 시간
-    const expiration = accessTokenExpireDate;
-    // 만료 시간 - 현재 시간 - 10분
-    const delay = Math.max(expiration - now - 600000, 0);
-    setTimeout(silentRefresh, delay);
     // 로그인 성공 시 userState 업데이트
     setLoggedInUser((prevUser) => ({
       ...prevUser,
@@ -106,26 +93,26 @@ export default function Login() {
   };
 
   // silentRefresh: accessToken 재발급 및 로그인 성공 실행 함수 실행
-  const silentRefresh = async () => {
-    try {
-      const response: SigninResponse = await apiInstance({
-        method: "post",
-        url: "users/reissue",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        data: {
-          accessToken: accessToken,
-          refreshToken: refreshToken,
-        },
-      });
-      onLoginSuccess(response);
-      console.info("silentRefresh Success");
-    } catch (error) {
-      console.log("silentRefresh Fail");
-      console.log(error);
-    }
-  };
+  // const silentRefresh = async () => {
+  //   try {
+  //     const response: SigninResponse = await apiInstance({
+  //       method: "post",
+  //       url: "users/reissue",
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //       },
+  //       data: {
+  //         accessToken: accessToken,
+  //         refreshToken: refreshToken,
+  //       },
+  //     });
+  //     onLoginSuccess(response);
+  //     console.info("silentRefresh Success");
+  //   } catch (error) {
+  //     console.log("silentRefresh Fail");
+  //     console.log(error);
+  //   }
+  // };
 
   // 로그인 API 호출
   const handleLogin = async (e: FormEvent) => {
