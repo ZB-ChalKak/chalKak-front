@@ -44,7 +44,7 @@ const HeartsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId
 
   // api호출
   const loadLikeList = (page: number) => {
-    setIsLoading(true); // loading 시작
+    setIsLoading(true); // loading 시작임
     apiInstance({
       method: "get",
       url: `like/posts/${postId}/liker?page=${page}&size=9&sort=id,desc`,
