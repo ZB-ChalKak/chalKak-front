@@ -393,34 +393,29 @@ const Main = () => {
 
                   <div className="ml-1 flex justify-between items-stretch relative">
                     <div>
-                      <p className="text-sm block">
-                        {post.content ||
-                          post.styleTags
-                            .map((tag, index) => (
-                              <span key={"style" + index} className="text-xs">
-                                #{tag}{" "}
-                              </span>
-                            ))
-                            .concat(
-                              post.hashTags.map((tag, index) => (
-                                <span key={"hash" + index} className="text-xs">
-                                  #{tag}{" "}
+                      <p className="ml-1 text-sm block">
+                        {post.content && post.content.length > 20
+                          ? post.content.substring(0, 32) + "..."
+                          : post.content ||
+                            (() => {
+                              const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
+                              return (
+                                <span className="text-xs mr-1 block whitespace-nowrap">
+                                  {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
                                 </span>
-                              )),
-                            )}
+                              );
+                            })()}
                       </p>
                       {post.content && (
                         <div className="flex items-center justify-start">
-                          {post.styleTags.map((tag, index) => (
-                            <span key={index} className="text-xs mr-1">
-                              #{tag}{" "}
-                            </span>
-                          ))}
-                          {post.hashTags.map((tag, index) => (
-                            <span key={index} className="text-xs mr-1">
-                              #{tag}{" "}
-                            </span>
-                          ))}
+                          {(() => {
+                            const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
+                            return (
+                              <span className="text-xs block whitespace-nowrap">
+                                {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
+                              </span>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>
@@ -524,38 +519,33 @@ const Main = () => {
               <div className="flex justify-between items-stretch relative">
                 <div>
                   <p className="ml-1 text-sm block">
-                    {post.content ||
-                      post.styleTags
-                        .map((tag, index) => (
-                          <span key={"style" + index} className="text-xs">
-                            #{tag}{" "}
-                          </span>
-                        ))
-                        .concat(
-                          post.hashTags.map((tag, index) => (
-                            <span key={"hash" + index} className="text-xs">
-                              #{tag}{" "}
+                    {post.content && post.content.length > 32
+                      ? post.content.substring(0, 32) + "..."
+                      : post.content ||
+                        (() => {
+                          const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
+                          return (
+                            <span className="text-xs mr-1 block">
+                              {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
                             </span>
-                          )),
-                        )}
+                          );
+                        })()}
                   </p>
                   {post.content && (
                     <div className="ml-1 flex items-center justify-start">
-                      {post.styleTags.map((tag, index) => (
-                        <span key={index} className="text-xs mr-1">
-                          #{tag}{" "}
-                        </span>
-                      ))}
-                      {post.hashTags.map((tag, index) => (
-                        <span key={index} className="text-xs mr-1">
-                          #{tag}{" "}
-                        </span>
-                      ))}
+                      {(() => {
+                        const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
+                        return (
+                          <span className="text-xs mr-1 block">
+                            {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
+                          </span>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-end justify-end absolute top-0 right-0">
+                <div className="flex items-end justify-end absolute top-[-2px] right-0">
                   {renderLikeIcon(post)}
                   <p className="mr-2 mb-2 text-sm text-gray-500">{post.likeCount}</p>
                 </div>
