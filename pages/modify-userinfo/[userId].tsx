@@ -66,20 +66,20 @@ export default function modifyuserinfo() {
   }, [isModifyModalOpen]);
 
   // 구글 로그인 후 modify-userinfo로 넘어왔을 때, url 로부터 필요한 정보를 가져와서 설정해주는 함수.
-  useEffect(() => {
-    const url = window.location.href;
-    const urlSplit = url.split("?"); // url을 ? 기준으로 잘라서, api 호출부와 필요한 정보를 분리함.
-    const urlParams = urlSplit[1] ? urlSplit[1].split("&") : []; // url을 & 기준으로 잘라서, 필요한 정보를 분리함.
-    if (urlParams.length === 0) return;
-    const userId = urlParams[0].split("=")[1];
-    const accessToken = urlParams[1].split("=")[1];
-    const refreshToken = urlParams[2].split("=")[1];
-    const accessTokenExpireDate = urlParams[3].split("=")[1];
-    Cookies.set("userId", userId);
-    Cookies.set("accessToken", accessToken);
-    Cookies.set("refreshToken", refreshToken);
-    Cookies.set("accessTokenExpireDate", accessTokenExpireDate);
-  }, []);
+  // useEffect(() => {
+  //   const url = window.location.href;
+  //   const urlSplit = url.split("?"); // url을 ? 기준으로 잘라서, api 호출부와 필요한 정보를 분리함.
+  //   const urlParams = urlSplit[1] ? urlSplit[1].split("&") : []; // url을 & 기준으로 잘라서, 필요한 정보를 분리함.
+  //   if (urlParams.length === 0) return;
+  //   const userId = urlParams[0].split("=")[1];
+  //   const accessToken = urlParams[1].split("=")[1];
+  //   const refreshToken = urlParams[2].split("=")[1];
+  //   const accessTokenExpireDate = urlParams[3].split("=")[1];
+  //   Cookies.set("userId", userId);
+  //   Cookies.set("accessToken", accessToken);
+  //   Cookies.set("refreshToken", refreshToken);
+  //   Cookies.set("accessTokenExpireDate", accessTokenExpireDate);
+  // }, []);
 
   const handleCloseModifyModal = () => {
     setIsModifyModalOpen(false);
