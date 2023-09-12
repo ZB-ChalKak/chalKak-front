@@ -90,7 +90,6 @@ const Following = () => {
         </div>
         {followingPosts.length === 0 && (
           <div className="flex flex-col items-center justify-center mt-10">
-            <img src="/images/empty.png" alt="empty" className="w-1/2" />
             <p className="text-gray-400 mt-2">팔로우한 사람이 없습니다.</p>
           </div>
         )}
