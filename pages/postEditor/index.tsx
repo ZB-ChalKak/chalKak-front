@@ -148,7 +148,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   useInitialData(initialPostData?.styleTags, setStyleKeywords);
   useInitialData(initialPostData?.seasonTags, setSeasonKeywords);
   useInitialData(initialPostData?.weatherTags, setWeatherKeywords);
-  console.log(initialPostData);
 
   useEffect(() => {
     setImageInfo(initialPostData?.postPhotos.map((photo) => ({ id: photo.id, url: photo.url })) || []);

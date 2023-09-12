@@ -76,7 +76,6 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
         .then((response) => {
           setComments((prevComments) => [...prevComments, ...response.data.data.commentLoadResponses]);
           setTotalPages(response.data.data.totalPages);
-          console.log(response);
           setIsLoading(false); // loading 종료
         })
         .catch((error) => {
