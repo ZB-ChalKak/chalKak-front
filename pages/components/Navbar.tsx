@@ -31,7 +31,9 @@ export default function Navbar() {
       console.log("fail");
     }
   };
-
+  const isValidSrc = (src: string) => {
+    return src && src !== "null" && src !== "undefined";
+  };
   useEffect(() => {
     if (myUserState.isLoggedIn) {
       setProfileImg(myUserState.profileImg);
@@ -40,13 +42,10 @@ export default function Navbar() {
       setLogin(false);
     }
   }, [myUserState]);
-
   console.log("");
-
   useEffect(() => {
     setCookies(parseCookies()); // 쿠키 값 업데이트
   }, []);
-
   useEffect(() => {
     const cookies = parseCookies();
     const profileImg = cookies.profileImg;
@@ -54,10 +53,9 @@ export default function Navbar() {
     const isLoggedIn = !!cookies.isLoggedIn;
     setLogin(isLoggedIn);
   }, [cookies]);
-
   return (
     <>
-      <div className="h-[50px] navbar bg-base-100 md:px-10">
+      <div className="h-[50px] navbar bg-base-100 md:px-5">
         <div className="flex-1">
           <Link href={"/"} className="normal-case text-3xl title">
             #찰칵
@@ -79,7 +77,12 @@ export default function Navbar() {
           <div className="dropdown dropdown-end mb-2 text-end">
             <label tabIndex={0} className="avatar cursor-pointer flex justify-end mb-1 ml-1">
               <div className="mt-[2px] rounded-full">
-                <Image src={profileImg || "/images/defaultImg.jpg"} width={32} height={32} alt="profile-img" />
+                <Image
+                  src={isValidSrc(profileImg) ? profileImg : "/images/defaultImg.jpg"}
+                  width={32}
+                  height={32}
+                  alt="profile-img"
+                />
               </div>
             </label>
             <ul
