@@ -3,8 +3,6 @@ import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Alert from "../components/Alert";
-// import { useRecoilState } from "recoil";
-// import { accessTokenState, refreshTokenState } from "@/utils/atoms";
 import Cookies from "js-cookie";
 import { apiInstance } from "../api/api";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -51,7 +49,6 @@ export default function Login() {
   });
   const setAcToken = useSetRecoilState(accessTokenState);
 
-  // axios.defaults.baseURL = "http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080/";
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -91,28 +88,6 @@ export default function Login() {
     console.log(response);
     router.push("/main");
   };
-
-  // silentRefresh: accessToken 재발급 및 로그인 성공 실행 함수 실행
-  // const silentRefresh = async () => {
-  //   try {
-  //     const response: SigninResponse = await apiInstance({
-  //       method: "post",
-  //       url: "users/reissue",
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //       },
-  //       data: {
-  //         accessToken: accessToken,
-  //         refreshToken: refreshToken,
-  //       },
-  //     });
-  //     onLoginSuccess(response);
-  //     console.info("silentRefresh Success");
-  //   } catch (error) {
-  //     console.log("silentRefresh Fail");
-  //     console.log(error);
-  //   }
-  // };
 
   // 로그인 API 호출
   const handleLogin = async (e: FormEvent) => {
@@ -176,7 +151,6 @@ export default function Login() {
         <div className="p-6">
           <h2 className="text-2xl font-medium mt-3 pl-3 text-center leading-9 text-gray-800">로그인</h2>
         </div>
-
         <div className="mt-[60px] mx-4 w-[500px] h-[600px]">
           <form>
             <div>
@@ -224,7 +198,6 @@ export default function Login() {
               </button>
             </div>
           </form>
-
           <ul className="flex justify-evenly items-center mt-[40px] ml-[10px]">
             <li className="list-none">
               <Link href={"/signup"} className="text-center text-sm text-gray-700">
@@ -248,13 +221,11 @@ export default function Login() {
               </Link>
             </li>
           </ul>
-
           <div className="mt-[80px] flex items-center">
             <hr className="flex-grow border-t border-gray-100 mr-[20px]" />
             <p className="text-gray-700 text-xs pr-[24px]">Or sign in with</p>
             <hr className="flex-grow border-t border-gray-100" />
           </div>
-
           <div
             className="mt-[50px] ml-[210px] background-white border rounded-full w-[70px] h-[70px] flex items-center justify-center cursor-pointer"
             onClick={handleGoogleLogin}
