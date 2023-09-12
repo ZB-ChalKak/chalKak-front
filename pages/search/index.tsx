@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { TfiArrowLeft } from "react-icons/tfi";
 import { VscClose } from "react-icons/vsc";
 import { apiInstance } from "../api/api";
 import { FaHashtag } from "react-icons/fa";
+import { useRouter } from "next/router";
+import debounce from "lodash.debounce";
+import Image from "next/image";
 
 type User = {
   memberId: number;
@@ -27,6 +30,7 @@ type HighlightProps = {
 };
 
 const Search = () => {
+  const router = useRouter();
   const [tab, setTab] = useState("전체");
   const [keyword, setKeyword] = useState("");
   const [searchResult, setSearchResult] = useState<{ users: User[]; posts: Post[]; tags: Tag[] }>({
@@ -35,11 +39,12 @@ const Search = () => {
     tags: [],
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchSearchResult = useCallback(
+    debounce(async (keyword) => {
       if (keyword !== "") {
         try {
           const [usersRes, postsRes, styleTagsRes, hashTagsRes] = await Promise.all([
+            // Promise.all 4개의 api가 동시에 수행되며 모든 요청이 완료될 때까지 기다림
             apiInstance.get(`/filter/users/${keyword}?page=0&size=10`),
             apiInstance.get(`/filter/posts?keyword=${keyword}&max-length=10&page=0&size=10`),
             apiInstance.get(`/filter/hash-tags/${keyword}?page=0&size=10`),
@@ -55,9 +60,13 @@ const Search = () => {
           console.error(error);
         }
       }
-    };
-    fetchData();
-  }, [keyword]);
+    }, 300),
+    [],
+  );
+
+  useEffect(() => {
+    fetchSearchResult(keyword);
+  }, [fetchSearchResult, keyword]);
 
   const Highlight: React.FC<HighlightProps> = ({ text, highlight }) => {
     const parts = text.split(new RegExp(`(${highlight})`, "gi"));
@@ -79,9 +88,9 @@ const Search = () => {
   return (
     <div className="absoulte top-0 mx-auto bg-white">
       <div className="flex flex-col p-6">
-        <form className="ml-2 flex items-center w-[650px]" onSubmit={(e) => e.preventDefault()}>
+        <form className="flex items-center w-[650px]" onSubmit={(e) => e.preventDefault()}>
           <div>
-            <TfiArrowLeft className="w-[24px] h-[24px] mr-1 cursor-pointer" />
+            <TfiArrowLeft className="w-[24px] h-[24px] mr-1 cursor-pointer" onClick={() => router.back()} />
           </div>
           <div className="relative border border-gray-100 bg-gray-100 ml-3 px-4 py-2 w-full mr-2">
             <input
@@ -130,8 +139,19 @@ const Search = () => {
                   </div>
                 </div>
                 {searchResult.users.slice(0, 4).map((users, index) => (
-                  <div key={index} className="mb-4 flex items-center justify-start">
-                    <img src={users.profileImgUrl} alt="user profile" className="w-[40px] h-[40px] rounded-full" />
+                  <div
+                    key={index}
+                    className="mb-4 flex items-center justify-start"
+                    onClick={() => router.push(`/userinfo/${users.memberId}`)}
+                  >
+                    <div className=" w-10 h-10 relative">
+                      <Image
+                        src={users.profileImgUrl || "/images/defaultImg.jpg"}
+                        layout="fill"
+                        alt="profile-img"
+                        className="border rounded-full object-cover"
+                      />
+                    </div>
                     <p className="p-2 text-sm">
                       <Highlight text={users.nickname} highlight={keyword} />
                     </p>
@@ -151,7 +171,11 @@ const Search = () => {
                   </div>
                 </div>
                 {searchResult.posts.slice(0, 4).map((posts, index) => (
-                  <div key={index} className="mb-4 flex items-center justify-start">
+                  <div
+                    key={index}
+                    className="mb-4 flex items-center justify-start"
+                    onClick={() => router.push(`/posts/${posts.postId}`)}
+                  >
                     <p className="p-2 text-sm">
                       <Highlight text={posts.content} highlight={keyword} />
                     </p>
@@ -188,8 +212,19 @@ const Search = () => {
         {tab === "계정" && (
           <section className="overflow-auto">
             {searchResult.users.map((users, index) => (
-              <div key={index} className="mt-4 mb-4 flex items-center justify-start">
-                <img src={users.profileImgUrl} alt="user profile" className="w-[40px] h-[40px] rounded-full" />
+              <div
+                key={index}
+                className="mt-4 mb-4 flex items-center justify-start"
+                onClick={() => router.push(`/userinfo/${users.memberId}`)}
+              >
+                <div className=" w-10 h-10 relative">
+                  <Image
+                    src={users.profileImgUrl || "/images/defaultImg.jpg"}
+                    layout="fill"
+                    alt="profile-img"
+                    className="border rounded-full object-cover"
+                  />
+                </div>
                 <p className="pl-4 p-2 text-sm">
                   <Highlight text={users.nickname} highlight={keyword} />
                 </p>
@@ -200,7 +235,11 @@ const Search = () => {
         {tab === "피드" && (
           <section className="overflow-auto">
             {searchResult.posts.map((posts, index) => (
-              <div key={index} className="mb-4 flex items-center justify-start">
+              <div
+                key={index}
+                className="mb-4 flex items-center justify-start"
+                onClick={() => router.push(`/posts/${posts.postId}`)}
+              >
                 <p className="p-2 text-sm">
                   <Highlight text={posts.content} highlight={keyword} />
                 </p>

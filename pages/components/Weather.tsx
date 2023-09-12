@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { locationState, seasonState, weatherState } from "@/utils/atoms";
+import { weatherLocationState, seasonState, weatherState } from "@/utils/atoms";
 import { useRecoilValue } from "recoil";
 
 // const local = "http://ec2-13-127-154-248.ap-south-1.compute.amazonaws.com:8080";
@@ -27,8 +27,8 @@ const Weather = () => {
   const [, setSeason] = useRecoilState(seasonState);
   const [weather, setWeather] = useRecoilState(weatherState);
 
-  const setLocation = useSetRecoilState(locationState); //현재 위치 정보로 locationState atom을 업데이트
-  const location = useRecoilValue(locationState); //현재 위치 정보(locationState)를 가져옴
+  const setLocation = useSetRecoilState(weatherLocationState); //현재 위치 정보로 locationState atom을 업데이트
+  const location = useRecoilValue(weatherLocationState); //현재 위치 정보(locationState)를 가져옴
 
   // 실시간 위치 허용하여 날씨 출력
   useEffect(() => {
@@ -37,7 +37,6 @@ const Weather = () => {
         const { latitude, longitude } = position.coords;
 
         setLocation({ latitude, longitude }); //현재 위치 정보로 locationState atom을 업데이트
-        console.log(latitude, longitude);
 
         try {
           const response = await axios.get<WeatherData>(`${vercel}/weather?lat=${latitude}&lon=${longitude}`);
@@ -120,7 +119,6 @@ const Weather = () => {
           weatherIcon = "";
       }
       setWeather(weatherIcon || "알 수 없음");
-      console.log(weather);
     }
   }, [weatherData]);
 

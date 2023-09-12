@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import Weather from "../components/Weather";
-// import Image from 'next/image'
+import Image from "next/image";
 import ScrollTopButton from "../components/ScrollTopButton";
 import GoToPostEditorButton from "./GoToPostEditorButton";
 import BodyShapeModal from "./BodyShapeModal";
 import { apiInstance } from "../api/api";
 import { useRecoilValue } from "recoil";
-import { locationState, styleTagsState } from "@/utils/atoms";
+import { weatherLocationState, styleTagsState } from "@/utils/atoms";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { userState } from "@/utils/atoms";
 import { useRouter } from "next/router";
@@ -78,14 +78,14 @@ const Main = () => {
           size,
         },
       });
-      console.log(response.data);
       setFilteredWeatherPosts(response.data.data.posts);
+      console.log(response.data.data.posts);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const location = useRecoilValue(locationState);
+  const location = useRecoilValue(weatherLocationState);
 
   useEffect(() => {
     fetchWeatherPosts(location.latitude, location.longitude);
@@ -107,8 +107,6 @@ const Main = () => {
         // 첫 페이지가 아닐 경우
         setFilteredPosts((prevPosts) => [...prevPosts, ...response.data.data.posts]);
       }
-
-      // setFilteredPosts((prevPosts) => [...prevPosts, ...response.data.data.posts]);
     } catch (error) {
       console.error(error);
     }
@@ -181,36 +179,6 @@ const Main = () => {
     }
   }, [loggedInUser, isMySizeApplied, inputHeight, inputWeight]);
 
-  // // 로그인 유저의 마이사이즈 불러오기, 사용자가 커스텀으로 설정할때
-  // useEffect(() => {
-  //   if (loggedInUser.isLoggedIn) {
-  //     if (isMySizeApplied) {
-  //       // '마이사이즈 적용' 버튼을 클릭한 경우
-  //       setUser({
-  //         height: loggedInUser.height,
-  //         weight: loggedInUser.weight,
-  //         styleTagIds: loggedInUser.styleTags,
-  //       });
-  //     } else if (inputHeight !== null && inputWeight !== null) {
-  //       // 사용자가 직접 키와 몸무게 값을 입력한 경우
-  //       setUser({
-  //         ...user,
-  //         height: inputHeight,
-  //         weight: inputWeight,
-  //       });
-  //     }
-  //   } else {
-  //     if (inputHeight !== null && inputWeight !== null) {
-  //       // 비로그인 상태에서 사용자가 직접 키와 몸무게 값을 입력한 경우
-  //       setUser({
-  //         ...user,
-  //         height: inputHeight,
-  //         weight: inputWeight,
-  //       });
-  //     }
-  //   }
-  // }, [loggedInUser, isMySizeApplied, inputHeight, inputWeight]);
-
   useEffect(() => {
     if (loggedInUser.isLoggedIn && isMySizeApplied) {
       // '마이사이즈 적용' 버튼을 클릭한 경우
@@ -276,6 +244,7 @@ const Main = () => {
     setIsModalOpen(false);
   };
 
+  // 좋아요 클릭
   const handleClickLike = (postId: number, likeCount: number, liked: boolean) => {
     if (!loggedInUser.isLoggedIn) {
       // 만약 로그인하지 않은 유저라면
@@ -288,7 +257,7 @@ const Main = () => {
         url: `like/posts/${postId}`,
       })
         .then(() => {
-          const updatePosts = filteredPosts.map((post) => {
+          const updatePosts = filteredPosts.map((post: Post) => {
             if (post.id === postId) {
               return {
                 ...post,
@@ -299,14 +268,22 @@ const Main = () => {
             return post;
           });
           setFilteredPosts(updatePosts);
+
+          const updateWeatherPosts = filteredWeatherPosts.map((post: Post) => {
+            if (post.id === postId) {
+              return { ...post, likeCount: likeCount + 1, liked: !liked };
+            }
+            return post;
+          });
+          setFilteredWeatherPosts(updateWeatherPosts);
         })
         .catch((err) => {
           console.log(err);
-          // router.push("/login");
         });
     }
   };
 
+  // 좋아요 취소
   const handleClickUnlike = (postId: number, likeCount: number, liked: boolean) => {
     if (!loggedInUser.isLoggedIn) {
       // 만약 로그인하지 않은 유저라면
@@ -319,7 +296,7 @@ const Main = () => {
         url: `like/posts/${postId}`,
       })
         .then(() => {
-          const updatePosts = filteredPosts.map((post) => {
+          const updatePosts = filteredPosts.map((post: Post) => {
             if (post.id === postId) {
               return {
                 ...post,
@@ -330,10 +307,17 @@ const Main = () => {
             return post;
           });
           setFilteredPosts(updatePosts);
+
+          const updateWeatherPosts = filteredWeatherPosts.map((post: Post) => {
+            if (post.id === postId) {
+              return { ...post, likeCount: likeCount - 1, liked: !liked };
+            }
+            return post;
+          });
+          setFilteredWeatherPosts(updateWeatherPosts);
         })
         .catch((err) => {
           console.log(err);
-          // router.push("/login");
         });
     }
   };
@@ -361,59 +345,89 @@ const Main = () => {
     <div className="w-full h-full bg-white">
       <div className="max-auto">
         <div className="cursor-pointer flex items-center justify-start border-b pb-2">
-          <button className="mr-4 text-lg ml-6 font-semibold">추천</button>
+          <button className="mr-4 text-lg font-semibold">추천</button>
           <button onClick={handleNavigation} className="text-lg text-gray-400">
             팔로잉
           </button>
         </div>
-        <div className="mt-6 ml-6 text-m text-gray-400">
+        <div className="mt-6 text-m text-gray-400">
           <Weather />
         </div>
-        <div className="mt-2 text-xl ml-6 font-bold">오늘 날씨와 어울리는 스타일</div>
+        <div className="mt-2 text-xl font-bold">오늘 날씨와 어울리는 스타일</div>
         <div style={{ width: "100%", height: "auto" }}>
           <Swiper
             // spaceBetween={1} // 슬라이드 간의 간격 조정
             slidesPerView="auto" /* 한번에 보여줄 슬라이드 수 설정 (1.5) */
           >
             {filteredWeatherPosts.map((post: Post, index) => (
-              <SwiperSlide key={index} style={{ width: "342px" }}>
-                <div className="mt-5 cursor-pointer overflow-hidden flex flex-col bg-white ml-4">
+              <SwiperSlide key={index} style={{ width: "300px", height: "540px" }}>
+                <div className="mt-4 cursor-pointer overflow-hidden flex flex-col bg-white mr-2">
                   <div className="flex justify-between items-center pb-2">
-                    <div className="flex items-center">
-                      <img src={post.writer.profileImg} alt="profile" className="rounded-full w-[28px] h-[28px]" />
-                      <p onClick={() => router.push(`/userinfo/${post.writer.id}`)} className="text-xs pl-2">
-                        {post.writer.nickname}
-                      </p>
+                    <div className="flex items-center" onClick={() => router.push(`/userinfo/${post.writer.id}`)}>
+                      <div className=" w-8 h-8 relative">
+                        <Image
+                          src={post.writer.profileImg || "/images/defaultImg.jpg"}
+                          layout="fill"
+                          alt="profile-img"
+                          className="border rounded-full object-cover"
+                        />
+                      </div>
+                      <p className="text-xs pl-2">{post.writer.nickname}</p>
                     </div>
                   </div>
 
                   <div
-                    style={{ width: "342px", height: "455px" }}
-                    className="relative"
+                    style={{ width: "300px", height: "400px" }}
+                    className="relative mt-1"
                     onClick={() => router.push(`/posts/${post.id}`)}
                   >
-                    <img
+                    <Image
                       src={post.thumbnail}
+                      width={300}
+                      height={400}
                       alt="content"
                       style={{ objectFit: "cover", aspectRatio: "3/4" }}
-                      className="cursor-pointer absolute top-0 left-0 w-full h-full' />"
+                      className="cursor-pointer absolute top-0 left-0 w-full h-full"
                     />
                   </div>
 
-                  <div className="ml-2 flex justify-between items-stretch relative">
+                  <div className="ml-1 flex justify-between items-stretch relative">
                     <div>
-                      <p className="inline mt-2 text-sm">{post.content}</p>
-                      <div className="mt-1 mb-1 flex items-center justify-start">
-                        <p className="text-xs">
-                          {post.styleTags.join(" ")}
-                          {post.hashTags.join(" ")}
-                        </p>
-                      </div>
+                      <p className="text-sm block">
+                        {post.content ||
+                          post.styleTags
+                            .map((tag, index) => (
+                              <span key={"style" + index} className="text-xs">
+                                #{tag}{" "}
+                              </span>
+                            ))
+                            .concat(
+                              post.hashTags.map((tag, index) => (
+                                <span key={"hash" + index} className="text-xs">
+                                  #{tag}{" "}
+                                </span>
+                              )),
+                            )}
+                      </p>
+                      {post.content && (
+                        <div className="flex items-center justify-start">
+                          {post.styleTags.map((tag, index) => (
+                            <span key={index} className="text-xs mr-1">
+                              #{tag}{" "}
+                            </span>
+                          ))}
+                          {post.hashTags.map((tag, index) => (
+                            <span key={index} className="text-xs mr-1">
+                              #{tag}{" "}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex items-end justify-end absolute top-[3px] right-0">
+                    <div className="flex items-end justify-end absolute top-0 right-0">
                       {renderLikeIcon(post)}
-                      <p className="mr-2 mb-2 text-sm text-gray-500">{post.likeCount}</p>
+                      <p className="mr-2 mb-[8px] text-sm text-gray-500">{post.likeCount}</p>
                     </div>
                   </div>
                 </div>
@@ -429,10 +443,10 @@ const Main = () => {
               <GoToPostEditorButton />
             </div>
           </div>
-          <div className="text-xl ml-6 font-bold">키워드 추천</div>
-          <div className="mt-6 ml-6 flex flex-wrap justify-flex-start gap-3">
+          <div className="text-xl font-bold">키워드 추천</div>
+          <div className="mt-6 flex flex-wrap justify-flex-start gap-3">
             <div
-              className={`py-[7px] px-4 text-center border rounded-full cursor-pointer text-xs ${
+              className={`py-[6px] px-4 text-center border rounded-full cursor-pointer text-xs ${
                 selectedStyleTags.length > 0
                   ? "bg-white text-black" // 태그가 선택된 경우(로그인 상태에 관계 없이) 비활성화
                   : !loggedInUser.isLoggedIn || selectedStyleTags.length === 0
@@ -444,7 +458,7 @@ const Main = () => {
               <p>전체</p>
             </div>
             <div
-              className={`py-[7px] px-4 text-center border rounded-full cursor-pointer text-xs ${
+              className={`py-[6px] px-4 text-center border rounded-full cursor-pointer text-xs ${
                 isMySizeApplied ? "bg-black text-white" : "bg-white text-black"
               }`}
               onClick={handleBodyClick}
@@ -457,7 +471,7 @@ const Main = () => {
               selectedStyleTags.includes(tag.id) ? (
                 <div
                   key={tag.id}
-                  className={`py-[7px] px-4 text-center border rounded-full cursor-pointer text-xs bg-black text-white`}
+                  className={`py-[6px] px-4 text-center border rounded-full cursor-pointer text-xs bg-black text-white`}
                   onClick={() => handleDeleteTag(tag.id)} // 태그 리스트에서 제외
                 >
                   <p>{tag.keyword}</p>
@@ -465,7 +479,7 @@ const Main = () => {
               ) : (
                 <div
                   key={tag.id}
-                  className={`py-[7px] px-4 text-center border rounded-full cursor-pointer text-xs`}
+                  className={`py-[6px] px-4 text-center border rounded-full cursor-pointer text-xs`}
                   onClick={() => handleAddTag(tag.id)}
                 >
                   <p>{tag.keyword}</p>
@@ -475,41 +489,73 @@ const Main = () => {
           </div>
         </div>
 
-        <div className="mt-5 h-auto grid grid-cols-2 gap-4 px-4">
+        <div className="mt-5 h-auto grid grid-cols-2 gap-2">
           {filteredPosts.map((post: Post, index) => (
-            <div key={index} className="flex flex-col bg-white overflow-hidden">
+            <div key={index} className="flex flex-col mb-2 bg-white overflow-hidden">
               <div
                 className="mt-2 flex flex-wrap items-center justify-left cursor-pointer"
                 onClick={() => router.push(`/userinfo/${post.writer.id}`)}
               >
-                <img src={post.writer.profileImg} alt="profile" className="rounded-full w-[28px] h-[28px]" />
-                <p className="text-xs pl-2">{post.writer.nickname}</p>
+                <div className="w-[32px] h-[32px] relative">
+                  <Image
+                    src={post.writer.profileImg || "/images/defaultImg.jpg"}
+                    layout="fill"
+                    alt="profile-img"
+                    className="border rounded-full object-cover"
+                  />
+                </div>
+                <p className="text-xs ml-2">{post.writer.nickname}</p>
               </div>
               <div
                 style={{ width: "342px", height: "455px" }}
                 className="relative mt-2 mb-2"
                 onClick={() => router.push(`/posts/${post.id}`)}
               >
-                <img
+                <Image
                   src={post.thumbnail}
+                  width={342}
+                  height={455}
                   alt="content"
                   style={{ objectFit: "cover", aspectRatio: "3/4" }}
-                  className="cursor-pointer absolute top-0 left-0 w-full h-full' />"
+                  className="cursor-pointer absolute top-0 left-0"
                 />
               </div>
 
-              <div className="ml-2 flex justify-between items-stretch relative">
+              <div className="flex justify-between items-stretch relative">
                 <div>
-                  <p className="inline mt-2 text-sm">{post.content}</p>
-                  <div className="mt-1 mb-1 flex items-center justify-start">
-                    <p className="text-xs">
-                      {post.styleTags.join(" ")}
-                      {post.hashTags.join(" ")}
-                    </p>
-                  </div>
+                  <p className="ml-1 text-sm block">
+                    {post.content ||
+                      post.styleTags
+                        .map((tag, index) => (
+                          <span key={"style" + index} className="text-xs">
+                            #{tag}{" "}
+                          </span>
+                        ))
+                        .concat(
+                          post.hashTags.map((tag, index) => (
+                            <span key={"hash" + index} className="text-xs">
+                              #{tag}{" "}
+                            </span>
+                          )),
+                        )}
+                  </p>
+                  {post.content && (
+                    <div className="ml-1 flex items-center justify-start">
+                      {post.styleTags.map((tag, index) => (
+                        <span key={index} className="text-xs mr-1">
+                          #{tag}{" "}
+                        </span>
+                      ))}
+                      {post.hashTags.map((tag, index) => (
+                        <span key={index} className="text-xs mr-1">
+                          #{tag}{" "}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-end justify-end absolute top-[3px] right-0">
+                <div className="flex items-end justify-end absolute top-0 right-0">
                   {renderLikeIcon(post)}
                   <p className="mr-2 mb-2 text-sm text-gray-500">{post.likeCount}</p>
                 </div>

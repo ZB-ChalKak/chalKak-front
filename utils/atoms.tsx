@@ -15,9 +15,14 @@ export const uploadedImageUrlsState = atom<string[]>({
   default: [],
 });
 
-// // user Location State
-export const locationState = atom({
+// location
+export const locationState = atom<string>({
   key: "locationState",
+  default: "",
+});
+
+export const weatherLocationState = atom({
+  key: "weatherLocationState",
   default: { latitude: 37.5665, longitude: 126.9784 }, // 기본값은 서울
 });
 
