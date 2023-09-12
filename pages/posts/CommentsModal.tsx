@@ -178,7 +178,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
           if (!userId) {
             router.push("/login");
           }
-          alert("There was an error!" + error);
+          console.log(error);
         });
     }
   };

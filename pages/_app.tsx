@@ -11,6 +11,8 @@ import { styleTagsState } from "@/utils/atoms";
 import { apiInstance } from "./api/api";
 import InfoAlert from "./components/InfoAlert";
 
+// import Cookies from 'js-cookie'
+
 // 탭을 전환했다가 다시 돌아왔을 때 API 호출이 발생하지 않음
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +44,29 @@ function StyleTagsFetcher() {
   console.log(currentStyleTags);
   return null;
 }
+
+// function StyleTagsFetcher() {
+//   const currentStyleTags = useRecoilValue(styleTagsState);
+//   const setStyleTags = useSetRecoilState(styleTagsState);
+//   const cookies = Cookies.get("styleTags");
+
+//   // Check if the cookie exists and is not empty.
+//   const shouldFetch = !cookies || cookies === "[]";
+
+//   useQuery("getStyleTags", () => apiInstance.get("/styleTags").then((res) => res.data), {
+//     onSuccess: (data) => {
+//       setStyleTags(data.data.styleTags);
+
+//       // Convert the data to a JSON string before storing in a cookie.
+//       Cookies.set("styleTags", JSON.stringify(data));
+//     },
+//     enabled: shouldFetch,
+//   });
+
+//   console.log(currentStyleTags);
+
+//   return null;
+// }
 
 //getLayouot 메소드를 가지고 있으면 사용하고, 없으면 기본 레이아웃(Navbar가 포함된 레이아웃)을 사용하도록 하는 로직
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
