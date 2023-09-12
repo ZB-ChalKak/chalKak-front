@@ -3,8 +3,8 @@ import { LiaUserCircleSolid } from "react-icons/lia";
 import ChangeImageModal from "./ChangeImageModal";
 import Cookies from "js-cookie";
 
-import { useRecoilState, useRecoilValue } from "recoil";
-import { styleTagsState, userinfoState } from "@/utils/atoms";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { styleTagsState, userState, userinfoState } from "@/utils/atoms";
 import ChangeUserinfoModal from "./ChangeUserinfoModal";
 import ChangePWModal from "./ChangePWModal";
 import WithdrawalModal from "./WithdrawalModal";
@@ -37,6 +37,7 @@ export default function modifyuserinfo() {
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState<boolean>(false);
   const [, setProfileUrl] = useState<string>("");
   const [formData, setFormData] = useState(new FormData());
+  const setCurUser = useSetRecoilState(userState);
   const [userinfoProfile, setUserinfoPropfile] = useRecoilState(userinfoState);
   const [userinfo, setUserinfo] = useState<UserinfoType>({
     nickname: "",
@@ -63,8 +64,28 @@ export default function modifyuserinfo() {
       setUserinfo(res.data.data);
       setUserinfoPropfile(res.data.data);
       setUserNickname(res.data.data.nickname);
+      setCurUser((prev) => ({ ...prev, profileImg: res.data.data.profileImg, isLoggedIn: true }));
+      Cookies.set("profileImg", res.data.data.profileImg);
     });
   }, [isModifyModalOpen]);
+
+  // 구글 로그인 후 modify-userinfo로 넘어왔을 때, url 로부터 필요한 정보를 가져와서 설정해주는 함수.
+  useEffect(() => {
+    // url의 형식은 아래와 같음.
+    // https://chal-kak.vercel.app/userinfo/modify-userinfo?userId={userId}&accessToken={accessToken}&refreshToken={refreshToken}&accessTokenExpireDate={accessTokenExpireDate}
+    const url = window.location.href;
+    const urlSplit = url.split("?"); // url을 ? 기준으로 잘라서, api 호출부와 필요한 정보를 분리함.
+    const urlParams = urlSplit[1] ? urlSplit[1].split("&") : []; // url을 & 기준으로 잘라서, 필요한 정보를 분리함.
+    if (urlParams.length === 0) return;
+    const userId = urlParams[0].split("=")[1];
+    const accessToken = urlParams[1].split("=")[1];
+    const refreshToken = urlParams[2].split("=")[1];
+    const accessTokenExpireDate = urlParams[3].split("=")[1];
+    Cookies.set("userId", userId);
+    Cookies.set("accessToken", accessToken);
+    Cookies.set("refreshToken", refreshToken);
+    Cookies.set("accessTokenExpireDate", accessTokenExpireDate);
+  }, []);
 
   const hasFile = formData.has("multipartFiles");
   console.log(hasFile);

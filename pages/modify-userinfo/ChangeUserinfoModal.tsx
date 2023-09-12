@@ -2,8 +2,8 @@ import { styled } from "styled-components";
 import { ChangeEvent, FormEventHandler, useCallback, useEffect, useState } from "react";
 import { apiInstance } from "../api/api";
 import debounce from "lodash.debounce";
-import { styleTagsState, userinfoState } from "@/utils/atoms";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { styleTagsState, userState, userinfoState } from "@/utils/atoms";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { AiOutlineClose } from "react-icons/ai";
 import Cookies from "js-cookie";
 import { UserinfoType } from "./[userId]";
@@ -34,6 +34,7 @@ const ChangeUserinfoModal = ({
   // const userinfoProfile = useRecoilValue(userinfoState);
 
   const [userinfoProfile, setUserinfoPropfile] = useRecoilState(userinfoState);
+  const setCurUser = useSetRecoilState(userState);
   const [profileImg, setProfileImg] = useState<File>();
   const [invalidNickname, setInvalidNickname] = useState(false);
   const [nicknameTouched, setNicknameTouched] = useState<boolean>(false);
@@ -47,6 +48,13 @@ const ChangeUserinfoModal = ({
     return nicknamePattern.test(nickname);
   };
 
+  // const checkImageFormat = (file: File): boolean => {
+  //   if (file.type !== "image/jpeg" && file.type !== "image/png" && file.type !== "image/jpg") {
+  //     return false;
+  //   }
+  //   return true;
+  // };
+
   useEffect(() => {
     setIsNicknameValid(checkNicknameFormat(userinfoProfile.nickname));
   }, [userinfoProfile.nickname]);
@@ -59,18 +67,33 @@ const ChangeUserinfoModal = ({
     const blob = new Blob([JSON.stringify(userinfoProfile)], { type: "application/json" });
     formData.append("infoRequest", blob);
 
-    await apiInstance({
-      method: "patch",
-      url: `/users/${userinfoProfile.userId}/modify`,
+    try {
+      const response = await apiInstance({
+        method: "patch",
+        url: `/users/${userinfoProfile.userId}/modify`,
 
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${Cookies.get("accessToken")}`,
-      },
-      data: formData,
-    });
-    Cookies.set("profileImg", userinfoProfile.profileImg as string);
-    handleCloseModal();
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+        data: formData,
+      });
+
+      if (response.status === 200) {
+        // Cookies.set("profileImg", userinfoProfile.profileImg as string);
+        setCurUser((prev) => {
+          return {
+            ...prev,
+            profileImg: userinfoProfile.profileImg as string,
+          };
+        });
+      }
+      handleCloseModal();
+    } catch (error) {
+      console.log("fail");
+    }
+
+    // console.log("profileImg", userinfoProfile.profileImg);
   };
 
   useEffect(() => {
@@ -102,9 +125,15 @@ const ChangeUserinfoModal = ({
       setUserinfoPropfile({ ...userinfoProfile, [name]: Number(value) });
     } else if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      console.log("file", file);
-      setProfileImg(file);
-      formData.set("multipartFiles", file as File);
+      if (file.type !== "image/jpeg" && file.type !== "image/png" && file.type !== "image/jpg") {
+        alert("jpg, png파일만 업로드 가능합니다");
+        e.target.value = "";
+        return;
+      } else {
+        console.log("file", file);
+        setProfileImg(file);
+        formData.set("multipartFiles", file as File);
+      }
     } else {
       // setUserInfo({ ...userinfo, [name]: value });
       setUserinfoPropfile({ ...userinfoProfile, [name]: value });
