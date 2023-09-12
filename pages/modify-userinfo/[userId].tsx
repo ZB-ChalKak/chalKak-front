@@ -7,7 +7,6 @@ import ChangeUserinfoModal from "./ChangeUserinfoModal";
 import ChangePWModal from "./ChangePWModal";
 import WithdrawalModal from "./WithdrawalModal";
 import { apiInstance } from "../api/api";
-// import Alert from "../components/Alert";
 
 export type UserinfoType = {
   nickname: string;
@@ -30,13 +29,9 @@ export interface ModifiedFormdata {
   };
 }
 export default function modifyuserinfo() {
-  // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState<boolean>(false);
   const [isChangePWModalOpen, setIsChangePWModalOpen] = useState<boolean>(false);
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState<boolean>(false);
-  // const [alertOepn, setAlertOpen] = useState(false);
-  // const [alertMessage, setAlertMessage] = useState("");
-  // const [, setProfileUrl] = useState<string>("");
   const [formData, setFormData] = useState(new FormData());
   const setCurUser = useSetRecoilState(userState);
   const [userinfoProfile, setUserinfoPropfile] = useRecoilState(userinfoState);
@@ -112,7 +107,6 @@ export default function modifyuserinfo() {
 
   return (
     <>
-      {/* <Alert open={alertOepn} setOpen={setAlertOpen} message={alertMessage} /> */}
       <div className="w-full flex flex-col items-center justify-center">
         <div className="p-6">
           <h2 className="text-2xl font-medium mt-3 text-center leading-9 text-gray-800">나의 정보</h2>

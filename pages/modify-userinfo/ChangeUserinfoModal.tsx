@@ -69,6 +69,7 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
         });
       }
       handleCloseModal();
+      alert("수정되었습니다.");
     } catch (error) {
       console.log("fail");
     }

@@ -85,6 +85,7 @@ const ChangePWModal = ({ isOpen, handleCloseModal }: ChangePWModalProps) => {
       },
     });
     handleCloseModal();
+    alert("비밀번호가 수정되었습니다.");
   };
 
   return (
