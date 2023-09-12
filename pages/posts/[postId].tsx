@@ -1,5 +1,4 @@
 import Image from "next/image";
-import profileImg from "./img/프로필사진.jpg";
 import Carousel from "../components/Carousel";
 import { AiOutlineHeart, AiOutlineComment, AiFillHeart } from "react-icons/ai";
 import { GrMore } from "react-icons/gr";
@@ -55,7 +54,6 @@ interface PostPhoto {
   url: string;
 }
 
-const img = profileImg;
 const HomePage = () => {
   const [postData, setPostData] = useState<Post | null>(null);
   const [commentsModalIsOpen, setcommentsModalIsOpen] = useState(false);
@@ -72,9 +70,10 @@ const HomePage = () => {
   const [currentPostId, setCurrentPostId] = useState(0);
   const [alertMessage, setAlertMessage] = useState("");
   const [postImages, setPostImages] = useState<string[] | undefined>(undefined);
+  const [isProcessing, setIsProcessing] = useState(false);
   const accessToken = Cookies.get("accessToken");
   const userId = Cookies.get("userId");
-  const writerSrc = postData?.writer.profileImg || img;
+  const writerSrc = postData?.writer.profileImg || "/images/defaultImg.jpg";
   const router = useRouter();
   const { postId } = router.query;
   const setAlert = useSetRecoilState(alertState);
@@ -156,44 +155,50 @@ const HomePage = () => {
 
   // 좋아요 클릭
   const handleClickLike = () => {
-    if (postId) {
-      apiInstance({
-        method: "get",
-        url: `like/posts/${postId}`,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+    if (!postId || isProcessing) return;
+
+    setIsProcessing(true);
+
+    apiInstance({
+      method: "get",
+      url: `like/posts/${postId}`,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then(() => {
+        setIsLike(true);
+        setLikeCount(likeCount + 1);
       })
-        .then(() => {
-          setIsLike(true);
-          setLikeCount(likeCount + 1);
-        })
-        .catch((error) => {
-          console.error("There was an error!", error);
-          redirectToLogin();
-        });
-    }
+      .catch((error) => {
+        console.error("There was an error!", error);
+        redirectToLogin();
+      })
+      .finally(() => setIsProcessing(false));
   };
 
   // 좋아요 취소 클릭
   const handleClickUnlike = () => {
-    if (postId) {
-      apiInstance({
-        method: "delete",
-        url: `like/posts/${postId}`,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+    if (!postId || isProcessing) return;
+
+    setIsProcessing(true);
+
+    apiInstance({
+      method: "delete",
+      url: `like/posts/${postId}`,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then(() => {
+        setIsLike(false);
+        setLikeCount(likeCount - 1);
       })
-        .then(() => {
-          setIsLike(false);
-          setLikeCount(likeCount - 1);
-        })
-        .catch((error) => {
-          console.error("There was an error!", error);
-          redirectToLogin();
-        });
-    }
+      .catch((error) => {
+        console.error("There was an error!", error);
+        redirectToLogin();
+      })
+      .finally(() => setIsProcessing(false));
   };
 
   // 팔로우 버튼 클릭
@@ -203,6 +208,11 @@ const HomePage = () => {
       setAlertOpen(true);
       return;
     }
+
+    if (!postId || isProcessing) return;
+
+    setIsProcessing(true);
+
     if (postId) {
       apiInstance({
         method: "get",
@@ -219,11 +229,15 @@ const HomePage = () => {
           console.error("There was an error!" + error);
 
           redirectToLogin();
-        });
+        })
+        .finally(() => setIsProcessing(false));
     }
   };
   // 언팔로우 버튼 클릭
   const handleClickUnfollowBtn = () => {
+    if (!postId || isProcessing) return;
+
+    setIsProcessing(true);
     if (postId) {
       apiInstance({
         method: "delete",
@@ -238,7 +252,8 @@ const HomePage = () => {
         .catch((error) => {
           alert("There was an error!" + error);
           redirectToLogin();
-        });
+        })
+        .finally(() => setIsProcessing(false));
     }
   };
 
@@ -265,14 +280,14 @@ const HomePage = () => {
     if (isLike) {
       // isLike가 true일 때
       return (
-        <div className="relative" onClick={handleClickUnlike}>
+        <div className="relative" onClick={isProcessing ? undefined : handleClickUnlike}>
           <AiFillHeart className="md:text-4xl text-3xl mr-2 cursor-pointer text-red-600" />
         </div>
       );
     } else {
       // isLike가 false일 때
       return (
-        <div className="relative" onClick={handleClickLike}>
+        <div className="relative" onClick={isProcessing ? undefined : handleClickLike}>
           <AiOutlineHeart className="md:text-4xl text-3xl mr-2 cursor-pointer" />
         </div>
       );
@@ -284,14 +299,17 @@ const HomePage = () => {
     if (isFollow) {
       // isFollow가 true일 때
       return (
-        <button className="btn btn-neutral md:btn-sm btn-xs md:h-10 h-8" onClick={handleClickUnfollowBtn}>
+        <button
+          className="btn btn-neutral md:btn-sm btn-xs md:h-10 h-8"
+          onClick={isProcessing ? undefined : handleClickUnfollowBtn}
+        >
           언팔로우
         </button>
       );
     } else {
       // isFollow가 false일 때
       return (
-        <button className="btn btn-sm h-10" onClick={handleClickFollowBtn}>
+        <button className="btn btn-sm h-10" onClick={isProcessing ? undefined : handleClickFollowBtn}>
           팔로우
         </button>
       );
