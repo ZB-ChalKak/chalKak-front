@@ -20,19 +20,7 @@ interface ChangeUserinfoModalProps {
   myKeywords: { id: number; keyword: string; category: string; keywordImg: string }[];
 }
 
-const ChangeUserinfoModal = ({
-  isOpen,
-  handleCloseModal,
-  // setUserInfo,
-  // userinfo,
-  // profileFile,
-  formData,
-  userNickname,
-}: ChangeUserinfoModalProps) => {
-  // console.log("userinfo-modal", userinfo);
-  // const stList = userinfo.styleTags;
-  // const userinfoProfile = useRecoilValue(userinfoState);
-
+const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname }: ChangeUserinfoModalProps) => {
   const [userinfoProfile, setUserinfoPropfile] = useRecoilState(userinfoState);
   const setCurUser = useSetRecoilState(userState);
   const [profileImg, setProfileImg] = useState<File>();
@@ -47,13 +35,6 @@ const ChangeUserinfoModal = ({
     const nicknamePattern = /(^[a-zA-Z0-9_]{4,16}$)|(^[가-힣0-9_]{2,8}$)/;
     return nicknamePattern.test(nickname);
   };
-
-  // const checkImageFormat = (file: File): boolean => {
-  //   if (file.type !== "image/jpeg" && file.type !== "image/png" && file.type !== "image/jpg") {
-  //     return false;
-  //   }
-  //   return true;
-  // };
 
   useEffect(() => {
     setIsNicknameValid(checkNicknameFormat(userinfoProfile.nickname));
@@ -80,7 +61,6 @@ const ChangeUserinfoModal = ({
       });
 
       if (response.status === 200) {
-        // Cookies.set("profileImg", userinfoProfile.profileImg as string);
         setCurUser((prev) => {
           return {
             ...prev,
@@ -92,14 +72,11 @@ const ChangeUserinfoModal = ({
     } catch (error) {
       console.log("fail");
     }
-
-    // console.log("profileImg", userinfoProfile.profileImg);
   };
 
   useEffect(() => {
     if (profileImg) {
       setProfileImg(profileImg);
-      console.log("profileImg", profileImg);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImg(reader.result as string);
@@ -118,10 +95,8 @@ const ChangeUserinfoModal = ({
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "gender") {
-      // setUserInfo({ ...userinfo, gender: value });
       setUserinfoPropfile({ ...userinfoProfile, gender: value });
     } else if (name === "height" || name === "weight") {
-      // setUserInfo({ ...userinfo, [name]: Number(value) });
       setUserinfoPropfile({ ...userinfoProfile, [name]: Number(value) });
     } else if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -135,7 +110,6 @@ const ChangeUserinfoModal = ({
         formData.set("multipartFiles", file as File);
       }
     } else {
-      // setUserInfo({ ...userinfo, [name]: value });
       setUserinfoPropfile({ ...userinfoProfile, [name]: value });
     }
   };
@@ -146,11 +120,9 @@ const ChangeUserinfoModal = ({
   const handleKeywordCheckedChange = (keywordId: number) => {
     if (checkedKeyword.includes(keywordId)) {
       setCheckedKeyword(checkedKeyword.filter((id) => id !== keywordId));
-      // setUserInfo({ ...userinfo, styleTags: checkedKeyword.filter((id) => id !== keywordId) });
       setUserinfoPropfile({ ...userinfoProfile, styleTags: checkedKeyword.filter((id) => id !== keywordId) });
     } else if (checkedKeyword.length < maxCheckedCount) {
       setCheckedKeyword([...checkedKeyword, keywordId]);
-      // setUserInfo({ ...userinfo, styleTags: [...checkedKeyword, keywordId] });
       setUserinfoPropfile({ ...userinfoProfile, styleTags: [...checkedKeyword, keywordId] });
     }
   };

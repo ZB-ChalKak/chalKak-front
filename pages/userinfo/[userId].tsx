@@ -174,15 +174,13 @@ export default function UserInfo(): JSX.Element {
     setIsOpenFollowingModal(false);
   };
 
-  // console.log("userpostss", userPosts.posts);
-  console.log(userDetail);
+  // 사용자 정보 수정 페이지로 이동
   const moveToModifyPage = () => {
     router.push(`/modify-userinfo/${userId}`);
   };
   const DynamicBtn = dynamic(() => import("../modify-userinfo/ModifyButton"), { ssr: false });
-  // const gridRowCount = Math.ceil(tempPosts.length / 3);
   const { posts } = userPosts;
-  // const gridRowCount = Math.ceil(posts.length / 3);
+
   return (
     <div className="flex flex-col w-full items-center justify-center">
       <div className="flex flex-col w-full items-center mt-[10px]">

@@ -8,9 +8,9 @@ import { useRouter } from "next/router";
 
 const Following = () => {
   const [followingPosts, setFollowingPosts] = useRecoilState(followingPostsState);
-  console.log("followingPosts", followingPosts);
   const accessToken = Cookies.get("accessToken");
   const router = useRouter();
+
   const handleClickLike = (postId: number, likeCount: number, liked: boolean) => {
     if (postId) {
       apiInstance({
@@ -62,16 +62,21 @@ const Following = () => {
   };
 
   useEffect(() => {
-    const fetchFollowingPosts = async () => {
-      try {
-        const followingPostsRes = await apiInstance.get("/filter/following");
-        // 팔로우한 사람들이 작성한 게시글을 업데이트
-        setFollowingPosts(followingPostsRes.data.data.posts);
-      } catch (error) {
-        alert("조회에 실패하였습니다." + error);
-      }
-    };
-    fetchFollowingPosts();
+    const isLogin = Cookies.get("isLoggedIn");
+    if (!isLogin) {
+      router.push("/login");
+    } else {
+      const fetchFollowingPosts = async () => {
+        try {
+          const followingPostsRes = await apiInstance.get("/filter/following");
+          // 팔로우한 사람들이 작성한 게시글을 업데이트
+          setFollowingPosts(followingPostsRes.data.data.posts);
+        } catch (error) {
+          alert("조회에 실패하였습니다." + error);
+        }
+      };
+      fetchFollowingPosts();
+    }
   }, [accessToken]);
 
   return (
@@ -83,6 +88,12 @@ const Following = () => {
             추천
           </button>
         </div>
+        {followingPosts.length === 0 && (
+          <div className="flex flex-col items-center justify-center mt-10">
+            <img src="/images/empty.png" alt="empty" className="w-1/2" />
+            <p className="text-gray-400 mt-2">팔로우한 사람이 없습니다.</p>
+          </div>
+        )}
         <div style={{ columnCount: 2, columnGap: "1rem", padding: "0 1rem" }} className="mt-4">
           {followingPosts.map((post) => (
             <div style={{ breakInside: "avoid", margin: "auto" }} key={post.id}>

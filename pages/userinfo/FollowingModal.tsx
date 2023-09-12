@@ -25,9 +25,7 @@ const FollowingModal = ({ initialFollowingData, isOpen, handleCloseModal }: Foll
   const router = useRouter();
   console.log("followingList", initialFollowingData);
   const list = useRecoilValue(followingListState);
-  console.log("list", list);
   const { followerResponses } = list;
-  // console.log("followingResponses", followingResponses);
 
   return (
     <>

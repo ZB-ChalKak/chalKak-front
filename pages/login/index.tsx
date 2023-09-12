@@ -64,7 +64,6 @@ export default function Login() {
   const onLoginSuccess = (response: SigninResponse) => {
     const { accessToken, refreshToken } = response.data.data.token;
     const { styleTags, profileImg, height, weight } = response.data.data.userInfo;
-    console.log("styleTags", styleTags);
 
     // 쿠키에 로그인 정보 저장
     Cookies.set("userId", String(response.data.data.userInfo.userId));
@@ -85,7 +84,6 @@ export default function Login() {
       weight: weight,
       profileImg: profileImg,
     }));
-    console.log(response);
     router.push("/main");
   };
 
@@ -98,9 +96,7 @@ export default function Login() {
         email,
         password,
       });
-      console.log(tokenResponse);
       onLoginSuccess(tokenResponse);
-      console.log(tokenResponse);
       setFormData({ email: "", password: "" });
     } catch (error) {
       console.log("err", error);

@@ -71,8 +71,6 @@ export default function modifyuserinfo() {
 
   // 구글 로그인 후 modify-userinfo로 넘어왔을 때, url 로부터 필요한 정보를 가져와서 설정해주는 함수.
   useEffect(() => {
-    // url의 형식은 아래와 같음.
-    // https://chal-kak.vercel.app/userinfo/modify-userinfo?userId={userId}&accessToken={accessToken}&refreshToken={refreshToken}&accessTokenExpireDate={accessTokenExpireDate}
     const url = window.location.href;
     const urlSplit = url.split("?"); // url을 ? 기준으로 잘라서, api 호출부와 필요한 정보를 분리함.
     const urlParams = urlSplit[1] ? urlSplit[1].split("&") : []; // url을 & 기준으로 잘라서, 필요한 정보를 분리함.
@@ -86,9 +84,6 @@ export default function modifyuserinfo() {
     Cookies.set("refreshToken", refreshToken);
     Cookies.set("accessTokenExpireDate", accessTokenExpireDate);
   }, []);
-
-  const hasFile = formData.has("multipartFiles");
-  console.log(hasFile);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
