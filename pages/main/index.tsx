@@ -328,7 +328,7 @@ const Main = () => {
       // isLike가 true일 때
       return (
         <button className="mb-2" onClick={() => handleClickUnlike(post.id, post.likeCount, post.liked)}>
-          <AiFillHeart className="text-lg mr-1 cursor-pointer text-red-600" />
+          <AiFillHeart className="md:text-lg md:mr-1 text-base cursor-pointer text-red-600" />
         </button>
       );
     } else {
@@ -439,7 +439,7 @@ const Main = () => {
             </div>
           </div>
           <div className="text-xl font-bold">키워드 추천</div>
-          <div className="mt-6 flex flex-wrap justify-flex-start gap-3">
+          <div className="md:mt-6 mt-3 flex flex-wrap justify-flex-start md:gap-3 gap-2">
             <div
               className={`py-[6px] px-4 text-center border rounded-full cursor-pointer text-xs ${
                 selectedStyleTags.length > 0
@@ -491,7 +491,7 @@ const Main = () => {
                 className="mt-2 flex flex-wrap items-center justify-left cursor-pointer"
                 onClick={() => router.push(`/userinfo/${post.writer.id}`)}
               >
-                <div className="w-[32px] h-[32px] relative">
+                <div className="md:w-8 md:h-8 w-6 h-6 relative">
                   <Image
                     src={post.writer.profileImg || "/images/defaultImg.jpg"}
                     layout="fill"
@@ -499,17 +499,15 @@ const Main = () => {
                     className="border rounded-full object-cover"
                   />
                 </div>
-                <p className="text-xs ml-2">{post.writer.nickname}</p>
+                <p className="md:text-xs text-[10px] md:ml-2 ml-1">{post.writer.nickname}</p>
               </div>
               <div
-                style={{ width: "342px", height: "455px" }}
-                className="relative mt-2 mb-2"
+                className="relative mt-2 mb-2 md:w-[342px] md:h-[455px] w-full h-52"
                 onClick={() => router.push(`/posts/${post.id}`)}
               >
                 <Image
                   src={post.thumbnail}
-                  width={342}
-                  height={455}
+                  layout="fill"
                   alt="content"
                   style={{ objectFit: "cover", aspectRatio: "3/4" }}
                   className="cursor-pointer absolute top-0 left-0"
@@ -518,7 +516,7 @@ const Main = () => {
 
               <div className="flex justify-between items-stretch relative">
                 <div>
-                  <p className="ml-1 text-sm block">
+                  <p className="ml-1 md:text-sm text-xs block">
                     {post.content && post.content.length > 32
                       ? post.content.substring(0, 32) + "..."
                       : post.content ||
@@ -536,7 +534,7 @@ const Main = () => {
                       {(() => {
                         const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
                         return (
-                          <span className="text-xs mr-1 block">
+                          <span className="md:text-xs text-[10px] mr-1">
                             {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
                           </span>
                         );
@@ -545,9 +543,9 @@ const Main = () => {
                   )}
                 </div>
 
-                <div className="flex items-end justify-end absolute top-[-2px] right-0">
+                <div className="flex items-start justify-start">
                   {renderLikeIcon(post)}
-                  <p className="mr-2 mb-2 text-sm text-gray-500">{post.likeCount}</p>
+                  <p className="md:mr-2 md:mb-2 mr-1 mb-1 md:text-sm text-xs text-gray-500">{post.likeCount}</p>
                 </div>
               </div>
             </div>
