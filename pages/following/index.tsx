@@ -71,7 +71,6 @@ const Following = () => {
       const fetchFollowingPosts = async () => {
         try {
           const followingPostsRes = await apiInstance.get("/filter/following?page=0&size=99");
-          // 팔로우한 사람들이 작성한 게시글을 업데이트
           setFollowingPosts(followingPostsRes.data.data.posts);
         } catch (error) {
           alert("조회에 실패하였습니다." + error);
