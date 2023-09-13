@@ -46,11 +46,36 @@ export default function modifyuserinfo() {
   const [profileFile] = useState<File>();
   const [userNickname, setUserNickname] = useState<string>("");
   const userId = Cookies.get("userId");
+  // const router = useRouter();
+  // const id = router.query;
   const accessToken = Cookies.get("accessToken");
   const styleTagList = useRecoilValue(styleTagsState);
   const myKeywords = styleTagList.filter((obj) => userinfoProfile.styleTags.includes(obj.id));
 
   useEffect(() => {
+    // const fetchUserInfo = async () => {
+    //   try {
+    //     const response = await apiInstance.get(`/users/${userId}`, {
+    //       headers: {
+    //         Authorization: `Bearer ${accessToken}`,
+    //       },
+    //     });
+
+    //     const data = response.data.data;
+
+    //     setUserinfo(data);
+    //     setUserinfoPropfile(data);
+    //     setUserNickname(data.nickname);
+    //     setCurUser((prev) => ({ ...prev, profileImg: data.profileImg, isLoggedIn: true }));
+    //     Cookies.set("profileImg", data.profileImg);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // };
+
+    // if (isModifyModalOpen) {
+    //   setTimeout(fetchUserInfo, 1500); // API 호출을 비동기 함수 내부로 옮김
+    // }
     const userinfoRes = apiInstance.get(`/users/${userId}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -66,20 +91,23 @@ export default function modifyuserinfo() {
   }, [isModifyModalOpen]);
 
   // 구글 로그인 후 modify-userinfo로 넘어왔을 때, url 로부터 필요한 정보를 가져와서 설정해주는 함수.
-  // useEffect(() => {
-  //   const url = window.location.href;
-  //   const urlSplit = url.split("?"); // url을 ? 기준으로 잘라서, api 호출부와 필요한 정보를 분리함.
-  //   const urlParams = urlSplit[1] ? urlSplit[1].split("&") : []; // url을 & 기준으로 잘라서, 필요한 정보를 분리함.
-  //   if (urlParams.length === 0) return;
-  //   const userId = urlParams[0].split("=")[1];
-  //   const accessToken = urlParams[1].split("=")[1];
-  //   const refreshToken = urlParams[2].split("=")[1];
-  //   const accessTokenExpireDate = urlParams[3].split("=")[1];
-  //   Cookies.set("userId", userId);
-  //   Cookies.set("accessToken", accessToken);
-  //   Cookies.set("refreshToken", refreshToken);
-  //   Cookies.set("accessTokenExpireDate", accessTokenExpireDate);
-  // }, []);
+  // https://chal-kak.vercel.app/modify-userinfo/{userId}?accessToken={}&refreshToken={}&profileImg={}
+  useEffect(() => {
+    const url = window.location.href;
+    const urlSplit = url.split("?"); // url을 ? 기준으로 잘라서, api 호출부와 필요한 정보를 분리함.
+    console.log(urlSplit);
+    const urlParams = urlSplit[1] ? urlSplit[1].split("&") : []; // url을 & 기준으로 잘라서, 필요한 정보를 분리함.
+    if (urlParams.length === 0) return;
+    const userId = urlSplit[0].split("/")[4]; // url을 / 기준으로 잘라서, userId를 가져옴.
+    const accessToken = urlParams[0].split("=")[1]; // url을 = 기준으로 잘라서, accessToken을 가져옴.
+    const refreshToken = urlParams[1].split("=")[1]; // url을 = 기준으로 잘라서, refreshToken을 가져옴.
+    const profileImg = urlParams[2].split("=")[1]; // url을 = 기준으로 잘라서, profileImg를 가져옴.
+    Cookies.set("userId", userId);
+    Cookies.set("isLoggedIn", "true");
+    Cookies.set("accessToken", accessToken);
+    Cookies.set("refreshToken", refreshToken);
+    Cookies.set("profileImg", profileImg);
+  }, []);
 
   const handleCloseModifyModal = () => {
     setIsModifyModalOpen(false);
