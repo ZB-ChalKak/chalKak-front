@@ -150,7 +150,7 @@ const Main = () => {
   // 선택된 스타일 태그나 입력된 키/몸무게 등 필터링 조건이 변경될 때마다 실행, 페이지 번호와 게시물 목록 초기화
   useEffect(() => {
     setPageParam(0);
-    setFilteredPosts([]);
+    // setFilteredPosts([]);
   }, [selectedStyleTags, inputHeight, inputWeight]);
 
   // 초기값 -1, pageParam이 0 이상의 값을 가질 때까지 실제 게시물 데이터를 요청하지 않음
@@ -328,7 +328,7 @@ const Main = () => {
       // isLike가 true일 때
       return (
         <button className="mb-2" onClick={() => handleClickUnlike(post.id, post.likeCount, post.liked)}>
-          <AiFillHeart className="text-lg mr-1 cursor-pointer text-red-600" />
+          <AiFillHeart className="md:text-lg md:mr-1 text-base cursor-pointer text-red-600" />
         </button>
       );
     } else {
@@ -360,7 +360,7 @@ const Main = () => {
             slidesPerView="auto" /* 한번에 보여줄 슬라이드 수 설정 (1.5) */
           >
             {filteredWeatherPosts.map((post: Post, index) => (
-              <SwiperSlide key={index} style={{ width: "300px", height: "540px" }}>
+              <SwiperSlide key={index} style={{ width: "300px", height: "500px" }}>
                 <div className="mt-4 cursor-pointer overflow-hidden flex flex-col bg-white mr-2">
                   <div className="flex justify-between items-center pb-2">
                     <div className="flex items-center" onClick={() => router.push(`/userinfo/${post.writer.id}`)}>
@@ -393,42 +393,36 @@ const Main = () => {
 
                   <div className="ml-1 flex justify-between items-stretch relative">
                     <div>
-                      <p className="text-sm block">
-                        {post.content ||
-                          post.styleTags
-                            .map((tag, index) => (
-                              <span key={"style" + index} className="text-xs">
-                                #{tag}{" "}
-                              </span>
-                            ))
-                            .concat(
-                              post.hashTags.map((tag, index) => (
-                                <span key={"hash" + index} className="text-xs">
-                                  #{tag}{" "}
+                      <p className="ml-1 md:text-sm text-xs block">
+                        {post.content && post.content.length > 32
+                          ? post.content.substring(0, 32) + "..."
+                          : post.content ||
+                            (() => {
+                              const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
+                              return (
+                                <span className="text-xs mr-1 block">
+                                  {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
                                 </span>
-                              )),
-                            )}
+                              );
+                            })()}
                       </p>
                       {post.content && (
-                        <div className="flex items-center justify-start">
-                          {post.styleTags.map((tag, index) => (
-                            <span key={index} className="text-xs mr-1">
-                              #{tag}{" "}
-                            </span>
-                          ))}
-                          {post.hashTags.map((tag, index) => (
-                            <span key={index} className="text-xs mr-1">
-                              #{tag}{" "}
-                            </span>
-                          ))}
+                        <div className="ml-1 flex items-center justify-start">
+                          {(() => {
+                            const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
+                            return (
+                              <span className="md:text-xs text-[10px] mr-1">
+                                {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
+                              </span>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>
-
-                    <div className="flex items-end justify-end absolute top-0 right-0">
-                      {renderLikeIcon(post)}
-                      <p className="mr-2 mb-[8px] text-sm text-gray-500">{post.likeCount}</p>
-                    </div>
+                  </div>
+                  <div className="flex items-end justify-end absolute bottom-3 right-1">
+                    {renderLikeIcon(post)}
+                    <p className="mr-2 mb-[7.5px] text-sm text-gray-500">{post.likeCount}</p>
                   </div>
                 </div>
               </SwiperSlide>
@@ -444,7 +438,7 @@ const Main = () => {
             </div>
           </div>
           <div className="text-xl font-bold">키워드 추천</div>
-          <div className="mt-6 flex flex-wrap justify-flex-start gap-3">
+          <div className="md:mt-6 mt-3 flex flex-wrap justify-flex-start md:gap-3 gap-2">
             <div
               className={`py-[6px] px-4 text-center border rounded-full cursor-pointer text-xs ${
                 selectedStyleTags.length > 0
@@ -496,7 +490,7 @@ const Main = () => {
                 className="mt-2 flex flex-wrap items-center justify-left cursor-pointer"
                 onClick={() => router.push(`/userinfo/${post.writer.id}`)}
               >
-                <div className="w-[32px] h-[32px] relative">
+                <div className="md:w-8 md:h-8 w-6 h-6 relative">
                   <Image
                     src={post.writer.profileImg || "/images/defaultImg.jpg"}
                     layout="fill"
@@ -504,17 +498,15 @@ const Main = () => {
                     className="border rounded-full object-cover"
                   />
                 </div>
-                <p className="text-xs ml-2">{post.writer.nickname}</p>
+                <p className="md:text-xs text-[10px] md:ml-2 ml-1">{post.writer.nickname}</p>
               </div>
               <div
-                style={{ width: "342px", height: "455px" }}
-                className="relative mt-2 mb-2"
+                className="relative mt-2 mb-2 md:w-[342px] md:h-[455px] w-full h-52"
                 onClick={() => router.push(`/posts/${post.id}`)}
               >
                 <Image
                   src={post.thumbnail}
-                  width={342}
-                  height={455}
+                  layout="fill"
                   alt="content"
                   style={{ objectFit: "cover", aspectRatio: "3/4" }}
                   className="cursor-pointer absolute top-0 left-0"
@@ -523,41 +515,36 @@ const Main = () => {
 
               <div className="flex justify-between items-stretch relative">
                 <div>
-                  <p className="ml-1 text-sm block">
-                    {post.content ||
-                      post.styleTags
-                        .map((tag, index) => (
-                          <span key={"style" + index} className="text-xs">
-                            #{tag}{" "}
-                          </span>
-                        ))
-                        .concat(
-                          post.hashTags.map((tag, index) => (
-                            <span key={"hash" + index} className="text-xs">
-                              #{tag}{" "}
+                  <p className="ml-1 md:text-sm text-xs block">
+                    {post.content && post.content.length > 32
+                      ? post.content.substring(0, 32) + "..."
+                      : post.content ||
+                        (() => {
+                          const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
+                          return (
+                            <span className="text-xs mr-1 block">
+                              {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
                             </span>
-                          )),
-                        )}
+                          );
+                        })()}
                   </p>
                   {post.content && (
                     <div className="ml-1 flex items-center justify-start">
-                      {post.styleTags.map((tag, index) => (
-                        <span key={index} className="text-xs mr-1">
-                          #{tag}{" "}
-                        </span>
-                      ))}
-                      {post.hashTags.map((tag, index) => (
-                        <span key={index} className="text-xs mr-1">
-                          #{tag}{" "}
-                        </span>
-                      ))}
+                      {(() => {
+                        const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
+                        return (
+                          <span className="md:text-xs text-[10px] mr-1">
+                            {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
+                          </span>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-end justify-end absolute top-0 right-0">
+                <div className="flex items-start justify-start">
                   {renderLikeIcon(post)}
-                  <p className="mr-2 mb-2 text-sm text-gray-500">{post.likeCount}</p>
+                  <p className="md:mr-2 md:mb-2 mr-1 mb-1 md:text-sm text-xs text-gray-500">{post.likeCount}</p>
                 </div>
               </div>
             </div>

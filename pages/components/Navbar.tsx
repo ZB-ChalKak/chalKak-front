@@ -107,7 +107,7 @@ export default function Navbar() {
                     <a
                       onClick={() => {
                         handleLogout();
-                        router.reload();
+                        router.push("/main");
                       }}
                     >
                       Logout
