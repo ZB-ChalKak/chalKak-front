@@ -22,6 +22,10 @@ export default function UserInfo(): JSX.Element {
   const router = useRouter();
   const { userId } = router.query;
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const [, setIsFollow] = useState<boolean>(false);
+  const isLogin = Cookies.get("isLoggedIn");
+  console.log(typeof isLogin);
 
   // 사용자 정보 조회 api (프로필 이미지, 게시글 수, 팔로워 수, 팔로잉 수)
   useEffect(() => {
@@ -53,6 +57,46 @@ export default function UserInfo(): JSX.Element {
 
     fetchUserPosts();
   }, [userId]);
+
+  // 팔로잉 검증 api
+  useEffect(() => {
+    const fetchIsFollowing = async () => {
+      try {
+        const isFollowingRes = await apiInstance.get(`/follow/${userId}/validateFollow`);
+        setIsFollowing(isFollowingRes.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchIsFollowing();
+  }, [userId]);
+
+  // 팔로우 요청 api
+  const followUser = async () => {
+    try {
+      const followUserRes = await apiInstance.get(`/follow/${userId}`);
+      if (followUserRes.data.data === true) {
+        setIsFollow(true);
+        setIsFollowing(true);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // 언팔로우 요청 api
+  const unfollowUser = async () => {
+    try {
+      const unfollowUserRes = await apiInstance.delete(`/follow/${userId}`);
+      if (unfollowUserRes.data.data === true) {
+        setIsFollow(false);
+        setIsFollowing(false);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   // useEffect(() => {
   //   const handleIntersection = async (entries: IntersectionObserverEntry[]) => {
@@ -185,7 +229,7 @@ export default function UserInfo(): JSX.Element {
   return (
     <div className="flex flex-col w-full items-center justify-center">
       <div className="flex flex-col w-full items-center mt-[10px]">
-        <div className="flex flex-col items-center gap-6 w-full h-[250px]  rounded-lg">
+        <div className="flex flex-col items-center gap-2 w-full h-[250px]  rounded-lg">
           <div className="flex flex-row items-center justify-around w-auto h-[200px] gap-10 mt-2">
             <div className="avatar">
               <div className="w-32 rounded-full">
@@ -234,6 +278,25 @@ export default function UserInfo(): JSX.Element {
               </div>
             </div>
           </div>
+          {isLogin === "true" && curUserId !== userId && (
+            <div className="flex items-center justify-center mb-6">
+              {isFollowing ? (
+                <button
+                  className="btn btn-sm ml-4 bg-[#efefef] w-[125px] font-medium rounded-lg text-black"
+                  onClick={unfollowUser}
+                >
+                  언팔로우
+                </button>
+              ) : (
+                <button
+                  className="btn btn-sm ml-4 bg-[#efefef] w-[125px] font-medium rounded-lg text-black"
+                  onClick={followUser}
+                >
+                  팔로우
+                </button>
+              )}
+            </div>
+          )}
         </div>
         <div className="mt-[10px] pt-2 border-t-2 w-full">
           <div className="w-3/4 h-[600px] overflow-y-auto mx-auto">
