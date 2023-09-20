@@ -29,6 +29,7 @@ export default function UserInfo(): JSX.Element {
       try {
         const userDetailRes = await apiInstance.get(`/users/details/${userId}`);
         setUserDetail(userDetailRes.data.data);
+        console.log(userDetailRes.data.data);
       } catch (err) {
         console.log(err);
       }
@@ -188,8 +189,8 @@ export default function UserInfo(): JSX.Element {
           <div className="flex flex-row items-center justify-around w-auto h-[200px] gap-10 mt-2">
             <div className="avatar">
               <div className="w-32 rounded-full">
-                {userDetail.profileImg === "" && <LiaUserCircleSolid className="w-40 h-40" />}
-                {userDetail.profileImg !== "" && <img src={userDetail.profileImg} alt="profile-img" />}
+                {!userDetail.profileImg && <LiaUserCircleSolid className="w-32 h-32" />}
+                {userDetail.profileImg && <img src={userDetail.profileImg} alt="profile-img" />}
               </div>
             </div>
             <div className="flex flex-col gap-10 items-center p-5">
@@ -202,7 +203,10 @@ export default function UserInfo(): JSX.Element {
                   <p>게시글</p>
                   {userDetail.postsCount}
                 </div>
-                <div className="flex flex-col items-center text-sm text-black" onClick={openFollowerModal}>
+                <div
+                  className="flex flex-col items-center cursor-pointer text-sm text-black"
+                  onClick={openFollowerModal}
+                >
                   <p>팔로워</p>
                   {userDetail.followerCount}
                 </div>
@@ -213,7 +217,10 @@ export default function UserInfo(): JSX.Element {
                     handleCloseModal={closeFollowerModal}
                   />
                 )}
-                <div className="flex flex-col items-center text-sm text-black" onClick={openFollowingModal}>
+                <div
+                  className="flex flex-col items-center cursor-pointer text-sm text-black"
+                  onClick={openFollowingModal}
+                >
                   <p>팔로잉</p>
                   {userDetail.followingCount}
                 </div>
@@ -230,9 +237,13 @@ export default function UserInfo(): JSX.Element {
         </div>
         <div className="mt-[10px] pt-2 border-t-2 w-full">
           <div className="w-3/4 h-[600px] overflow-y-auto mx-auto">
-            <div className="flex flex-row flex-wrap justify-start gap-x-4 gap-y-4">
+            <div className="flex flex-row flex-wrap justify-start gap-x-2 gap-y-2">
               {posts.map((post) => (
-                <div key={post.id} className="w-40 h-40" onClick={() => router.push(`/posts/${post.id}`)}>
+                <div
+                  key={post.id}
+                  className="w-40 h-40 cursor-pointer"
+                  onClick={() => router.push(`/posts/${post.id}`)}
+                >
                   <div style={{ position: "relative", width: "100%", height: "100%" }}>
                     <img
                       src={post.thumbnail}

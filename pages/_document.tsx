@@ -4,7 +4,8 @@ export default function Document() {
   return (
     <Html lang="ko">
       <Head>
-        <script src="https://kit.fontawesome.com/dfe08ffa54.js" crossOrigin="anonymous"></script>
+        <link rel="preconnect" href="https://www.chla-kak-back.store" />
+        <link rel="dns-prefetch" href="https://www.chla-kak-back.store" />
       </Head>
       <body>
         <Main />
