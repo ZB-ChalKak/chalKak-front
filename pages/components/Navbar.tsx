@@ -97,34 +97,34 @@ export default function Navbar() {
               {login ? (
                 <>
                   <li>
-                    <a
+                    <div
                       onClick={() => {
                         router.push(`/userinfo/${userId}`);
                       }}
                     >
                       userinfo
-                    </a>
+                    </div>
                   </li>
                   <li>
-                    <a
+                    <div
                       onClick={() => {
                         handleLogout();
                         router.push("/main");
                       }}
                     >
                       Logout
-                    </a>
+                    </div>
                   </li>
                 </>
               ) : (
                 <li>
-                  <a
+                  <div
                     onClick={() => {
                       router.push("/login");
                     }}
                   >
                     Login
-                  </a>
+                  </div>
                 </li>
               )}
             </ul>
