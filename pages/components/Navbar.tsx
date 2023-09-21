@@ -3,10 +3,11 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import Image from "next/image";
-import { accessTokenState, userState, userinfoState } from "@/utils/atoms";
-import { useRecoilState, useResetRecoilState } from "recoil";
+import { accessTokenState, alertState, userState, userinfoState } from "@/utils/atoms";
+import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
 import { parseCookies } from "nookies";
 import { useEffect, useState } from "react";
+import InfoAlert from "./InfoAlert";
 export default function Navbar() {
   const router = useRouter();
   const [, setActoken] = useRecoilState(accessTokenState);
@@ -15,6 +16,7 @@ export default function Navbar() {
   const [login, setLogin] = useState(false);
   const [profileImg, setProfileImg] = useState("");
   const [cookies, setCookies] = useState({});
+  const setAlert = useSetRecoilState(alertState);
   const cookieNames = ["isLoggedIn", "accessToken", "userId", "myKeywords", "refreshToken", "profileImg"];
   const userId = Cookies.get("userId");
   const handleLogout = async () => {
@@ -27,7 +29,7 @@ export default function Navbar() {
       setCookies(parseCookies());
       resetUserInfo();
       router.push("/");
-      alert("로그아웃 되었습니다.");
+      setAlert({ open: true, message: "로그아웃 되었습니다!" });
     } catch (error) {
       console.log("fail");
     }
@@ -129,6 +131,7 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      <InfoAlert />
       <div className="flex items-center justify-start pb-2"></div>
     </>
   );
