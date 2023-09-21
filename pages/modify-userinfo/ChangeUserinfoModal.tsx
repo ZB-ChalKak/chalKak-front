@@ -2,11 +2,12 @@ import { styled } from "styled-components";
 import { ChangeEvent, FormEventHandler, useCallback, useEffect, useState } from "react";
 import { apiInstance } from "../api/api";
 import debounce from "lodash.debounce";
-import { styleTagsState, userState, userinfoState } from "@/utils/atoms";
+import { alertState, styleTagsState, userState, userinfoState } from "@/utils/atoms";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { AiOutlineClose } from "react-icons/ai";
 import Cookies from "js-cookie";
 import { UserinfoType } from "./[userId]";
+import InfoAlert from "../components/InfoAlert";
 
 interface ChangeUserinfoModalProps {
   formData: FormData;
@@ -23,6 +24,7 @@ interface ChangeUserinfoModalProps {
 const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname }: ChangeUserinfoModalProps) => {
   const [userinfoProfile, setUserinfoPropfile] = useRecoilState(userinfoState);
   const setCurUser = useSetRecoilState(userState);
+  const setAlert = useSetRecoilState(alertState);
   const [profileImg, setProfileImg] = useState<File>();
   const [invalidNickname, setInvalidNickname] = useState(false);
   const [nicknameTouched, setNicknameTouched] = useState<boolean>(false);
@@ -88,9 +90,10 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
         });
       }
       handleCloseModal();
-      alert("수정되었습니다.");
+      setAlert({ open: true, message: "회원정보가 수정되었습니다." });
     } catch (error) {
-      console.log("fail");
+      console.log(error);
+      setAlert({ open: true, message: "회원정보 수정에 실패하였습니다." });
     }
   };
 
@@ -357,6 +360,7 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
           </div>
         </ModalWrapper>
       )}
+      <InfoAlert />
     </>
   );
 };
