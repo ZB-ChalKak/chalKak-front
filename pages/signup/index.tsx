@@ -346,7 +346,13 @@ export default function signup() {
             <div className="flex w-full">
               <div className="w-1/3 ">
                 <p className="text-md font-bold">성별</p>
-                <select name="gender" className="text-md h-10 mt-4" value={formData.gender} onChange={handleChange}>
+                <select
+                  name="gender"
+                  className="text-md h-10 mt-4"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  aria-label="gender"
+                >
                   <option value="MALE">남성</option>
                   <option value="FEMALE">여성</option>
                 </select>
@@ -360,6 +366,7 @@ export default function signup() {
                       <input
                         type="text"
                         name="height"
+                        aria-label="height"
                         className="pb-1 border-b border-gray-200 w-full mr-4 text-sm focus:border-gray-700 transition-colors ease-in duration-100"
                         maxLength={3}
                         value={formData.height}
@@ -378,6 +385,7 @@ export default function signup() {
                       <input
                         type="text"
                         name="weight"
+                        aria-label="weight"
                         className="pb-1 border-b border-gray-200 w-full mr-4 text-sm focus:border-gray-700 transition-colors ease-in duration-100"
                         maxLength={3}
                         value={formData.weight}
