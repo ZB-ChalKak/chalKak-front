@@ -124,7 +124,7 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
     } else if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (file.type !== "image/jpeg" && file.type !== "image/png" && file.type !== "image/jpg") {
-        alert("jpg, png파일만 업로드 가능합니다");
+        setAlert({ open: true, message: "jpeg, png, jpg 파일만 업로드 가능합니다." });
         e.target.value = "";
         return;
       } else {
@@ -225,7 +225,6 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
                     }}
                     placeholder={userNickname}
                     autoComplete="off"
-                    // className="mt-1 pt-2 pb-2 block w-full border-b border-gray-200 focus:border-gray-700 focus:outline-none py-2 text-sm transition-colors ease-in duration-100"
                     className={`mt-1 pt-2 pb-2 block w-full border-b border-gray-200 focus:border-gray-700 focus:outline-none py-2 text-sm transition-colors ease-in duration-100 ${
                       !isNicknameValid ? "border-red" : ""
                     }`}
