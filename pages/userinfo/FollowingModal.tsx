@@ -10,7 +10,7 @@ interface FollowingModalProps {
     currentPage: number;
     totalPages: number;
     totalElements: number;
-    followerResponses: [
+    followingResponses: [
       {
         memberId: number;
         nickName: string;
@@ -24,7 +24,7 @@ interface FollowingModalProps {
 
 const FollowingModal = ({ initialFollowingData, isOpen, handleCloseModal }: FollowingModalProps) => {
   const router = useRouter();
-  const followingResponses = initialFollowingData?.followerResponses;
+  const followingResponses = initialFollowingData?.followingResponses;
   return (
     <>
       {isOpen && (
@@ -47,10 +47,10 @@ const FollowingModal = ({ initialFollowingData, isOpen, handleCloseModal }: Foll
                     <div className="avatar ml-6">
                       <div className="w-10 rounded-full">
                         {following.profileUrl && (
-                          <Image src={following.profileUrl} alt="프로필" width={10} height={10} />
+                          <Image src={following.profileUrl} alt="프로필" width={100} height={100} />
                         )}
                         {!following.profileUrl && (
-                          <Image src="/images/defaultImg.jpg" alt="프로필" width={10} height={10} />
+                          <Image src="/images/defaultImg.jpg" alt="프로필" width={100} height={100} />
                         )}
                       </div>
                     </div>

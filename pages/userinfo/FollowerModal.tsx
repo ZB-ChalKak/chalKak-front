@@ -47,9 +47,11 @@ const FollowerModal = ({ initialFollowerData, isOpen, handleCloseModal }: Follow
                   >
                     <div className="avatar ml-6">
                       <div className="w-10 rounded-full">
-                        {follower.profileUrl && <Image src={follower.profileUrl} alt="프로필" width={10} height={10} />}
+                        {follower.profileUrl && (
+                          <Image src={follower.profileUrl} alt="프로필" width={100} height={100} />
+                        )}
                         {!follower.profileUrl && (
-                          <Image src="/images/defaultImg.jpg" alt="프로필" width={10} height={10} />
+                          <Image src="/images/defaultImg.jpg" alt="프로필" width={100} height={100} />
                         )}
                       </div>
                     </div>

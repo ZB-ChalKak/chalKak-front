@@ -55,7 +55,7 @@ export type followingResType = {
   currentPage: number;
   totalPages: number;
   totalElements: number;
-  followerResponses: [
+  followingResponses: [
     {
       memberId: number;
       nickName: string;
