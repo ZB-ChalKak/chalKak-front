@@ -337,6 +337,7 @@ const HomePage = () => {
   return (
     <>
       <Head>
+        <title>게시글 상세페이지 - ${postId}</title>
         <meta name="description" content="게시글 페이지입니다." />
       </Head>
       <Alert open={alertOepn} setOpen={setAlertOpen} message={alertMessage} />
