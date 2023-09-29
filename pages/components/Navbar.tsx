@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 export default function Navbar() {
   const router = useRouter();
   const [, setActoken] = useRecoilState(accessTokenState);
-  const [myUserState] = useRecoilState(userState);
+  const [myUserState, setUserState] = useRecoilState(userState);
   const [login, setLogin] = useState(false);
   const [profileImg, setProfileImg] = useState("");
   const [cookies, setCookies] = useState({});
@@ -24,6 +24,25 @@ export default function Navbar() {
       setActoken("");
       setLogin(false);
       setCookies(parseCookies());
+
+      // userState 초기화
+      setUserState({
+        email: "",
+        nickname: "",
+        profileImg: "",
+        postCount: 0,
+        followers: [],
+        followings: [],
+        gender: "",
+        height: 0,
+        weight: 0,
+        styleTags: [],
+        isLoggedIn: false,
+      });
+
+      // recoil-persist에서 저장한 데이터 삭제
+      localStorage.removeItem("recoil-persist");
+
       router.push("/");
       alert("로그아웃 되었습니다.");
     } catch (error) {
