@@ -381,8 +381,8 @@ const Main = () => {
                             (() => {
                               const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
                               return (
-                                <span className="text-xs mr-1 block">
-                                  {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
+                                <span className="md:text-xs mr-1">
+                                  {allTags.length > 24 ? allTags.substring(0, 24) + "..." : allTags}
                                 </span>
                               );
                             })()}
@@ -392,7 +392,7 @@ const Main = () => {
                           {(() => {
                             const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
                             return (
-                              <span className="md:text-xs text-[10px] mr-1">
+                              <span className="md:text-xs mr-1">
                                 {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
                               </span>
                             );
@@ -514,7 +514,7 @@ const Main = () => {
                       {(() => {
                         const allTags = [...post.styleTags, ...post.hashTags].map((tag) => "#" + tag).join(" ");
                         return (
-                          <span className="md:text-xs text-[10px] mr-1">
+                          <span className="md:text-xs mr-1">
                             {allTags.length > 32 ? allTags.substring(0, 32) + "..." : allTags}
                           </span>
                         );
