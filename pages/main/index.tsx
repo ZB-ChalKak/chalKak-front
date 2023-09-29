@@ -146,6 +146,7 @@ const Main = () => {
       styleTagIds: loggedInUser.styleTags,
     });
   }, [loggedInUser]);
+  console.log(loggedInUser);
 
   // 선택된 스타일 태그나 입력된 키/몸무게 등 필터링 조건이 변경될 때마다 실행, 페이지 번호와 게시물 목록 초기화
   useEffect(() => {
@@ -158,26 +159,6 @@ const Main = () => {
     if (pageParam === -1) return;
     fetchPosts({ pageParam });
   }, [pageParam]);
-
-  useEffect(() => {
-    if (loggedInUser.isLoggedIn && isMySizeApplied) {
-      // '마이사이즈 적용' 버튼을 클릭한 경우
-      setUser({
-        height: loggedInUser.height,
-        weight: loggedInUser.weight,
-        styleTagIds: loggedInUser.styleTags,
-      });
-    }
-
-    if (inputHeight !== null && inputWeight !== null) {
-      // 사용자(로그인 유저 또는 비로그인 유저)가 직접 키와 몸무게 값을 입력한 경우
-      setUser({
-        ...user,
-        height: inputHeight,
-        weight: inputWeight,
-      });
-    }
-  }, [loggedInUser, isMySizeApplied, inputHeight, inputWeight]);
 
   useEffect(() => {
     if (loggedInUser.isLoggedIn && isMySizeApplied) {
