@@ -398,7 +398,7 @@ const HomePage = () => {
               dots: true,
               infinite: false,
               centerMode: true,
-              centerPadding: "0px", // Add this line
+              centerPadding: "0px",
               lazyLoad: "ondemand",
             }}
           >
