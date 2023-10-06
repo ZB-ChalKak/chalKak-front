@@ -4,6 +4,7 @@ import debounce from "lodash.debounce";
 import { apiInstance } from "../api/api";
 import router from "next/router";
 import { BsQuestionCircle } from "react-icons/bs";
+import { AiOutlineClose } from "react-icons/ai";
 import { useSetRecoilState } from "recoil";
 import { alertState } from "@/utils/atoms";
 import SkeletonSignup from "./SkeletonSignup";
@@ -415,7 +416,7 @@ export default function signup() {
                 {keywords.map((keyword) => (
                   <div className="badge text-xs badge-outline mr-2 mb-2 h-7" key={keyword}>
                     <button onClick={() => removeKeyword(keyword)}>
-                      <i className="fa-solid fa-xmark mr-1"></i>
+                      <AiOutlineClose className="mt-[1px]" />
                     </button>
                     {keyword}
                   </div>
