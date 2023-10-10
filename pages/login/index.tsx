@@ -37,7 +37,7 @@ interface SigninResponse {
     };
   };
 }
-
+//
 export type UserType = {
   email: string;
   nickname: string;
