@@ -22,6 +22,7 @@ import InfoAlert from "../components/InfoAlert";
 import Cookies from "js-cookie";
 import router, { useRouter } from "next/router";
 import { GetServerSidePropsContext } from "next";
+import Head from "next/head";
 
 interface StyleTag {
   id: number;
@@ -101,6 +102,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   const [seasonKeywords, setSeasonKeywords] = useState<string[]>([]);
   const [weatherKeywords, setWeatherKeywords] = useState<string[]>([]);
   const [content, setContent] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [privacyHeight, setPrivacyHeight] = useState(false);
   const [privacyWeight, setPrivacyWeight] = useState(false);
   const [dynamicKeywordInput, setDynamicKeywordInput] = useState<string>("");
@@ -340,7 +342,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   ));
 
   const renderButton = (isActive: boolean) => {
-    return isActive ? (
+    return isActive && !isSubmitting ? (
       <button type="button" onClick={handleSubmit} className="btn-neutral w-full p-3 rounded-full text-sm my-10">
         작성
       </button>
@@ -401,6 +403,8 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     const blob = new Blob([JSON.stringify(request)], { type: "application/json" });
     submissionFormData.append("request", blob);
 
+    setIsSubmitting(true);
+
     try {
       if (router.query.id) {
         // postId가 있으면 PATCH 요청으로 게시글 수정
@@ -430,116 +434,124 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
       setLocation("");
       resetDeleteImageIds();
       setImageInfo([]);
+      setIsSubmitting(false);
     } catch (error) {
       alert("There was an error!" + error);
+      setIsSubmitting(false);
     }
 
     console.log(formData);
   };
 
   return (
-    <div className="w-full m-auto">
-      <div>
-        <GoogleMapsComponent />
-      </div>
-      <Divider width="w-full" />
-      <div className="mb-5">
-        <ImageUpload />
-      </div>
-      <textarea
-        placeholder="내용 입력"
-        className="textarea textarea-bordered focus:outline-none leading-tight textarea-sm resize-none w-full max-w-2xl py-2 my-5 h-[70px]"
-        value={content}
-        onChange={handleContentChange}
-      ></textarea>
-      <div className="mb-4">
-        <h2 className="mr-3 mb-3 font-medium">체형 공개</h2>
-        <div className="flex items-center">
-          <label className="flex items-center">
-            <div>공개</div>
-            <input
-              type="checkbox"
-              checked={privacyHeight}
-              onChange={handlePublicCheck}
-              className="checkbox checkbox-xs mr-5 ml-1 mt-[1.5px]"
-            />
-          </label>
-          <label className="flex items-center">
-            <div>비공개</div>
-            <input
-              type="checkbox"
-              checked={!privacyHeight}
-              onChange={handlePrivateCheck}
-              className="checkbox checkbox-xs ml-1 mt-[1.5px]"
-            />
-          </label>
+    <>
+      <Head>
+        <title>#찰칵 - 게시글 작성</title>
+        <meta name="description" content="게시글 작성 페이지입니다." />
+      </Head>
+      <div className="w-full m-auto">
+        <div>
+          <GoogleMapsComponent />
         </div>
-      </div>
-      <Divider width="w-full" />
-      <div className="mb-5">
-        {dynamicKeywords.map((keyword) => (
-          <div key={keyword} className="inline-block">
-            <div className="flex m-1 text-blue-400">
-              #{keyword}
-              <AiOutlineClose
-                className="flex items-center text-gray-300 cursor-pointer text-xs mt-[3px]"
-                onClick={() => removeDynamicKeyword(keyword)}
+        <Divider width="w-full" />
+        <div className="mb-5">
+          <ImageUpload />
+        </div>
+        <textarea
+          placeholder="내용 입력"
+          className="textarea textarea-bordered focus:outline-none leading-tight textarea-sm resize-none w-full max-w-2xl py-2 my-5 h-[70px]"
+          value={content}
+          onChange={handleContentChange}
+        ></textarea>
+        <div className="mb-4">
+          <h2 className="mr-3 mb-3 font-medium">체형 공개</h2>
+          <div className="flex items-center">
+            <label className="flex items-center">
+              <div>공개</div>
+              <input
+                type="checkbox"
+                checked={privacyHeight}
+                onChange={handlePublicCheck}
+                className="checkbox checkbox-xs mr-5 ml-1 mt-[1.5px]"
               />
-            </div>
+            </label>
+            <label className="flex items-center">
+              <div>비공개</div>
+              <input
+                type="checkbox"
+                checked={!privacyHeight}
+                onChange={handlePrivateCheck}
+                className="checkbox checkbox-xs ml-1 mt-[1.5px]"
+              />
+            </label>
           </div>
-        ))}
-        {styleKeywords.map((keyword) => (
-          <div key={keyword} className="inline-block m-1">
-            #{keyword}
-          </div>
-        ))}
-        {seasonKeywords.map((keyword) => (
-          <div key={keyword} className="inline-block m-1">
-            #{keyword}
-          </div>
-        ))}
-        {weatherKeywords.map((keyword) => (
-          <div key={keyword} className="inline-block m-1">
-            #{keyword}
-          </div>
-        ))}
-      </div>
-      <div>
-        <h2 className="mb-2 font-medium">Tag</h2>
-        <input
-          type="text"
-          className="border-b border-gray-200 focus:border-gray-700 transition-colors ease-in duration-100 w-full mb-7 py-2"
-          placeholder="키워드를 입력하세요"
-          value={dynamicKeywordInput}
-          onChange={handleDynamicKeywordChange}
-          onKeyUp={handleDynamicKeywordSubmit}
-        />
-        <input type="text" className="hidden" />
-      </div>
-      <div className="w-full mb-5">
-        <h2 className="mb-2 font-medium">Style</h2>
-        <div className="w-full mb-5">
-          <div className="flex flex-wrap">{styleKeywordCheckboxes}</div>
-          <div className="flex">{tpoKeywordCheckboxes}</div>
         </div>
+        <Divider width="w-full" />
+        <div className="mb-5">
+          {dynamicKeywords.map((keyword) => (
+            <div key={keyword} className="inline-block">
+              <div className="flex m-1 text-blue-400">
+                #{keyword}
+                <AiOutlineClose
+                  className="flex items-center text-gray-300 cursor-pointer text-xs mt-[3px]"
+                  onClick={() => removeDynamicKeyword(keyword)}
+                />
+              </div>
+            </div>
+          ))}
+          {styleKeywords.map((keyword) => (
+            <div key={keyword} className="inline-block m-1">
+              #{keyword}
+            </div>
+          ))}
+          {seasonKeywords.map((keyword) => (
+            <div key={keyword} className="inline-block m-1">
+              #{keyword}
+            </div>
+          ))}
+          {weatherKeywords.map((keyword) => (
+            <div key={keyword} className="inline-block m-1">
+              #{keyword}
+            </div>
+          ))}
+        </div>
+        <div>
+          <h2 className="mb-2 font-medium">Tag</h2>
+          <input
+            type="text"
+            className="border-b border-gray-200 focus:border-gray-700 transition-colors ease-in duration-100 w-full mb-7 py-2"
+            placeholder="키워드를 입력하세요"
+            value={dynamicKeywordInput}
+            onChange={handleDynamicKeywordChange}
+            onKeyUp={handleDynamicKeywordSubmit}
+          />
+          <input type="text" className="hidden" />
+        </div>
+        <div className="w-full mb-5">
+          <h2 className="mb-2 font-medium">Style</h2>
+          <div className="w-full mb-5">
+            <div className="flex flex-wrap">{styleKeywordCheckboxes}</div>
+            <div className="flex">{tpoKeywordCheckboxes}</div>
+          </div>
+        </div>
+        <div className="mb-5">
+          <h2 className="mb-2 font-medium">Season*</h2>
+          <div className="flex ">{seasonKeywordCheckboxes}</div>
+        </div>
+        <div>
+          <h2 className="mb-2 font-medium">Weather*</h2>
+          <div className="flex ">{weatherKeywordCheckboxes}</div>
+        </div>
+        {userouter.query.id
+          ? renderButton(
+              (imageIds.length > 0 || uploadedImageUrls.length > 0) &&
+                seasonKeywords.length > 0 &&
+                weatherKeywords.length > 0,
+            )
+          : renderButton(uploadedImageUrls.length > 0 && seasonKeywords.length > 0 && weatherKeywords.length > 0)}
+        <InfoAlert />
       </div>
-      <div className="mb-5">
-        <h2 className="mb-2 font-medium">Season*</h2>
-        <div className="flex ">{seasonKeywordCheckboxes}</div>
-      </div>
-      <div>
-        <h2 className="mb-2 font-medium">Weather*</h2>
-        <div className="flex ">{weatherKeywordCheckboxes}</div>
-      </div>
-      {userouter.query.id
-        ? renderButton(
-            (imageIds.length > 0 || uploadedImageUrls.length > 0) &&
-              seasonKeywords.length > 0 &&
-              weatherKeywords.length > 0,
-          )
-        : renderButton(uploadedImageUrls.length > 0 && seasonKeywords.length > 0 && weatherKeywords.length > 0)}
-      <InfoAlert />
-    </div>
+    </>
   );
 };
 

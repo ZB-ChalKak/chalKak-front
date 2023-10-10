@@ -19,6 +19,7 @@ import WarningAlert from "../components/WarningAlert";
 import { useSetRecoilState } from "recoil";
 import { alertState } from "@/utils/atoms";
 import InfoAlert from "../components/InfoAlert";
+import Head from "next/head";
 import SkeletonPost from "../components/SkeletonPost";
 interface Writer {
   height: number;
@@ -335,6 +336,10 @@ const HomePage = () => {
 
   return (
     <>
+      <Head>
+        <title>게시글 - {postId}</title>
+        <meta name="description" content="게시글 페이지입니다." />
+      </Head>
       <Alert open={alertOepn} setOpen={setAlertOpen} message={alertMessage} />
       <div className=" flex flex-col mt-6">
         <div className=" flex items-center w-full mx-auto">
@@ -384,37 +389,41 @@ const HomePage = () => {
             <div className="text-center ml-auto"> {renderFollowButton()}</div>
           )}
         </div>
-        <Carousel
-          settings={{
-            slidesToShow: 1,
-            speed: 300,
-            arrows: true,
-            dots: true,
-            infinite: false,
-            centerMode: true,
-            centerPadding: "0px", // Add this line
-            lazyLoad: "ondemand",
-          }}
-        >
-          {postImages &&
-            postImages.map((image, index) => (
-              <div
-                key={index}
-                className="w-full md:h-[960px]  sm:h-[700px] h-[500px] max-w-[720px] bg-gray-200 mt-4 flex items-center justify-center relative overflow-hidden"
-              >
-                <Image
-                  src={image}
-                  alt={`Post Image ${index}`}
-                  width={720}
-                  height={960}
-                  priority={index === 0}
-                  quality={80}
-                  layout="responsive"
-                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                />
-              </div>
-            ))}
-        </Carousel>
+        <div className="h-[980px]">
+          <Carousel
+            settings={{
+              slidesToShow: 1,
+              speed: 300,
+              arrows: true,
+              dots: true,
+              infinite: false,
+              centerMode: true,
+              centerPadding: "0px",
+              lazyLoad: "ondemand",
+            }}
+          >
+            {postImages &&
+              postImages.map((image, index) => (
+                <div
+                  key={index}
+                  className="w-full md:h-[960px]  sm:h-[700px] h-[500px] max-w-[720px] bg-gray-100 mt-4 flex items-center justify-center relative overflow-hidden"
+                >
+                  <Image
+                    src={image}
+                    alt={`Post Image ${index}`}
+                    width={720}
+                    height={960}
+                    priority={index === 0}
+                    quality={80}
+                    layout="responsive"
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    placeholder="blur"
+                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFklEQVR42mN8//HLfwYiAOOoQvoqBABbWyZJf74GZgAAAABJRU5ErkJggg=="
+                  />
+                </div>
+              ))}
+          </Carousel>
+        </div>
         <div className="flex items-center justify-between w-full mx-auto mt-1-">
           <div className="flex flex-1">
             {renderLikeIcon()}
@@ -460,7 +469,7 @@ const HomePage = () => {
         <HeartsModal isOpen={heartsModalIsOpen} closeModal={closeHeartsModal} postId={postId} />
         <div className=" mb-36">
           <CommentsSection postId={postId} />
-          <div className="text-xs text-gray-400 mr-7 mt-2 text-end">
+          <div className="text-xs text-gray-500 mr-7 mt-2 text-end">
             {postData?.createdAt ? formatDateToRelativeTime(postData.createdAt) : ""}
           </div>
           <Divider width="11rem" />

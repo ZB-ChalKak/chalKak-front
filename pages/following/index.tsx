@@ -5,6 +5,8 @@ import { followingPostsState } from "@/utils/atoms";
 import Cookies from "js-cookie";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { useRouter } from "next/router";
+import ScrollTopButton from "../components/ScrollTopButton";
+import PostEditorButton from "../main/GoToPostEditorButton";
 
 const Following = () => {
   const [followingPosts, setFollowingPosts] = useRecoilState(followingPostsState);
@@ -68,8 +70,7 @@ const Following = () => {
     } else {
       const fetchFollowingPosts = async () => {
         try {
-          const followingPostsRes = await apiInstance.get("/filter/following");
-          // 팔로우한 사람들이 작성한 게시글을 업데이트
+          const followingPostsRes = await apiInstance.get("/filter/following?page=0&size=99");
           setFollowingPosts(followingPostsRes.data.data.posts);
         } catch (error) {
           alert("조회에 실패하였습니다." + error);
@@ -100,13 +101,13 @@ const Following = () => {
                 <img
                   src={post.thumbnail}
                   alt="post-img"
-                  style={{ objectFit: "cover", height: "100%" }}
+                  style={{ objectFit: "cover", height: "100%", cursor: "pointer" }}
                   className="rounded-lg"
                   onClick={() => router.push(`/posts/${post.id}`)}
                 />
                 <div className="flex flex-row items-center justify-between w-full gap-1 mb-2 mt-2 ml-4">
                   <div className="flex flex-row items-center justify-start">
-                    <div className="avatar">
+                    <div className="avatar cursor-pointer">
                       <div className="w-8 h-8 rounded-full" onClick={() => router.push(`/userinfo/${post.writer.id}`)}>
                         <img src={post.writer.profileImg} alt="profile-img" />
                       </div>
@@ -118,7 +119,7 @@ const Following = () => {
                   <div className="flex flex-row items-center mr-4">
                     {post.liked === false && (
                       <div className="relative" onClick={() => handleClickLike(post.id, post.likeCount, post.liked)}>
-                        <AiOutlineHeart className="mr-1 cursor-pointer text-red-500" />
+                        <AiOutlineHeart className="mr-1 cursor-pointer" />
                       </div>
                     )}
                     {post.liked === true && (
@@ -143,6 +144,12 @@ const Following = () => {
               </div>
             </div>
           ))}
+        </div>
+        <div className="fixed top-[85%] right-[30px] z-[1000]">
+          <div className="flex flex-col justify-center">
+            <ScrollTopButton />
+            <PostEditorButton />
+          </div>
         </div>
       </div>
     </div>

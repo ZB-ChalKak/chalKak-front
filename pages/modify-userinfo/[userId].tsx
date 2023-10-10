@@ -29,11 +29,16 @@ export interface ModifiedFormdata {
   };
 }
 export default function modifyuserinfo() {
+  // 모달 상태 관리
   const [isModifyModalOpen, setIsModifyModalOpen] = useState<boolean>(false);
   const [isChangePWModalOpen, setIsChangePWModalOpen] = useState<boolean>(false);
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState<boolean>(false);
+
+  // 수정 모달에서 사용할 state
   const [formData, setFormData] = useState(new FormData());
   const setCurUser = useSetRecoilState(userState);
+
+  // 아래 두개는 동일해보이므로 추후 통합 필요
   const [userinfoProfile, setUserinfoPropfile] = useRecoilState(userinfoState);
   const [userinfo, setUserinfo] = useState<UserinfoType>({
     nickname: "",
@@ -90,12 +95,26 @@ export default function modifyuserinfo() {
     });
   }, [isModifyModalOpen]);
 
+  useEffect(() => {
+    const userinfoRes = apiInstance.get(`/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    userinfoRes.then((res) => {
+      setUserinfo(res.data.data);
+      setUserinfoPropfile(res.data.data);
+      setUserNickname(res.data.data.nickname);
+      setCurUser((prev) => ({ ...prev, profileImg: res.data.data.profileImg, isLoggedIn: true }));
+      Cookies.set("profileImg", res.data.data.profileImg);
+    });
+  }, []);
+
   // 구글 로그인 후 modify-userinfo로 넘어왔을 때, url 로부터 필요한 정보를 가져와서 설정해주는 함수.
   // https://chal-kak.vercel.app/modify-userinfo/{userId}?accessToken={}&refreshToken={}&profileImg={}
   useEffect(() => {
     const url = window.location.href;
     const urlSplit = url.split("?"); // url을 ? 기준으로 잘라서, api 호출부와 필요한 정보를 분리함.
-    console.log(urlSplit);
     const urlParams = urlSplit[1] ? urlSplit[1].split("&") : []; // url을 & 기준으로 잘라서, 필요한 정보를 분리함.
     if (urlParams.length === 0) return;
     const userId = urlSplit[0].split("/")[4]; // url을 / 기준으로 잘라서, userId를 가져옴.
@@ -172,10 +191,10 @@ export default function modifyuserinfo() {
           </div>
           <div className="flex flex-row justify-between w-[70%] mt-4">
             <div className=" mr-10 text-xl">styletag</div>
-            <div className="flex flex-row flex-wrap justify-center w-[70%] gap-y-2">
+            <div className="flex flex-row flex-wrap justify-end items-end w-[70%] gap-y-2">
               {myKeywords.map((keyword) => {
                 return (
-                  <div className="badge text-xs items-center  badge-outline mr-2 h-6 w-auto " key={keyword.id}>
+                  <div className="badge text-xs items-center  badge-outline ml-2 h-6 w-auto" key={keyword.id}>
                     {keyword.keyword}
                   </div>
                 );
@@ -218,7 +237,7 @@ export default function modifyuserinfo() {
           </div>
           <div>
             <button
-              className="btn btn-sm ml-4 bg-[#ec4444] w-[125px] font-medium rounded-lg text-white"
+              className="btn btn-sm ml-4 bg-[#ec4444] w-[125px] font-medium rounded-lg text-white hover:text-black hover:bg-[#ff5656]"
               onClick={handleOpenWithdrawalModal}
             >
               회원탈퇴
