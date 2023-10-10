@@ -79,7 +79,6 @@ const Main = () => {
         },
       });
       setFilteredWeatherPosts(response.data.data.posts);
-      console.log(response.data.data.posts);
     } catch (error) {
       console.error(error);
     }
@@ -146,7 +145,6 @@ const Main = () => {
       styleTagIds: loggedInUser.styleTags,
     });
   }, [loggedInUser]);
-  console.log(loggedInUser);
 
   // 선택된 스타일 태그나 입력된 키/몸무게 등 필터링 조건이 변경될 때마다 실행, 페이지 번호와 게시물 목록 초기화
   useEffect(() => {
