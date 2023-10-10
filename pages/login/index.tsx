@@ -38,7 +38,7 @@ interface SigninResponse {
   };
 }
 
-type UserType = {
+export type UserType = {
   email: string;
   nickname: string;
   profileImg: string;
