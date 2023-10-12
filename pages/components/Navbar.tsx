@@ -1,5 +1,6 @@
 import Link from "next/link";
 // import { CgProfile } from "react-icons/cg";
+import { RiChatSmile2Line } from "react-icons/ri";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import Image from "next/image";
@@ -85,6 +86,11 @@ export default function Navbar() {
           </div>
         </div>
         <div className="flex-none mt-2 justify-end">
+          <div>
+            <Link href={"/chat"} className="text-3xl">
+              <RiChatSmile2Line className="mt-[-10px] mr-2 font-bold" />
+            </Link>
+          </div>
           <div className="mb-4 mr-2">
             <Link href={"/search"}>
               <svg
