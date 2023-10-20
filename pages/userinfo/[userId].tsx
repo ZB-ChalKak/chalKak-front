@@ -33,21 +33,25 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 };
 
 export default function UserInfo(props: UserInfoProps): JSX.Element {
-  const [userPosts, setUserPosts] = useRecoilState(userPostsState);
+  // Modal 관련 state
   const [isOpenFollowerModal, setIsOpenFollowerModal] = useState<boolean>(false);
   const [isOpenFollowingModal, setIsOpenFollowingModal] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // 조건부 렌더링을 위한 state (게시글 여부, 팔로우 및 팔로잉 여부 등)
   const [hasPosts, setHasPosts] = useState<boolean>(false);
+  const [, setIsFollow] = useState<boolean>(false);
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const [userPosts, setUserPosts] = useRecoilState(userPostsState);
+  // 유저 정보 페이지에서 로그인 여부에 따라 렌더링을 다르게 하기 위한 state
   const curUserId = Cookies.get("userId");
   const router = useRouter();
   const { userId } = router.query;
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const [, setIsFollow] = useState<boolean>(false);
   const isLogin = Cookies.get("isLoggedIn");
-  console.log(typeof isLogin);
+  //! 무한 스크롤 관련 state (api 수정되지 않아 보류된 상태)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   // 사용자 작성 게시글 조회 api (initial)
+  // api 수정 필요 (size에 관계없이 전체 게시글이 조회됨)
   useEffect(() => {
     // const { userId } = router.query;
     const fetchUserPosts = async () => {
@@ -64,7 +68,7 @@ export default function UserInfo(props: UserInfoProps): JSX.Element {
 
   // 팔로잉 검증 api
   useEffect(() => {
-    const fetchIsFollowing = async () => {
+    const isFollowingValidate = async () => {
       try {
         const isFollowingRes = await apiInstance.get(`/follow/${userId}/validateFollow`);
         setIsFollowing(isFollowingRes.data);
@@ -73,7 +77,7 @@ export default function UserInfo(props: UserInfoProps): JSX.Element {
       }
     };
 
-    fetchIsFollowing();
+    isFollowingValidate();
   }, [userId]);
 
   // 팔로우 요청 api

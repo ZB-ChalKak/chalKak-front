@@ -52,41 +52,12 @@ export default function modifyuserinfo() {
   const [profileFile] = useState<File>();
   const [userNickname, setUserNickname] = useState<string>("");
   const userId = Cookies.get("userId");
-  // const router = useRouter();
-  // const id = router.query;
-  const accessToken = Cookies.get("accessToken");
   const styleTagList = useRecoilValue(styleTagsState);
   const myKeywords = styleTagList.filter((obj) => userinfoProfile.styleTags.includes(obj.id));
 
+  // 유저 정보 수정이 완료된 후, 모달이 닫히면, 유저 정보를 업데이트.
   useEffect(() => {
-    // const fetchUserInfo = async () => {
-    //   try {
-    //     const response = await apiInstance.get(`/users/${userId}`, {
-    //       headers: {
-    //         Authorization: `Bearer ${accessToken}`,
-    //       },
-    //     });
-
-    //     const data = response.data.data;
-
-    //     setUserinfo(data);
-    //     setUserinfoPropfile(data);
-    //     setUserNickname(data.nickname);
-    //     setCurUser((prev) => ({ ...prev, profileImg: data.profileImg, isLoggedIn: true }));
-    //     Cookies.set("profileImg", data.profileImg);
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
-
-    // if (isModifyModalOpen) {
-    //   setTimeout(fetchUserInfo, 1500); // API 호출을 비동기 함수 내부로 옮김
-    // }
-    const userinfoRes = apiInstance.get(`/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const userinfoRes = apiInstance.get(`/users/${userId}`);
     userinfoRes.then((res) => {
       setUserinfo(res.data.data);
       setUserinfoPropfile(res.data.data);
@@ -96,12 +67,9 @@ export default function modifyuserinfo() {
     });
   }, [isModifyModalOpen]);
 
+  // 유저 정보 페이지에 들어왔을 때, 유저 정보를 불러옴.
   useEffect(() => {
-    const userinfoRes = apiInstance.get(`/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const userinfoRes = apiInstance.get(`/users/${userId}`);
     userinfoRes.then((res) => {
       setUserinfo(res.data.data);
       setUserinfoPropfile(res.data.data);
