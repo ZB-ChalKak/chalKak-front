@@ -37,6 +37,7 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
   const [isHeightValid, setIsHeightValid] = useState<boolean>(false);
   const [isWeightValid, setIsWeightValid] = useState<boolean>(false);
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
+
   const checkNicknameFormat = (nickname: string): boolean => {
     const nicknamePattern = /(^[a-zA-Z0-9_]{4,16}$)|(^[가-힣0-9_]{2,8}$)/;
     return nicknamePattern.test(nickname);
@@ -69,7 +70,6 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
     }
     const blob = new Blob([JSON.stringify(userinfoProfile)], { type: "application/json" });
     formData.append("infoRequest", blob);
-
     try {
       const response = await apiInstance({
         method: "patch",
@@ -87,6 +87,7 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
           return {
             ...prev,
             profileImg: userinfoProfile.profileImg as string,
+            styleTags: userinfoProfile.styleTags,
           };
         });
       }
@@ -128,11 +129,12 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
         setAlert({ open: true, message: "jpeg, png, jpg 파일만 업로드 가능합니다." });
         e.target.value = "";
         return;
-      } else {
-        console.log("file", file);
-        setProfileImg(file);
-        formData.set("multipartFiles", file as File);
       }
+      setProfileImg(file);
+      formData.set("multipartFiles", file as File);
+    } else if (typeof e.target.files !== "object") {
+      formData.delete("multipartFiles");
+      setProfileImg(undefined);
     } else {
       setUserinfoPropfile({ ...userinfoProfile, [name]: value });
     }
@@ -140,7 +142,6 @@ const ChangeUserinfoModal = ({ isOpen, handleCloseModal, formData, userNickname 
 
   const maxCheckedCount = 5;
   const [checkedKeyword, setCheckedKeyword] = useState<number[]>(userinfoProfile.styleTags);
-  console.log("checkedKeyword", checkedKeyword);
   const handleKeywordCheckedChange = (keywordId: number) => {
     if (checkedKeyword.includes(keywordId)) {
       setCheckedKeyword(checkedKeyword.filter((id) => id !== keywordId));
