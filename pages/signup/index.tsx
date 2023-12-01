@@ -4,7 +4,7 @@ import debounce from "lodash.debounce";
 import { apiInstance } from "../api/api";
 import router from "next/router";
 import { BsQuestionCircle } from "react-icons/bs";
-import { AiOutlineClose } from "react-icons/ai";
+import { IoClose } from "react-icons/io5";
 import { useSetRecoilState } from "recoil";
 import { alertState } from "@/utils/atoms";
 import SkeletonSignup from "./SkeletonSignup";
@@ -65,8 +65,6 @@ export default function signup() {
     confirmPassword: "",
     styleTags: styleTags,
   });
-
-  console.log(invalidState);
 
   // 닉네임 중복 확인
   const checkNicknameDuplication = useCallback(
@@ -187,40 +185,34 @@ export default function signup() {
     const { name, value } = e.target;
 
     if (name === "email") {
-      if (checkEmailFormat(value)) {
-        setInvalidState((prevState) => ({ ...prevState, invalidEmail: false }));
-      } else {
-        setInvalidState((prevState) => ({ ...prevState, invalidEmail: true }));
+      const isEmailValid = checkEmailFormat(value);
+      if (isEmailValid !== invalidState.invalidEmail) {
+        setInvalidState((prevState) => ({ ...prevState, invalidEmail: !isEmailValid }));
       }
     } else if (name === "password") {
-      if (checkPasswordFormat(value)) {
-        setInvalidState((prevState) => ({ ...prevState, invalidPassword: false }));
-      } else {
-        setInvalidState((prevState) => ({ ...prevState, invalidPassword: true }));
+      const isPasswordValid = checkPasswordFormat(value);
+      if (isPasswordValid !== invalidState.invalidPassword) {
+        setInvalidState((prevState) => ({ ...prevState, invalidPassword: !isPasswordValid }));
       }
     } else if (name === "confirmPassword") {
-      if (value === formData.password) {
-        setInvalidState((prevState) => ({ ...prevState, passwordMismatch: false }));
-      } else {
-        setInvalidState((prevState) => ({ ...prevState, passwordMismatch: true }));
+      const isPasswordMatch = value === formData.password;
+      if (isPasswordMatch !== invalidState.passwordMismatch) {
+        setInvalidState((prevState) => ({ ...prevState, passwordMismatch: !isPasswordMatch }));
       }
     } else if (name === "height") {
-      if (checkBodyFormat(value)) {
-        setInvalidState((prevState) => ({ ...prevState, invalidHeight: false }));
-      } else {
-        setInvalidState((prevState) => ({ ...prevState, invalidHeight: true }));
+      const isHeightValid = checkBodyFormat(value);
+      if (isHeightValid !== invalidState.invalidHeight) {
+        setInvalidState((prevState) => ({ ...prevState, invalidHeight: !isHeightValid }));
       }
     } else if (name === "weight") {
-      if (checkBodyFormat(value)) {
-        setInvalidState((prevState) => ({ ...prevState, invalidWeight: false }));
-      } else {
-        setInvalidState((prevState) => ({ ...prevState, invalidWeight: true }));
+      const isWeightValid = checkBodyFormat(value);
+      if (isWeightValid !== invalidState.invalidWeight) {
+        setInvalidState((prevState) => ({ ...prevState, invalidWeight: !isWeightValid }));
       }
     } else if (name === "nickname") {
-      if (checkNicknameFormat(value)) {
-        setInvalidState((prevState) => ({ ...prevState, invalidNickname: false }));
-      } else {
-        setInvalidState((prevState) => ({ ...prevState, invalidNickname: true }));
+      const isNicknameValid = checkNicknameFormat(value);
+      if (isNicknameValid !== invalidState.invalidNickname) {
+        setInvalidState((prevState) => ({ ...prevState, invalidNickname: !isNicknameValid }));
       }
     }
   };
@@ -433,7 +425,7 @@ export default function signup() {
                 {keywords.map((keyword) => (
                   <div className="badge text-xs badge-outline mr-2 mb-2 h-7" key={keyword}>
                     <button onClick={() => removeKeyword(keyword)}>
-                      <AiOutlineClose className="mt-[1px]" />
+                      <IoClose className=" text-sm mt-[2px]" />
                     </button>
                     {keyword}
                   </div>
