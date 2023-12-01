@@ -34,22 +34,24 @@ interface SignUpData {
 export default function signup() {
   const setAlert = useSetRecoilState(alertState);
   const [styleTagsData, setStyleTagsData] = useState<StyleTag[]>([]);
-  const [invalidEmail, setInvalidEmail] = useState(false);
-  const [invalidPassword, setInvalidPassword] = useState(false);
-  const [invalidHeight, setInvalidHeight] = useState(false);
-  const [invalidWeight, setInvalidWeight] = useState(false);
-  const [invalidNickname, setInvalidNickname] = useState(false);
-  const [passwordMismatch, setPasswordMismatch] = useState(false);
+  const [invalidState, setInvalidState] = useState({
+    invalidEmail: false,
+    invalidPassword: false,
+    invalidHeight: false,
+    invalidWeight: false,
+    invalidNickname: false,
+    passwordMismatch: false,
+    passwordTouched: false,
+    nicknameTouched: false,
+    passwordConfirmTouched: false,
+    heightTouched: false,
+    weightTouched: false,
+    emailTouched: false,
+  });
   const [keywords, setKeywords] = useState<string[]>([]);
   const [styleTags, setStyleTags] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [emailTouched, setEmailTouched] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [passwordTouched, setPasswordTouched] = useState(false);
-  const [nicknameTouched, setNicknamewordTouched] = useState(false);
-  const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false);
-  const [heightTouched, setHeightTouched] = useState(false);
-  const [weightTouched, setWeightTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailDuplicated, setEmailDuplicated] = useState(false);
   const [nicknameDuplicated, setNicknameDuplicated] = useState(false);
@@ -63,6 +65,8 @@ export default function signup() {
     confirmPassword: "",
     styleTags: styleTags,
   });
+
+  console.log(invalidState);
 
   // 닉네임 중복 확인
   const checkNicknameDuplication = useCallback(
@@ -96,10 +100,10 @@ export default function signup() {
   }, []);
 
   useEffect(() => {
-    if (nicknameTouched && checkNicknameFormat(formData.nickname)) {
+    if (invalidState.nicknameTouched && checkNicknameFormat(formData.nickname)) {
       checkNicknameDuplication(formData.nickname);
     }
-  }, [formData.nickname, nicknameTouched]);
+  }, [formData.nickname, invalidState.nicknameTouched]);
 
   // 이메일 중복 확인
   const checkEmailDuplication = useCallback(
@@ -120,10 +124,10 @@ export default function signup() {
   );
 
   useEffect(() => {
-    if (emailTouched && checkEmailFormat(formData.email)) {
+    if (invalidState.emailTouched && checkEmailFormat(formData.email)) {
       checkEmailDuplication(formData.email);
     }
-  }, [formData.email, emailTouched]);
+  }, [formData.email, invalidState.emailTouched]);
 
   // 키워드 모달 창 클릭 핸들러
   const handleOpenModal = () => {
@@ -184,39 +188,39 @@ export default function signup() {
 
     if (name === "email") {
       if (checkEmailFormat(value)) {
-        setInvalidEmail(false);
+        setInvalidState((prevState) => ({ ...prevState, invalidEmail: false }));
       } else {
-        setInvalidEmail(true);
+        setInvalidState((prevState) => ({ ...prevState, invalidEmail: true }));
       }
     } else if (name === "password") {
       if (checkPasswordFormat(value)) {
-        setInvalidPassword(false);
+        setInvalidState((prevState) => ({ ...prevState, invalidPassword: false }));
       } else {
-        setInvalidPassword(true);
+        setInvalidState((prevState) => ({ ...prevState, invalidPassword: true }));
       }
     } else if (name === "confirmPassword") {
       if (value === formData.password) {
-        setPasswordMismatch(false);
+        setInvalidState((prevState) => ({ ...prevState, passwordMismatch: false }));
       } else {
-        setPasswordMismatch(true);
+        setInvalidState((prevState) => ({ ...prevState, passwordMismatch: true }));
       }
     } else if (name === "height") {
       if (checkBodyFormat(value)) {
-        setInvalidHeight(false);
+        setInvalidState((prevState) => ({ ...prevState, invalidHeight: false }));
       } else {
-        setInvalidHeight(true);
+        setInvalidState((prevState) => ({ ...prevState, invalidHeight: true }));
       }
     } else if (name === "weight") {
       if (checkBodyFormat(value)) {
-        setInvalidWeight(false);
+        setInvalidState((prevState) => ({ ...prevState, invalidWeight: false }));
       } else {
-        setInvalidWeight(true);
+        setInvalidState((prevState) => ({ ...prevState, invalidWeight: true }));
       }
     } else if (name === "nickname") {
       if (checkNicknameFormat(value)) {
-        setInvalidNickname(false);
+        setInvalidState((prevState) => ({ ...prevState, invalidNickname: false }));
       } else {
-        setInvalidNickname(true);
+        setInvalidState((prevState) => ({ ...prevState, invalidNickname: true }));
       }
     }
   };
@@ -258,18 +262,21 @@ export default function signup() {
   ) : (
     <>
       <Head>
-        <title>#찰칵 - 회원가입</title>
-        <meta name="description" content="회원가입 페이지입니다." />
+        <title>#찰칵 - 회원가입 | SNS 회원가입 페이지입니다. </title>
+        <meta
+          name="description"
+          content="#찰칵 - 회원가입 | #찰칵은 날씨 기반 추천 SNS 서비스입니다. 당신의 소중한 순간을 공유하고, 다른 사용자들의 멋진 순간들도 만나보세요! 오늘 날씨에 어울리는 스타일링 팁도 받아보세요."
+        />
       </Head>
       <div className="flex justify-center items-center">
         <div className="w-full max-w-[500px]">
           <div className="flex items-center justify-center mt-10 w-full">
-            <div className="text-2xl">회원가입</div>
+            <h1 className="text-2xl">회원가입</h1>
           </div>
           <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4 mt-24">
             <div className="w-full">
               <div className="flex items-center mb-3">
-                <p className="font-bold">이메일 주소</p>
+                <h2 className="font-bold">이메일 주소</h2>
                 <div className="ml-1">
                   <Tooltip id="my-tooltip" className="text-xs" />
                   <span data-tooltip-id="my-tooltip" data-tooltip-content="인증 가능한 이메일을 입력해주세요!">
@@ -287,16 +294,18 @@ export default function signup() {
                 onChange={(e) => {
                   handleChange(e);
                   handleChangeValid(e);
-                  setEmailTouched(true);
+                  setInvalidState((prevState) => ({ ...prevState, emailTouched: true }));
                 }}
               />
-              {invalidEmail && <p className="text-red-500 text-xs mt-1">이메일 양식이 올바르지 않습니다.</p>}
+              {invalidState.invalidEmail && (
+                <p className="text-red-500 text-xs mt-1">이메일 양식이 올바르지 않습니다.</p>
+              )}
               {emailDuplicated && (
                 <p className="text-red-500 text-xs mt-1">이미 사용 중인 이메일입니다. 다른 이메일을 사용해주세요.</p>
               )}
             </div>
             <div className="w-full">
-              <p className="text-md font-bold mb-[-10px] mt-2">비밀번호</p> <br />
+              <h2 className="text-md font-bold mb-[-10px] mt-2">비밀번호</h2> <br />
               <input
                 type="password"
                 className="border-b border-gray-200 focus:border-gray-700 transition-colors ease-in duration-100 w-full pb-2 text-sm"
@@ -306,13 +315,15 @@ export default function signup() {
                 onChange={(e) => {
                   handleChange(e);
                   handleChangeValid(e);
-                  setPasswordTouched(true);
+                  setInvalidState((prevState) => ({ ...prevState, passwordTouched: true }));
                 }}
               />
-              {invalidPassword && <p className="text-red-500 text-xs mt-1">비밀번호 양식이 올바르지 않습니다.</p>}
+              {invalidState.invalidPassword && (
+                <p className="text-red-500 text-xs mt-1">비밀번호 양식이 올바르지 않습니다.</p>
+              )}
             </div>
             <div className="w-full">
-              <p className="text-md font-bold mb-[-10px] mt-2">비밀번호 확인</p> <br />
+              <h2 className="text-md font-bold mb-[-10px] mt-2">비밀번호 확인</h2> <br />
               <input
                 type="password"
                 className="border-b border-gray-200 w-full pb-2 text-sm focus:border-gray-700 transition-colors ease-in duration-100"
@@ -322,13 +333,15 @@ export default function signup() {
                 onChange={(e) => {
                   handleChange(e);
                   handleChangeValid(e);
-                  setPasswordConfirmTouched(true);
+                  setInvalidState((prevState) => ({ ...prevState, passwordConfirmTouched: true }));
                 }}
               />
-              {passwordMismatch && <p className="text-red-500 text-xs mt-1">비밀번호가 일치하지 않습니다.</p>}
+              {invalidState.passwordMismatch && (
+                <p className="text-red-500 text-xs mt-1">비밀번호가 일치하지 않습니다.</p>
+              )}
             </div>
             <div className="w-full">
-              <p className="text-md font-bold mb-[-10px] mt-2">닉네임</p> <br />
+              <h2 className="text-md font-bold mb-[-10px] mt-2">닉네임</h2> <br />
               <input
                 type="text"
                 className="border-b border-gray-200 w-full pb-2 text-sm focus:border-gray-700 transition-colors ease-in duration-100"
@@ -338,10 +351,12 @@ export default function signup() {
                 onChange={(e) => {
                   handleChange(e);
                   handleChangeValid(e);
-                  setNicknamewordTouched(true);
+                  setInvalidState((prevState) => ({ ...prevState, nicknameTouched: true }));
                 }}
               />
-              {invalidNickname && <p className="text-red-500 text-xs mt-1">닉네임 양식이 올바르지 않습니다</p>}
+              {invalidState.invalidNickname && (
+                <p className="text-red-500 text-xs mt-1">닉네임 양식이 올바르지 않습니다</p>
+              )}
               {nicknameDuplicated && <p className="text-red-500 text-xs mt-1">중복된 닉네임입니다.</p>}
             </div>
             <div className="flex w-full">
@@ -360,7 +375,7 @@ export default function signup() {
               </div>
               <br />
               <div className="flex flex-col items-start w-2/3 mb-10 ml-24">
-                <p className="text-md font-bold mb-6">체형</p>
+                <h2 className="text-md font-bold mb-6">체형</h2>
                 <div className="flex w-full">
                   <div className="flex flex-col items-start w-1/2 mr-5">
                     <div className="flex items-center w-full">
@@ -374,12 +389,12 @@ export default function signup() {
                         onChange={(e) => {
                           handleChange(e);
                           handleChangeValid(e);
-                          setHeightTouched(true);
+                          setInvalidState((prevState) => ({ ...prevState, heightTouched: true }));
                         }}
                       />
                       cm
                     </div>
-                    {invalidHeight && <p className="text-red-500 text-xs mt-1">숫자로만 입력해주세요.</p>}
+                    {invalidState.invalidHeight && <p className="text-red-500 text-xs mt-1">숫자로만 입력해주세요.</p>}
                   </div>
                   <div className="flex flex-col items-center w-1/2">
                     <div className="flex items-center">
@@ -393,12 +408,14 @@ export default function signup() {
                         onChange={(e) => {
                           handleChange(e);
                           handleChangeValid(e);
-                          setWeightTouched(true);
+                          setInvalidState((prevState) => ({ ...prevState, weightTouched: true }));
                         }}
                       />
                       kg
                     </div>
-                    {invalidWeight && <p className="text-red-500 text-xs pr-1 mt-1">숫자로만 입력해주세요.</p>}
+                    {invalidState.invalidWeight && (
+                      <p className="text-red-500 text-xs pr-1 mt-1">숫자로만 입력해주세요.</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -436,19 +453,18 @@ export default function signup() {
             </div>
 
             <div className="w-full flex">
-              {invalidEmail ||
-              invalidPassword ||
-              passwordMismatch ||
-              invalidNickname ||
+              {invalidState.invalidEmail ||
+              invalidState.invalidPassword ||
+              invalidState.passwordMismatch ||
+              invalidState.invalidNickname ||
               emailDuplicated ||
               nicknameDuplicated ||
-              !nicknameTouched ||
-              !nicknameTouched ||
-              !emailTouched ||
-              !passwordTouched ||
-              !passwordConfirmTouched ||
-              !heightTouched ||
-              !weightTouched ||
+              !invalidState.nicknameTouched ||
+              !invalidState.emailTouched ||
+              !invalidState.passwordTouched ||
+              !invalidState.passwordConfirmTouched ||
+              !invalidState.heightTouched ||
+              !invalidState.weightTouched ||
               isSubmitting ? (
                 <button
                   type="submit"

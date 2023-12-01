@@ -81,9 +81,6 @@ interface HomePageProps {
   initialPostData?: editData;
 }
 
-const accessToken = Cookies.get("accessToken");
-const userId = Cookies.get("userId");
-
 const HomePage = ({ initialPostData }: HomePageProps) => {
   const resetUploadedImageFiles = useResetRecoilState(uploadedImageFilesState);
   const resetUploadedImageUrls = useResetRecoilState(uploadedImageUrlsState);
@@ -129,6 +126,8 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   const userouter = useRouter();
 
   useEffect(() => {
+    const accessToken = Cookies.get("accessToken");
+    const userId = Cookies.get("userId");
     if (!accessToken) {
       alert("로그인이 필요합니다");
       router.push("/main");
@@ -371,7 +370,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   // submit 함수
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
+    const accessToken = Cookies.get("accessToken");
     const submissionFormData = new FormData();
     uploadedImageFiles.forEach((file) => {
       submissionFormData.append("multipartFileList", file);
@@ -446,10 +445,11 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   return (
     <>
       <Head>
-        <title>#찰칵 - 게시글 작성</title>
+        <title>#찰칵 - 게시글 작성 | 게시글 작성 페이지입니다.</title>
         <meta name="description" content="게시글 작성 페이지입니다." />
       </Head>
       <div className="w-full m-auto">
+        <h1 className="sr-only">게시글 작성 페이지</h1>
         <div>
           <GoogleMapsComponent />
         </div>
