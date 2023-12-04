@@ -13,8 +13,8 @@ interface ModalComponentProps {
   isOpen: boolean;
   closeModal: () => void;
   postId: string | string[] | undefined;
-  onCommentAdded?: () => void;
-  onCommentDeleted?: () => void;
+  addComment: (newComment: Comment) => void;
+  deleteComment: (commentId: number) => void;
 }
 
 interface Comment {
@@ -29,13 +29,7 @@ interface Comment {
 
 Modal.setAppElement(".wrap");
 
-const CommentsModal: React.FC<ModalComponentProps> = ({
-  isOpen,
-  closeModal,
-  postId,
-  onCommentAdded,
-  onCommentDeleted,
-}) => {
+const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId, addComment, deleteComment }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [showFullTexts, setShowFullTexts] = useState(comments.map(() => false));
   const [commentInput, setCommentsInput] = useState("");
@@ -118,10 +112,6 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
     loadComments(newPage); // 바로 추가적인 댓글 로딩
   };
 
-  // const handleEditComment = (commentId: number) => {
-  //   console.log("edit" + commentId);
-  // };
-
   const handleDeleteComment = (commentId: number) => {
     if (currentCommentId === null) return;
     apiInstance({
@@ -133,10 +123,8 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
     })
       .then(() => {
         setComments(comments.filter((comment) => comment.commentId !== commentId));
+        deleteComment(commentId);
         setAlertOpen(false);
-        if (onCommentDeleted) {
-          onCommentDeleted();
-        }
       })
       .catch((error) => {
         alert("There was an error!" + error);
@@ -177,9 +165,6 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
           setIsSubmitting(false);
           loadComments(0);
           setPage(0);
-          if (onCommentAdded) {
-            onCommentAdded();
-          }
         })
         .catch((error) => {
           setIsSubmitting(false);
@@ -209,7 +194,7 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
             className="input input-bordered input-md w-full mb-7 mr-2 focus:border-none rounded-full"
           />
           <button className="btn" onClick={handleSubmitComment} disabled={isSubmitting}>
-            게시
+            작성
           </button>
         </div>
         {comments.map((comment, index) => (
@@ -249,9 +234,6 @@ const CommentsModal: React.FC<ModalComponentProps> = ({
                 </div>
                 {comment.memberId === Number(userId) && (
                   <div className="bottom-1 mt-1 right-5 text-[11px] text-end">
-                    {/* <button onClick={() => handleEditComment(comment.commentId)} className="mr-1">
-                      수정
-                    </button> */}
                     <button className="text-red-700" onClick={() => openDeleteAlert(comment.commentId)}>
                       삭제
                     </button>

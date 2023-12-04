@@ -21,6 +21,7 @@ import { alertState } from "@/utils/atoms";
 import InfoAlert from "../components/InfoAlert";
 import Head from "next/head";
 import SkeletonPost from "../components/SkeletonPost";
+import axios from "axios";
 interface Writer {
   height: number;
   id: number;
@@ -55,6 +56,15 @@ interface PostPhoto {
   url: string;
 }
 
+interface Comment {
+  commentId: number;
+  comment: string;
+  nickname: string;
+  profileUrl: string | null;
+  createAt: string;
+  memberId: number;
+}
+
 const HomePage = () => {
   const [postData, setPostData] = useState<Post | null>(null);
   const [commentsModalIsOpen, setcommentsModalIsOpen] = useState(false);
@@ -78,6 +88,8 @@ const HomePage = () => {
   const router = useRouter();
   const { postId } = router.query;
   const setAlert = useSetRecoilState(alertState);
+  const [commentsData, setCommentsData] = useState<Comment[]>([]);
+  const [totalComments, setTotalComments] = useState(0);
 
   useEffect(() => {
     if (typeof postId === "string") {
@@ -109,6 +121,7 @@ const HomePage = () => {
     setShareModalIsOpen(false);
   };
 
+  // 로그인 여부 확인
   useEffect(() => {
     if (accessToken && userId) {
       setIsLogined(true);
@@ -117,15 +130,60 @@ const HomePage = () => {
     }
   }, [accessToken, userId]);
 
+  // 게시글 상세 데이터 받기
+  const fetchPostData = async (postId: string | string[]) => {
+    if (postId) {
+      try {
+        const response = await apiInstance({
+          method: "get",
+          url: `posts/${postId}`,
+        });
+        return response.data.data;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          console.error("There was an error!" + error.response.data.message);
+          if (error.response.data.message === "존재하지 않는 게시글 번호입니다.") router.push("/404");
+        } else {
+          console.error(error);
+        }
+      }
+    }
+  };
+
+  const addComment = (newComment: Comment) => {
+    setCommentsData([...commentsData, newComment]);
+  };
+
+  const deleteComment = (commentId: number) => {
+    setCommentsData(commentsData.filter((comment) => comment.commentId !== commentId));
+  };
+
+  // 댓글 상세 데이터 받기
+  const fetchCommentsData = async (postId: string | string[]) => {
+    try {
+      const response = await apiInstance({
+        method: "get",
+        url: `posts/${postId}/pageComments?page=0&size=3&sort=createdAt,desc`,
+      });
+      console.log(response.data.data);
+      return response.data.data; // 댓글 데이터와 댓글의 총 개수를 포함하는 객체 반환
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("There was an error!" + error.response.data.message);
+      } else {
+        console.error(error);
+      }
+    }
+  };
+
   // 데이터 받아오기
   useEffect(() => {
     if (postId) {
-      apiInstance({
-        method: "get",
-        url: `posts/${postId}`,
-      })
-        .then((response) => {
-          setPostData(response.data.data);
+      Promise.all([fetchPostData(postId), fetchCommentsData(postId)])
+        .then(([postData, commentsData]) => {
+          setPostData(postData);
+          setCommentsData(commentsData.commentLoadResponses);
+          setTotalComments(commentsData.totalElements);
           setLoading(false);
         })
         .catch((error) => {
@@ -135,6 +193,15 @@ const HomePage = () => {
         });
     }
   }, [postId]);
+  // 2
+  useEffect(() => {
+    console.log(postData);
+  }, [postData]);
+
+  useEffect(() => {
+    console.log(commentsData);
+    console.log(totalComments);
+  }, [commentsData]);
 
   // 초기값 설정
   useEffect(() => {
@@ -433,7 +500,13 @@ const HomePage = () => {
             <div onClick={openCommentsModal} className="relative cursor-pointer">
               <AiOutlineComment className="md:text-4xl text-3xl" />
             </div>
-            <CommentsModal isOpen={commentsModalIsOpen} closeModal={closeCommentsModal} postId={postId} />
+            <CommentsModal
+              isOpen={commentsModalIsOpen}
+              closeModal={closeCommentsModal}
+              postId={postId}
+              addComment={addComment}
+              deleteComment={deleteComment}
+            />
           </div>
           <div onClick={openShareModal} className=" w-7 h-7 cursor-pointer relative">
             <BiLinkExternal className="md:text-3xl text-2xl cursor-pointer" />
@@ -471,7 +544,13 @@ const HomePage = () => {
         />
         <HeartsModal isOpen={heartsModalIsOpen} closeModal={closeHeartsModal} postId={postId} />
         <div className=" mb-36">
-          <CommentsSection postId={postId} />
+          <CommentsSection
+            commentsData={commentsData}
+            totalComments={totalComments}
+            postId={postId}
+            addComment={addComment}
+            deleteComment={deleteComment}
+          />
           <div className="text-xs text-gray-500 mr-7 mt-2 text-end">
             {postData?.createdAt ? formatDateToRelativeTime(postData.createdAt) : ""}
           </div>

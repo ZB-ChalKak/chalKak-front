@@ -1,13 +1,16 @@
 import Image from "next/image";
 import CommentsModal from "./CommentsModal";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
-import { apiInstance } from "../api/api";
 import router from "next/router";
 
 interface CommentsSectionProps {
+  commentsData: Comment[];
+  totalComments: number;
   postId: string | string[] | undefined;
+  addComment: (newComment: Comment) => void;
+  deleteComment: (commentId: number) => void;
 }
 
 interface Comment {
@@ -19,10 +22,14 @@ interface Comment {
   memberId: number;
 }
 
-const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
+const CommentsSection: React.FC<CommentsSectionProps> = ({
+  commentsData,
+  totalComments,
+  postId,
+  addComment,
+  deleteComment,
+}) => {
   const [commentsModalIsOpen, setcommentsModalIsOpen] = useState(false);
-  const [commentsData, setCommentsData] = useState<Comment[]>([]);
-  const [totalComments, setTotalComments] = useState(0);
 
   const openCommentsModal = () => {
     setcommentsModalIsOpen(true);
@@ -44,26 +51,6 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
     return formatDistanceToNow(date, { addSuffix: true, locale: ko });
   }
 
-  const onCommentAdded = () => {
-    apiInstance({
-      method: "get",
-      url: `posts/${postId}/pageComments?page=0&size=3&sort=createdAt,desc`,
-    })
-      .then((response) => {
-        setCommentsData(response.data.data.commentLoadResponses);
-        setTotalComments(response.data.data.totalElements);
-      })
-      .catch((error) => {
-        alert("There was an error!" + error);
-      });
-  };
-
-  useEffect(() => {
-    if (postId) {
-      onCommentAdded();
-    }
-  }, [postId]);
-
   return (
     <div className="mb-4 md:text-base text-sm">
       <div className="mt-3 mb-4 flex cursor-pointer w-24" onClick={openCommentsModal}>
@@ -74,8 +61,8 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
         isOpen={commentsModalIsOpen}
         closeModal={closeCommentsModal}
         postId={postId}
-        onCommentAdded={onCommentAdded}
-        onCommentDeleted={onCommentAdded}
+        addComment={addComment}
+        deleteComment={deleteComment}
       />
 
       <div className="flex w-full mx-auto ">
