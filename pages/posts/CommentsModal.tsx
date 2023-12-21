@@ -29,7 +29,7 @@ interface Comment {
 
 Modal.setAppElement(".wrap");
 
-const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId, addComment, deleteComment }) => {
+const CommentsModal: React.FC<ModalComponentProps> = ({ isOpen, closeModal, postId, deleteComment }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [showFullTexts, setShowFullTexts] = useState(comments.map(() => false));
   const [commentInput, setCommentsInput] = useState("");

@@ -130,7 +130,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
     const userId = Cookies.get("userId");
     if (!accessToken) {
       alert("로그인이 필요합니다");
-      router.push("/main");
+      router.push("/login");
     } else if (userouter.query.id) {
       if (userId != initialPostData?.writer.id) {
         alert("작성자 아이디와 일치하지 않습니다");
@@ -140,8 +140,6 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
   }, []);
 
   useInitialData(initialPostData?.location, setLocation);
-  // useInitialData(initialPostData?.styleTags, setStyleTags);
-  // useInitialData(initialPostData?.styleTags, setStyleTags);
   useInitialData(initialPostData?.content, setContent);
   useInitialData(initialPostData?.privacyHeight, setPrivacyHeight);
   useInitialData(initialPostData?.privacyWeight, setPrivacyWeight);
