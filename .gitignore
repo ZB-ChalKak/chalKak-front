@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+# msw
+/pages/msw
+
 # next.js
 /.next/
 /out/

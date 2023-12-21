@@ -1,27 +1,41 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+.wrap {
+  background-color: rgb(243, 243, 243);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+.container {
+  max-width: 720px;
+  min-height: 100vh;
+  margin: 0px auto;
+  width: 100%;
+  background-color: rgb(255, 255, 255);
+  padding: 15px;
+}
+
+@media screen and (max-width: 600px) {
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
   }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+input:focus {
+  outline: none;
+}
+
+.ReactModal__Content {
+  outline: none;
+}
+
+.slick-list {
+  padding: 0 !important;
 }
