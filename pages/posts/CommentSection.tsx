@@ -67,38 +67,39 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({
 
       <div className="flex w-full mx-auto ">
         <div className="flex flex-col">
-          {commentsData.map((comment, index) => (
-            <div key={index} className="flex w-full mb-4 justify-between">
-              <div className="flex items-center">
-                <div className="relative w-9 h-9 cursor-pointer" onClick={() => goToProfile(comment.memberId)}>
-                  <Image
-                    src={comment.profileUrl || "/images/defaultImg.jpg"}
-                    alt="프로필 사진"
-                    layout="fill"
-                    className="rounded-full object-cover mt-[2px]"
-                  />
-                </div>
-                <div>
-                  <div className="flex flex-col ml-2">
-                    <div className="flex w-full">
-                      <div
-                        className="md:text-sm text-xs font-semibold ml-1 cursor-pointer"
-                        onClick={() => goToProfile(comment.memberId)}
-                      >
-                        {comment.nickname}
+          {commentsData &&
+            commentsData.map((comment, index) => (
+              <div key={index} className="flex w-full mb-4 justify-between">
+                <div className="flex items-center">
+                  <div className="relative w-9 h-9 cursor-pointer" onClick={() => goToProfile(comment.memberId)}>
+                    <Image
+                      src={comment.profileUrl || "/images/defaultImg.jpg"}
+                      alt="프로필 사진"
+                      layout="fill"
+                      className="rounded-full object-cover mt-[2px]"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex flex-col ml-2">
+                      <div className="flex w-full">
+                        <div
+                          className="md:text-sm text-xs font-semibold ml-1 cursor-pointer"
+                          onClick={() => goToProfile(comment.memberId)}
+                        >
+                          {comment.nickname}
+                        </div>
+                        <div className="md:text-sm text-xs ml-2 col md:w-96 sm:w-48 w-24 overflow-hidden overflow-ellipsis whitespace-nowrap ">
+                          {comment.comment}
+                        </div>
                       </div>
-                      <div className="md:text-sm text-xs ml-2 col md:w-96 sm:w-48 w-24 overflow-hidden overflow-ellipsis whitespace-nowrap ">
-                        {comment.comment}
+                      <div className="md:text-xs text-[0.5rem] text-gray-500 ml-1 mt-1">
+                        {formatDateToRelativeTime(comment.createAt)}
                       </div>
-                    </div>
-                    <div className="md:text-xs text-[0.5rem] text-gray-500 ml-1 mt-1">
-                      {formatDateToRelativeTime(comment.createAt)}
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
           {totalComments > 3 && (
             <div className="text-gray-500 cursor-pointer text-xs md:text-sm" onClick={openCommentsModal}>
               댓글 더 보기...
