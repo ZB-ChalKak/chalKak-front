@@ -485,7 +485,7 @@ const HomePage = ({ initialPostData }: HomePageProps) => {
           </div>
         </div>
         <Divider width="w-full" />
-        <div className="mb-5">
+        <div className="mb-5 h-4 mt-2">
           {dynamicKeywords.map((keyword) => (
             <div key={keyword} className="inline-block">
               <div className="flex m-1 text-blue-400">

@@ -32,18 +32,18 @@ type AppPropsWithLayout = AppProps & {
   Component: PageWithLayout;
 };
 
-function StyleTagsFetcher() {
-  const currentStyleTags = useRecoilValue(styleTagsState);
-  const setStyleTags = useSetRecoilState(styleTagsState);
-  const isEmpty = currentStyleTags[0].category === "";
-  useQuery("getStyleTags", () => apiInstance.get("/styleTags").then((res) => res.data), {
-    onSuccess: (data) => {
-      setStyleTags(data.data.styleTags);
-    },
-    enabled: isEmpty,
-  });
-  return null;
-}
+// function StyleTagsFetcher() {
+//   const currentStyleTags = useRecoilValue(styleTagsState);
+//   const setStyleTags = useSetRecoilState(styleTagsState);
+//   const isEmpty = currentStyleTags[0].category === "";
+//   useQuery("getStyleTags", () => apiInstance.get("/styleTags").then((res) => res.data), {
+//     onSuccess: (data) => {
+//       setStyleTags(data.data.styleTags);
+//     },
+//     enabled: isEmpty,
+//   });
+//   return null;
+// }
 
 //getLayouot 메소드를 가지고 있으면 사용하고, 없으면 기본 레이아웃(Navbar가 포함된 레이아웃)을 사용하도록 하는 로직
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
@@ -74,7 +74,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
-        <StyleTagsFetcher />
+        {/* <StyleTagsFetcher /> */}
         {getLayout(<Component {...pageProps} />)}
         <InfoAlert />
       </RecoilRoot>

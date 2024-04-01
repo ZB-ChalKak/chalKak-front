@@ -51,7 +51,7 @@ export default function signup() {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [styleTags, setStyleTags] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailDuplicated, setEmailDuplicated] = useState(false);
   const [nicknameDuplicated, setNicknameDuplicated] = useState(false);
@@ -84,18 +84,18 @@ export default function signup() {
     [],
   );
 
-  useEffect(() => {
-    apiInstance
-      .get("styleTags")
-      .then((response) => {
-        setStyleTagsData(response.data.data.styleTags);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        alert("There was an error!" + error);
-        setIsLoading(false);
-      });
-  }, []);
+  // useEffect(() => {
+  //   apiInstance
+  //     .get("styleTags")
+  //     .then((response) => {
+  //       setStyleTagsData(response.data.data.styleTags);
+  //       setIsLoading(false);
+  //     })
+  //     .catch((error) => {
+  //       alert("There was an error!" + error);
+  //       setIsLoading(false);
+  //     });
+  // }, []);
 
   useEffect(() => {
     if (invalidState.nicknameTouched && checkNicknameFormat(formData.nickname)) {
@@ -103,17 +103,34 @@ export default function signup() {
     }
   }, [formData.nickname, invalidState.nicknameTouched]);
 
+  // // 이메일 중복 확인
+  // const checkEmailDuplication = useCallback(
+  //   debounce(async (email: string) => {
+  //     try {
+  //       const response = await apiInstance.get(`users/validate/email/${email}`);
+  //       // 중복 여부에 따른 처리
+  //       if (response.data.data.isDuplicated === true) {
+  //         setEmailDuplicated(true);
+  //       } else {
+  //         setEmailDuplicated(false);
+  //       }
+  //     } catch (error) {
+  //       alert("There was an error!" + error);
+  //     }
+  //   }, 600),
+  //   [],
+  // );
+
   // 이메일 중복 확인
   const checkEmailDuplication = useCallback(
     debounce(async (email: string) => {
       try {
-        const response = await apiInstance.get(`users/validate/email/${email}`);
-        // 중복 여부에 따른 처리
-        if (response.data.data.isDuplicated === true) {
-          setEmailDuplicated(true);
-        } else {
-          setEmailDuplicated(false);
-        }
+        console.log("확인");
+
+        fetch("https://jsonplaceholder.typicode.com/todos/1")
+          .then((response) => response.json())
+          .then((json) => console.log(json))
+          .catch((error) => console.error("Error:", error));
       } catch (error) {
         alert("There was an error!" + error);
       }
@@ -121,6 +138,7 @@ export default function signup() {
     [],
   );
 
+  //이메일 양식이 완성되어야 중복확인
   useEffect(() => {
     if (invalidState.emailTouched && checkEmailFormat(formData.email)) {
       checkEmailDuplication(formData.email);
@@ -151,6 +169,7 @@ export default function signup() {
   // 이메일 양식 확인
   const checkEmailFormat = (email: string) => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
     return emailPattern.test(email);
   };
 
@@ -186,14 +205,10 @@ export default function signup() {
 
     if (name === "email") {
       const isEmailValid = checkEmailFormat(value);
-      if (isEmailValid !== invalidState.invalidEmail) {
-        setInvalidState((prevState) => ({ ...prevState, invalidEmail: !isEmailValid }));
-      }
+      setInvalidState((prevState) => ({ ...prevState, invalidEmail: !isEmailValid }));
     } else if (name === "password") {
       const isPasswordValid = checkPasswordFormat(value);
-      if (isPasswordValid !== invalidState.invalidPassword) {
-        setInvalidState((prevState) => ({ ...prevState, invalidPassword: !isPasswordValid }));
-      }
+      setInvalidState((prevState) => ({ ...prevState, invalidPassword: !isPasswordValid }));
     } else if (name === "confirmPassword") {
       const isPasswordMatch = value === formData.password;
       if (isPasswordMatch !== invalidState.passwordMismatch) {
@@ -289,15 +304,15 @@ export default function signup() {
                   setInvalidState((prevState) => ({ ...prevState, emailTouched: true }));
                 }}
               />
-              {invalidState.invalidEmail && (
-                <p className="text-red-500 text-xs mt-1">이메일 양식이 올바르지 않습니다.</p>
-              )}
-              {emailDuplicated && (
-                <p className="text-red-500 text-xs mt-1">이미 사용 중인 이메일입니다. 다른 이메일을 사용해주세요.</p>
-              )}
+              <div className="min-h-[20px]">
+                {invalidState.invalidEmail && <p className="text-red-500 text-xs">이메일 양식이 올바르지 않습니다.</p>}
+                {emailDuplicated && (
+                  <p className="text-red-500 text-xs">이미 사용 중인 이메일입니다. 다른 이메일을 사용해주세요.</p>
+                )}
+              </div>
             </div>
             <div className="w-full">
-              <h2 className="text-md font-bold mb-[-10px] mt-2">비밀번호</h2> <br />
+              <h2 className="text-md font-bold mb-[-10px]">비밀번호</h2> <br />
               <input
                 type="password"
                 className="border-b border-gray-200 focus:border-gray-700 transition-colors ease-in duration-100 w-full pb-2 text-sm"
@@ -310,12 +325,14 @@ export default function signup() {
                   setInvalidState((prevState) => ({ ...prevState, passwordTouched: true }));
                 }}
               />
-              {invalidState.invalidPassword && (
-                <p className="text-red-500 text-xs mt-1">비밀번호 양식이 올바르지 않습니다.</p>
-              )}
+              <div className="min-h-[20px]">
+                {invalidState.invalidPassword && (
+                  <p className="text-red-500 text-xs">비밀번호 양식이 올바르지 않습니다.</p>
+                )}
+              </div>
             </div>
             <div className="w-full">
-              <h2 className="text-md font-bold mb-[-10px] mt-2">비밀번호 확인</h2> <br />
+              <h2 className="text-md font-bold mb-[-10px] ">비밀번호 확인</h2> <br />
               <input
                 type="password"
                 className="border-b border-gray-200 w-full pb-2 text-sm focus:border-gray-700 transition-colors ease-in duration-100"
@@ -328,12 +345,12 @@ export default function signup() {
                   setInvalidState((prevState) => ({ ...prevState, passwordConfirmTouched: true }));
                 }}
               />
-              {invalidState.passwordMismatch && (
-                <p className="text-red-500 text-xs mt-1">비밀번호가 일치하지 않습니다.</p>
-              )}
+              <div className="min-h-[20px]">
+                {invalidState.passwordMismatch && <p className="text-red-500 text-xs">비밀번호가 일치하지 않습니다.</p>}
+              </div>
             </div>
             <div className="w-full">
-              <h2 className="text-md font-bold mb-[-10px] mt-2">닉네임</h2> <br />
+              <h2 className="text-md font-bold mb-[-10px]">닉네임</h2> <br />
               <input
                 type="text"
                 className="border-b border-gray-200 w-full pb-2 text-sm focus:border-gray-700 transition-colors ease-in duration-100"
@@ -346,10 +363,12 @@ export default function signup() {
                   setInvalidState((prevState) => ({ ...prevState, nicknameTouched: true }));
                 }}
               />
-              {invalidState.invalidNickname && (
-                <p className="text-red-500 text-xs mt-1">닉네임 양식이 올바르지 않습니다</p>
-              )}
-              {nicknameDuplicated && <p className="text-red-500 text-xs mt-1">중복된 닉네임입니다.</p>}
+              <div className="min-h-[20px]">
+                {invalidState.invalidNickname && (
+                  <p className="text-red-500 text-xs">닉네임 양식이 올바르지 않습니다</p>
+                )}
+                {nicknameDuplicated && <p className="text-red-500 text-xs">중복된 닉네임입니다.</p>}
+              </div>
             </div>
             <div className="flex w-full">
               <div className="w-1/3 ">
