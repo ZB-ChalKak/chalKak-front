@@ -103,7 +103,7 @@ const GoogleMapsComponent = () => {
                       const style = suggestion.active
                         ? { backgroundColor: "#42a5f5", cursor: "pointer" }
                         : { backgroundColor: "#ffffff", cursor: "pointer" };
-
+                      // imsoaw
                       const suggestionProps = getSuggestionItemProps(suggestion);
 
                       return (
