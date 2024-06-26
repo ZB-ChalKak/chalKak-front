@@ -239,12 +239,13 @@ const HomePage = () => {
         setLikeCount(likeCount + 1);
       })
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error("에러발생", error);
         redirectToLogin();
       })
       .finally(() => setIsProcessing(false));
   };
 
+  // tlfjfjs
   // 좋아요 취소 클릭
   const handleClickUnlike = () => {
     if (!postId || isProcessing) return;
