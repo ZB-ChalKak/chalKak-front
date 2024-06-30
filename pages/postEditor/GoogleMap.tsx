@@ -98,7 +98,7 @@ const GoogleMapsComponent = () => {
                     className="py-2 border-b border-gray-300 w-full"
                   />
                   <div className="h-[300px]">
-                    {loading ? <div>로딩 중...</div> : null}
+                    {loading ? <div>로딩 중..d.</div> : null}
                     {suggestions.map((suggestion) => {
                       const style = suggestion.active
                         ? { backgroundColor: "#42a5f5", cursor: "pointer" }
