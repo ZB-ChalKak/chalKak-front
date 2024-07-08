@@ -94,7 +94,7 @@ const GoogleMapsComponent = () => {
               {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
                 <div>
                   <input
-                    {...getInputProps({ placeholder: "장소를 입력하세요" })}
+                    {...getInputProps({ placeholder: "장소를 입력해주세요" })}
                     className="py-2 border-b border-gray-300 w-full"
                   />
                   <div className="h-[300px]">
